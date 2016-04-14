@@ -14,8 +14,8 @@ RunMode::RunMode() {
 	//can initialize the variable here,
 	maxMotorSpeed = 400;
 	minMotorSpeed = 0;
-	maxServoAngle = 1250;
-	minServoAngle = 530;
+	maxServoAngle = 1350;
+	minServoAngle = 560;
 	ideal_servo_degree = 900;
 	ideal_motor_speed = 0;
 
@@ -34,9 +34,9 @@ RunMode::~RunMode() {
 
 }
 
-void RunMode::turningPID(const int8_t mid_line, float K) {
+void RunMode::turningPID(const int8_t mid_line, float K,float T) {
 
-	float T = 0.3f; //TODO: find proper proportion and Kd
+//	float T = 0.3f; //TODO: find proper proportion and Kd
 	float Kd = 12.0f;
 
 	//Error=SetPoint-ProcessVariable

@@ -69,7 +69,8 @@ int main(void) {
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
-	float K = 30.0f;
+	float K = 70.0f;
+	float T=0.35f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -96,6 +97,7 @@ int main(void) {
 
 	Joystick::Config fwaycfg;
 	fwaycfg.id = 0;
+
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kUp)] =
 			Joystick::Config::Trigger::kDown;
 	fwaycfg.listeners[static_cast<int>(Joystick::State::kUp)] =
@@ -104,6 +106,7 @@ int main(void) {
 				K+=1.0f;
 				Kyle.beepbuzzer(100);
 			};
+
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
 			Joystick::Config::Trigger::kDown;
 	fwaycfg.listeners[static_cast<int>(Joystick::State::kDown)] =
@@ -113,14 +116,33 @@ int main(void) {
 				Kyle.beepbuzzer(100);
 			};
 
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listeners[static_cast<int>(Joystick::State::kLeft)] =
+			[&](const uint8_t)
+			{
+				T-=0.01f;
+				Kyle.beepbuzzer(100);
+			};
+
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kRight)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listeners[static_cast<int>(Joystick::State::kRight)] =
+			[&](const uint8_t)
+			{
+				T+=0.01f;
+				Kyle.beepbuzzer(100);
+			};
+
 	Joystick joy(fwaycfg);
+
 
 	Looper looper;
 	ImageProcess imp;
 	Planner pln;
 
-	Kyle.GetMotor().SetPower(150);
-//	Kyle.GetServo().SetDegree(900);
+//	Kyle.GetMotor().SetPower(150);
+	Kyle.GetServo().SetDegree(900);
 	Looper::Callback printraw =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
@@ -133,13 +155,14 @@ int main(void) {
 				if(IsPrint) {
 					Kyle.printRawCamGraph(0,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(0,0);
-					Kyle.printvalue(0,60,80,20,Kyle.mid,Lcd::kBlue);
+					Kyle.printvalue(0,60,80,20,Kyle.mid,Lcd::kCyan);
 					Kyle.printvalue(0,80,80,20,K*100,Lcd::kBlue);
+					Kyle.printvalue(0,100,80,20,T*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
 				}
-				Kyle.turningPID(Kyle.mid,K);
+				Kyle.turningPID(Kyle.mid,K,T);
 //				Kyle.motorPID(4000,K);
 				looper.RunAfter(request, printraw);
 			};
