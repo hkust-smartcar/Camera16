@@ -69,8 +69,8 @@ int main(void) {
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
-	float K = 70.0f;
-	float T=0.35f;
+	float K = 15.0f;
+	float T=0.47f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -173,6 +173,7 @@ int main(void) {
 				looper.RunAfter(request,m_motorPID);
 			};
 
+	Kyle.beepbuzzer(200);
 	looper.RunAfter(20, printraw);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();

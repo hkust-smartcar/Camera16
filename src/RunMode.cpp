@@ -37,7 +37,7 @@ RunMode::~RunMode() {
 void RunMode::turningPID(const int8_t mid_line, float K,float T) {
 
 //	float T = 0.3f; //TODO: find proper proportion and Kd
-	float Kd = 12.0f;
+//	float Kd = 12.0f;
 
 	//Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;

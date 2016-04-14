@@ -40,6 +40,7 @@ Car::Car() {
 
 	memset(data, 0, 8 * 600);
 	memset(image, false, true * 80 * 60);
+	memset(edges, 0, 120);
 }
 // for constructor, you can temporarily understand it as :
 // initialize all variable ( & pointer)
