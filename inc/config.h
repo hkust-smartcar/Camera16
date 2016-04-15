@@ -23,6 +23,7 @@
 #include <libsc/st7735r.h>
 #include <libsc/simple_buzzer.h>
 #include <libsc/alternate_motor.h>
+//#include <libsc/dir_motor.h>
 #include <libsc/battery_meter.h>
 
 using namespace libsc;
@@ -96,7 +97,12 @@ AlternateMotor::Config GetAltmotorConfig()
 	return AltmotorConfig;
 }
 
-
+//DirMotor::Config GetDirmotorConfig()
+//{
+//	DirMotor::Config DirmotorConfig;
+//	DirmotorConfig.id=0;
+//	return DirmotorConfig;
+//}
 
 uint8_t GetCcdConfig()
 {

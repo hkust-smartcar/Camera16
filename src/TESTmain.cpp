@@ -69,7 +69,7 @@ int main(void) {
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
-	float K = 15.0f;
+	float K = 60.0f;
 	float T=0.47f;
 
 	Button::Config btncfg;

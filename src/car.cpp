@@ -20,6 +20,7 @@ Car::Car() {
 	encoder = new AbEncoder(GetAbEncoderConfig());
 	servo = new TrsD05(GetServoConfig());
 	motor = new AlternateMotor(GetAltmotorConfig());
+//	motor = new DirMotor(GetDirmotorConfig());
 //	button1 = new Button(GetButton1Config());
 //	button2 = new Button(GetButton2Config());
 //	joystick = new Joystick(GetJoystickConfig());
