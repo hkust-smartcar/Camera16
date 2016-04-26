@@ -22,7 +22,7 @@
 #include <libsc/st7735r.h>
 #include <libsc/simple_buzzer.h>
 #include <string>
-#include <libsc/alternate_motor.h>
+#include <libsc/dir_motor.h>
 #include <libsc/lcd_console.h>
 #include <libsc/lcd_typewriter.h>
 #include <cstring>
@@ -114,7 +114,7 @@ public:
 
 	/*--------------------------------(temporarily) get devices below------------------------------------*/
 
-	libsc::AlternateMotor& GetMotor(void) {
+	libsc::DirMotor& GetMotor(void) {
 		return *motor;
 	}
 
@@ -175,7 +175,7 @@ protected:
 	libsc::Led* Led4 = nullptr;
 	libsc::AbEncoder* encoder = nullptr;
 	libsc::TrsD05* servo = nullptr;
-	libsc::AlternateMotor* motor = nullptr;
+	libsc::DirMotor* motor = nullptr;
 //	libsc::Button* button1;//deleted buttons and joystick to facilitate ISR configuring
 //	libsc::Button* button2;
 //	libsc::Joystick* joystick=nullptr;

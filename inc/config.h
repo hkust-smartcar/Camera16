@@ -22,8 +22,7 @@
 #include <libsc/joystick.h>
 #include <libsc/st7735r.h>
 #include <libsc/simple_buzzer.h>
-#include <libsc/alternate_motor.h>
-//#include <libsc/dir_motor.h>
+#include <libsc/dir_motor.h>
 #include <libsc/battery_meter.h>
 
 using namespace libsc;
@@ -90,61 +89,12 @@ TrsD05::Config GetServoConfig()
 	return ServoConfig;
 }
 
-AlternateMotor::Config GetAltmotorConfig()
+DirMotor::Config GetDirmotorConfig()
 {
-	AlternateMotor::Config AltmotorConfig;
-	AltmotorConfig.id = 0;
-	return AltmotorConfig;
+	DirMotor::Config DirmotorConfig;
+	DirmotorConfig.id=0;
+	return DirmotorConfig;
 }
-
-//DirMotor::Config GetDirmotorConfig()
-//{
-//	DirMotor::Config DirmotorConfig;
-//	DirmotorConfig.id=0;
-//	return DirmotorConfig;
-//}
-
-uint8_t GetCcdConfig()
-{
-
-	return 0;
-}
-
-//Button::Config GetButton1Config()
-//{
-//
-//	Button::Config Button1Config;
-//	Button1Config.id = 0;
-//	Button1Config.is_active_low = true;
-//	Button1Config.is_use_pull_resistor = false;
-////	Button1Config.listener_trigger = Button::Config::Trigger::kDown;
-////	Button1Config.listener = &blinkLed;
-//
-//	return Button1Config;
-//}
-//
-//Button::Config GetButton2Config()
-//{
-//	Button::Config Button2Config;
-//	Button2Config.id = 1;
-//	Button2Config.is_active_low = true;
-//	Button2Config.is_use_pull_resistor = false;
-//	return Button2Config;
-//}
-
-//Joystick::Config GetJoystickConfig()
-//{
-//	Joystick::Config JoystickConfig;
-//	JoystickConfig.id = 0;
-//	JoystickConfig.is_active_low = true;
-////	JoystickConfig.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
-////			Joystick::Config::Trigger::kDown;
-////	JoystickConfig.listeners[static_cast<int>(Joystick::State::kDown)] =
-////						[&](const uint8_t)
-////				{};
-//
-//	return JoystickConfig;
-//}
 
 St7735r::Config GetLcdConfig()
 {

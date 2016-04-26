@@ -19,7 +19,7 @@ Car::Car() {
 	Led4 = new Led(GetLed4Config());
 	encoder = new AbEncoder(GetAbEncoderConfig());
 	servo = new TrsD05(GetServoConfig());
-	motor = new AlternateMotor(GetAltmotorConfig());
+	motor = new DirMotor(GetDirmotorConfig());
 //	motor = new DirMotor(GetDirmotorConfig());
 //	button1 = new Button(GetButton1Config());
 //	button2 = new Button(GetButton2Config());

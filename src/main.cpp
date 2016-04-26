@@ -17,12 +17,15 @@
 #include <ImageProcess.h>
 #include <Planner.h>
 #include <libutil/looper.h>
+#include <libsc/k60/jy_mcu_bt_106.h>
 
 using namespace libsc;
 
 using namespace libbase::k60;
 
 using namespace libutil;
+
+k60::JyMcuBt106* bt=nullptr;
 
 int main(void) {
 
@@ -72,6 +75,12 @@ int main(void) {
 	float K = 60.0f;
 	float T=0.47f;
 
+	k60::JyMcuBt106::Config config;
+	config.id = 0;
+	config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
+	config.tx_dma_channel = 0;
+	bt = new libsc::k60::JyMcuBt106(config);
+
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
 	btncfg.is_use_pull_resistor = false;
@@ -92,6 +101,7 @@ int main(void) {
 		IsProcess = !IsProcess;
 		Kyle.switchLED(2);
 		Kyle.beepbuzzer(100);
+		bt->SendStr("hello world!");
 	};
 	Button but1(btncfg);
 
