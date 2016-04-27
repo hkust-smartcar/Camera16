@@ -20,10 +20,6 @@ Car::Car() {
 	encoder = new AbEncoder(GetAbEncoderConfig());
 	servo = new TrsD05(GetServoConfig());
 	motor = new DirMotor(GetDirmotorConfig());
-//	motor = new DirMotor(GetDirmotorConfig());
-//	button1 = new Button(GetButton1Config());
-//	button2 = new Button(GetButton2Config());
-//	joystick = new Joystick(GetJoystickConfig());
 	LCD = new St7735r(GetLcdConfig());
 	buzzer = new SimpleBuzzer(GetBuzzerConfig());
 	cam = new k60::Ov7725(GetCamConfig());
@@ -39,7 +35,7 @@ Car::Car() {
 	LCDCConfig.lcd = LCD;
 	LCDconsole = new LcdConsole(LCDCConfig);
 
-	memset(data, 0, 8 * 600);
+	memset(data, 0, 600);
 	memset(image, false, true * 80 * 60);
 	memset(edges, 0, 120);
 }
@@ -61,9 +57,6 @@ Car::~Car() {
 	delete encoder;
 	delete servo;
 	delete motor;
-//	delete button1 ;
-//	delete button2 ;
-//	delete joystick ;
 	delete LCD;
 	delete buzzer;
 	delete LCDwriter;

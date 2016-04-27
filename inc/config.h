@@ -121,9 +121,3 @@ k60::Ov7725::Config GetCamConfig(){
 	return camcfg;
 }
 
-BatteryMeter::Config GetBattConfig(){
-	BatteryMeter::Config BattCfg;
-	//product.voltage_ratio = 0.39;
-	BattCfg.voltage_ratio = 0.3962f;
-	return BattCfg;
-}

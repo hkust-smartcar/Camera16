@@ -91,7 +91,7 @@ public:
 	typedef std::function<void(const std::vector<Byte>&)> OnReceiveListener;
 	typedef std::function<void(void)> OnChangedListener;
 
-	explicit pVarManager(void);
+	explicit pVarManager();
 	~pVarManager(void);
 
 	void SetOnReceiveListener(const OnReceiveListener &oriListener);
