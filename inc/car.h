@@ -65,9 +65,6 @@ public:
 	void printRawCamGraph(const int8_t x, const int8_t y, Byte* data);
 	//call after capture_raw_image
 
-	void print2DCam(const uint, const uint, const bool[80][60]);
-	//print divided image to check if done correctly
-
 	void printEdge(const int8_t xpos, const int8_t ypos);
 
 	void printWaypoint(int8_t xpos, int8_t ypos);
@@ -93,15 +90,6 @@ public:
 	void switchLED(int8_t id);
 	//use inside ticks
 	/*--------------------------------signal component above------------------------------------*/
-
-	/*--------------------------------switch below------------------------------------*/
-
-//	libsc::Button& getbutton(int8_t id);
-	//return true when the specific button has been pressed
-	libsc::Joystick::State getjoystick();
-	//return state, use with ticks
-
-	/*--------------------------------switch above------------------------------------*/
 
 	/*--------------------------------get data from component below------------------------------------*/
 
@@ -176,9 +164,6 @@ protected:
 	libsc::AbEncoder* encoder = nullptr;
 	libsc::TrsD05* servo = nullptr;
 	libsc::DirMotor* motor = nullptr;
-//	libsc::Button* button1;//deleted buttons and joystick to facilitate ISR configuring
-//	libsc::Button* button2;
-//	libsc::Joystick* joystick=nullptr;
 	libsc::St7735r* LCD = nullptr;
 	libsc::LcdConsole* LCDconsole = nullptr;
 	libsc::LcdTypewriter* LCDwriter = nullptr;

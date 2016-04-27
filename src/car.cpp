@@ -115,16 +115,6 @@ void Car::printRawCamGraph(const int8_t x, const int8_t y, Byte* data) {
 	LCD->FillBits(0, 0xFFFF, data, 80 * 60);
 }
 
-void Car::print2DCam(const uint xpos, const uint ypos,
-		const bool (array)[80][60]) {
-	for (int8_t y = 0; y < 60; y++) {
-		for (int8_t x = 0; x < 80; x++) {
-			LCD->SetRegion(Lcd::Rect(xpos + x, ypos + y, 1, 1));
-			LCD->FillColor((array)[x][y] * 0xFFFF);
-		}
-	}
-}
-
 void Car::printEdge(const int8_t xpos, const int8_t ypos) {
 
 	/*-----print edges and if at edge or not-----*/

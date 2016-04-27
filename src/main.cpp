@@ -180,6 +180,7 @@ int main(void) {
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.GetMotor().SetPower(150);//TODO: adjust speed according to error from mid, i.e. the turning angle; add PID
+				Kyle.GetMotor().SetClockwise(false);
 				looper.RunAfter(request,m_motorPID);
 			};
 
@@ -191,5 +192,6 @@ int main(void) {
 	}
 	looper.~Looper();
 	Kyle.~RunMode();
+	delete bt;
 	return 0;
 }
