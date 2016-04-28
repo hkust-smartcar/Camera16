@@ -13,9 +13,10 @@
 class Planner{
 public:
 	Planner(void);
+	~Planner(void);
 
 	//simply calculate average of edges, and put into waypoints[60]
-	void Calc(int8_t const edge[120],int8_t waypoints[60],int8_t const bgstart,uint& mid);
+	void Calc(int8_t const edge[120],int8_t waypoints[60],int8_t const bgstart,uint32_t& mid);
 
 private:
 	uint weight[60];

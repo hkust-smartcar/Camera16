@@ -142,6 +142,7 @@ int main(void) {
 	pVarManager mvar;
 
 	mvar.addWatchedVar(&Kyle.mid,"Mid");
+	mvar.addSharedVar(&T,"Kp for servo");
 
 //	Kyle.GetMotor().SetPower(150);
 	Kyle.GetServo().SetDegree(900);
@@ -185,5 +186,8 @@ int main(void) {
 	}
 	looper.~Looper();
 	Kyle.~RunMode();
+	looper.~Looper();
+	imp.~ImageProcess();
+	mvar.~pVarManager();
 	return 0;
 }

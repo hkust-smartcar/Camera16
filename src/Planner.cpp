@@ -15,8 +15,11 @@ Planner::Planner() {
 		weight[row] = row * row; // define the weight for each item
 	}
 }
+
+Planner::~Planner(){
+}
 void Planner::Calc(int8_t const edge[120], int8_t waypoints[60],
-		int8_t const bgstart, uint& mid) {
+		int8_t const bgstart, uint32_t& mid) {
 
 	uint m_mid_sum = 0;
 	uint m_weight_sum = 0;
