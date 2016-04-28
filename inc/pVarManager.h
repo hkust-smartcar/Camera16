@@ -2,7 +2,7 @@
  * pVarManager.h
  *
  * Author: Petel__
- * Version: 3.2.3
+ * Version: 3.2.4
  *
  * Copyright (c) 2014-2016 HKUST SmartCar Team
  * Refer to LICENSE for details
@@ -91,7 +91,7 @@ public:
 	typedef std::function<void(const std::vector<Byte>&)> OnReceiveListener;
 	typedef std::function<void(void)> OnChangedListener;
 
-	explicit pVarManager();
+	explicit pVarManager(void);
 	~pVarManager(void);
 
 	void SetOnReceiveListener(const OnReceiveListener &oriListener);

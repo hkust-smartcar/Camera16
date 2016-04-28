@@ -34,7 +34,7 @@ RunMode::~RunMode() {
 
 }
 
-void RunMode::turningPID(const int8_t mid_line, float K,float T) {
+void RunMode::turningPID(const int8_t mid_line, float Kd,float T) {
 
 //	float T = 0.3f; //TODO: find proper proportion and Kd
 //	float Kd = 12.0f;
@@ -46,7 +46,7 @@ void RunMode::turningPID(const int8_t mid_line, float K,float T) {
 	//positional PD = T*(err in line)^2 * error +kd *(error-error_prev), try to let Kp be proportional to error squared
 	ideal_servo_degree = uint16_t(
 			900 + T * ServoErr * ServoErr * ServoErr
-					+ K * (ServoErr - ServoPrevErr));
+					+ Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
 	servo->SetDegree(Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
@@ -54,10 +54,10 @@ void RunMode::turningPID(const int8_t mid_line, float K,float T) {
 	ServoPrevErr = ServoErr;
 }
 
-void RunMode::motorPID(int16_t ideal_encoder_count) {
-	float Kp = 0.4f; //TODO: find proper Ks
-	float Ki = 0.0f;
-	float Kd = 0.0f;
+void RunMode::motorPID(int16_t ideal_encoder_count,float Kp,float Ki,float Kd) {
+//	float Kp = 0.4f; //TODO: find proper Ks
+//	float Ki = 0.0f;
+//	float Kd = 0.0f;
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable

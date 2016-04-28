@@ -70,6 +70,12 @@ int main(void) {
 	bool IsProcess = false;
 	float K = 60.0f;
 	float T=0.47f;
+	int16_t ideal_encoder_count=0;
+	int16_t real_encoder_count=0;
+	uint32_t dmid=0;//10*Kyle.mid, to look more significant on the graph
+	float Kp=0.6f;
+	float Ki=0.05f;
+	float Kd=0.2f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -140,9 +146,17 @@ int main(void) {
 	ImageProcess imp;
 	Planner pln;
 	pVarManager mvar;
-
-	mvar.addWatchedVar(&Kyle.mid,"Mid");
-	mvar.addSharedVar(&T,"Kp for servo");
+	/*-------configure tuning parameters below-----*/
+	mvar.addWatchedVar(&real_encoder_count,"Real Encoder");
+	mvar.addWatchedVar(&Kyle.ideal_motor_speed,"Ideal Motor");
+	mvar.addWatchedVar(&dmid,"Mid-line");
+	mvar.addSharedVar(&Kp,"Kp");
+	mvar.addSharedVar(&Ki,"Ki");
+	mvar.addSharedVar(&Kd,"Kd");
+	mvar.addSharedVar(&K,"servoK");
+	mvar.addSharedVar(&T,"servoKd");
+	mvar.addSharedVar(&ideal_encoder_count,"Ideal Encoder");
+	/*------configure tuning parameters above------*/
 
 //	Kyle.GetMotor().SetPower(150);
 	Kyle.GetServo().SetDegree(900);
@@ -159,7 +173,7 @@ int main(void) {
 					Kyle.printRawCamGraph(0,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(0,0);
 					Kyle.printvalue(0,60,80,20,Kyle.mid,Lcd::kCyan);
-					Kyle.printvalue(0,80,80,20,K*100,Lcd::kBlue);
+					Kyle.printvalue(0,80,80,20,real_encoder_count,Lcd::kBlue);
 					Kyle.printvalue(0,100,80,20,T*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
@@ -172,8 +186,11 @@ int main(void) {
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				Kyle.GetMotor().SetPower(150);//TODO: adjust speed according to error from mid, i.e. the turning angle; add PID
+//				Kyle.GetMotor().SetPower(150);//TODO: adjust speed according to error from mid, i.e. the turning angle; add PID
+				Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);
+				real_encoder_count=-Kyle.GetEnc().GetCount();
 				Kyle.GetMotor().SetClockwise(false);
+				dmid=10*Kyle.mid;
 				mvar.sendWatchData();
 				looper.RunAfter(request,m_motorPID);
 			};

@@ -2,7 +2,7 @@
  * pVarManager.cpp
  *
  * Author: Petel__
- * Version: 3.2.3
+ * Version: 3.2.4
  *
  * Copyright (c) 2014-2016 HKUST SmartCar Team
  * Refer to LICENSE for details
@@ -45,7 +45,6 @@ inline uint8_t inRangeWithAssert(uint8_t n, uint8_t v, uint8_t x)
 JyMcuBt106::Config pVarManager::get106UartConfig(const uint8_t id)
 {
 	JyMcuBt106::Config config;
-	config.id=id;
 	config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
 	config.rx_irq_threshold = rx_threshold;
 	config.is_rx_irq_threshold_percentage = false;
@@ -72,7 +71,7 @@ pVarManager::pVarManager(void)
 	m_uart(get106UartConfig(0))
 {
 	m_pd_instance = this;
-//	System::Init();
+	System::Init();
 	TypeId::Init();
 }
 
