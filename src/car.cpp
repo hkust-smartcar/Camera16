@@ -19,6 +19,7 @@ Car::Car() {
 	Led4 = new Led(GetLed4Config());
 	encoder = new AbEncoder(GetAbEncoderConfig());
 	servo = new TrsD05(GetServoConfig());
+	servo->SetDegree(900);
 	motor = new DirMotor(GetDirmotorConfig());
 	LCD = new St7735r(GetLcdConfig());
 	buzzer = new SimpleBuzzer(GetBuzzerConfig());
@@ -38,6 +39,9 @@ Car::Car() {
 	memset(data, 0, 600);
 	memset(image, false, true * 80 * 60);
 	memset(edges, 0, 120);
+	memset(waypoints, 0, 60);
+	bgstart = 0;
+	mid = 39;
 }
 // for constructor, you can temporarily understand it as :
 // initialize all variable ( & pointer)
@@ -171,8 +175,9 @@ void Car::blinkLED(int8_t id, int delay_time, int persist_time) {
 }
 
 void Car::beepbuzzer(uint32_t t) {
+	Timer::TimerInt m_t = System::Time();
 	buzzer->SetBeep(true);
-	System::DelayMs(t);
+	while (System::Time() < m_t + t){}
 	buzzer->SetBeep(false);
 }
 

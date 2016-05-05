@@ -67,6 +67,10 @@ int main(void) {
 	System::Init();
 
 	RunMode Kyle;
+	Looper looper;
+	ImageProcess imp;
+	Planner pln;
+	pVarManager mvar;
 	//MUST initialize for using LCD and anything that contain function inside "System"
 	//use tick
 	//...
@@ -112,7 +116,7 @@ int main(void) {
 	fwaycfg.listeners[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t)
 			{
-				K+=1.0f;
+				ideal_encoder_count+=100;
 				Kyle.beepbuzzer(100);
 			};
 
@@ -121,7 +125,7 @@ int main(void) {
 	fwaycfg.listeners[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t)
 			{
-				K-=1.0f;
+				ideal_encoder_count-=100;
 				Kyle.beepbuzzer(100);
 			};
 
@@ -143,13 +147,36 @@ int main(void) {
 				Kyle.beepbuzzer(100);
 			};
 
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kSelect)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listeners[static_cast<int>(Joystick::State::kSelect)] =
+			[&](const uint8_t)//shutdown process, to prevent potential memory leak
+			{
+				Kyle.beepbuzzer(100);
+				Kyle.switchLED(3);
+				Timer::TimerInt m_t=System::Time();
+				Timer::TimerInt shut_down_delay=3000;
+				while(System::Time()<=m_t+shut_down_delay){
+					if(but0.IsDown()||but1.IsDown()){
+						looper.~Looper();
+						Kyle.~RunMode();
+						mvar.~pVarManager();
+						for(;;){
+							Watchdog::GoodDoggie();//treat your watchdog well
+							System::DelayMs(500);
+						}
+					}
+					if((System::Time()-m_t)%500==0){
+						Kyle.beepbuzzer(100);
+					}
+					Watchdog::Pet();
+					System::DelayMs(50);
+				}
+				Kyle.switchLED(3);
+			};
+
 	Joystick joy(fwaycfg);
 
-
-	Looper looper;
-	ImageProcess imp;
-	Planner pln;
-	pVarManager mvar;
 	/*-------configure tuning parameters below-----*/
 	mvar.addWatchedVar(&real_encoder_count,"Real Encoder");
 	mvar.addWatchedVar(&Kyle.ideal_motor_speed,"Ideal Motor");
@@ -162,8 +189,6 @@ int main(void) {
 	mvar.addSharedVar(&ideal_encoder_count,"Ideal Encoder");
 	/*------configure tuning parameters above------*/
 
-//	Kyle.GetMotor().SetPower(150);
-	Kyle.GetServo().SetDegree(900);
 	Looper::Callback m_imp =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
@@ -185,7 +210,7 @@ int main(void) {
 				}
 				Kyle.turningPID(Kyle.mid,K,T);
 //				Kyle.motorPID(4000,K);
-				Watchdog::GoodDoggie();//LOL, feed or get bit
+				Watchdog::GoodDoggie();//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper
@@ -203,12 +228,6 @@ int main(void) {
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
-	for (;;) {
-	}
-	looper.~Looper();
-	Kyle.~RunMode();
-	looper.~Looper();
-	imp.~ImageProcess();
-	mvar.~pVarManager();
+	for (;;) {}
 	return 0;
 }

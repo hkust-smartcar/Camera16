@@ -102,21 +102,9 @@ public:
 
 	/*--------------------------------(temporarily) get devices below------------------------------------*/
 
-	libsc::DirMotor& GetMotor(void) {
-		return *motor;
-	}
+	libsc::St7735r& GetLCD(void) {return *LCD;}
 
-	libsc::St7735r& GetLCD(void) {
-		return *LCD;
-	}
-
-	libsc::TrsD05& GetServo(void) {
-		return *servo;
-	}
-
-	libsc::AbEncoder& GetEnc(void) {
-		return *encoder;
-	}
+	libsc::AbEncoder& GetEnc(void) {return *encoder;}
 
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
