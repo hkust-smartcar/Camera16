@@ -8,10 +8,11 @@
  */
 
 #include "RunMode.h"
-#define Clamp(min_v,x,max_v) std::max(min_v, std::min(x, max_v))//assist in protecting the hardware
+#include <libutil/misc.h>  //assist in protecting the hardware
 
 RunMode::RunMode() {
 	//can initialize the variable here,
+	motor->SetClockwise(false);
 	maxMotorSpeed = 400;
 	minMotorSpeed = 0;
 	maxServoAngle = 1350;
@@ -49,27 +50,27 @@ void RunMode::turningPID(const int8_t mid_line, float Kd,float T) {
 					+ Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
-	servo->SetDegree(Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
+	servo->SetDegree(libutil::Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
 
 	ServoPrevErr = ServoErr;
 }
 
 void RunMode::motorPID(int16_t ideal_encoder_count,float Kp,float Ki,float Kd) {
-//	float Kp = 0.4f; //TODO: find proper Ks
+//	float Kp = 0.4f;
 //	float Ki = 0.0f;
 //	float Kd = 0.0f;
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
-	MotorErr = ideal_encoder_count + encoder->GetCount(); //encoder count is negative, therefore the algebric sum is plus
+	MotorErr = ideal_encoder_count + encoder->GetCount(); //encoder count is negative, therefore the algebraic sum is plus
 
 			/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr
 			+ Kd * (MotorErr - 2 * MotorPrev1Err + MotorPrev2Err);
 
-	//set motor accordingly
-	motor->SetPower(Clamp(minMotorSpeed, ideal_motor_speed, maxMotorSpeed));
+	motor->SetPower(libutil::Clamp(minMotorSpeed, ideal_motor_speed, maxMotorSpeed));
+
 
 	MotorPrev2Err = MotorPrev1Err;
 	MotorPrev1Err = MotorErr;

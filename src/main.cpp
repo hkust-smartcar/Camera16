@@ -73,9 +73,9 @@ int main(void) {
 	int16_t ideal_encoder_count=0;
 	int16_t real_encoder_count=0;
 	uint32_t dmid=0;//10*Kyle.mid, to look more significant on the graph
-	float Kp=0.6f;
-	float Ki=0.05f;
-	float Kd=0.2f;
+	float Kp=0.37f;
+	float Ki=0.01f;
+	float Kd=0.1f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -160,7 +160,7 @@ int main(void) {
 
 //	Kyle.GetMotor().SetPower(150);
 	Kyle.GetServo().SetDegree(900);
-	Looper::Callback printraw =// configure the callback function for looper
+	Looper::Callback m_imp =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
@@ -181,22 +181,21 @@ int main(void) {
 				}
 				Kyle.turningPID(Kyle.mid,K,T);
 //				Kyle.motorPID(4000,K);
-				looper.RunAfter(request, printraw);
+				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 //				Kyle.GetMotor().SetPower(150);//TODO: adjust speed according to error from mid, i.e. the turning angle; add PID
-				Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);//when using LCD the system slows down dramatically, causing the motor to go crazy
 				real_encoder_count=-Kyle.GetEnc().GetCount();
-				Kyle.GetMotor().SetClockwise(false);
 				dmid=10*Kyle.mid;
 				mvar.sendWatchData();
 				looper.RunAfter(request,m_motorPID);
 			};
 
 	Kyle.beepbuzzer(200);
-	looper.RunAfter(20, printraw);
+	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
 	for (;;) {
