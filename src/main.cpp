@@ -16,6 +16,7 @@
 #include <ImageProcess.h>
 #include <Planner.h>
 #include <libutil/looper.h>
+#include <libbase/k60/watchdog.h>
 
 using namespace libsc;
 
@@ -61,7 +62,10 @@ int main(void) {
 	 */
 
 //-------------------------------------your code below----------------------------------------//
+
+	Watchdog::Init();
 	System::Init();
+
 	RunMode Kyle;
 	//MUST initialize for using LCD and anything that contain function inside "System"
 	//use tick
@@ -181,6 +185,7 @@ int main(void) {
 				}
 				Kyle.turningPID(Kyle.mid,K,T);
 //				Kyle.motorPID(4000,K);
+				Watchdog::GoodDoggie();//LOL, feed or get bit
 				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper

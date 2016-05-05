@@ -24,6 +24,7 @@
 #include <libsc/simple_buzzer.h>
 #include <libsc/dir_motor.h>
 #include <libsc/battery_meter.h>
+#include <libbase/k60/watchdog.h>
 
 using namespace libsc;
 
@@ -38,6 +39,13 @@ namespace libbase
 			config.external_oscillator_khz = 50000;
 			config.core_clock_khz = 150000;
 			return config;
+		}
+
+		Watchdog::Config Watchdog::GetWatchdogConfig(){//remove the same function in libbase to use watchdog
+			Watchdog::Config doggiecfg;
+			doggiecfg.is_enable=true;
+			doggiecfg.time_out_ms=1000;
+			return doggiecfg;
 		}
 
 	}
