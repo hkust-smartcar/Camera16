@@ -200,7 +200,7 @@ void Car::switchLED(int8_t id) {
 	LedToBlink->Switch();
 }
 
-bool Car::GetPixel(const Byte* src, const int8_t x, const int8_t y) {
+inline bool Car::GetPixel(const Byte* src, const int8_t x, const int8_t y) {
 	//	const int offset = x/8 + (y * image_width / 8);
 	const int offset = x / 8 + (y * 80 / 8);
 

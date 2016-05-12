@@ -84,30 +84,30 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		lastLeft = edges[recL(y)];
 		lastRight = edges[recR(y)];
 
-		/*-----start finding obstacle-----*/
-		bool found = false;
-
-		/*-----scan from center to right to find obstacle-----*/
-		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
-				x < edges[recR(y)]; x++) {
-			if (!image[x][y]) {
-				edges[recR(y)] = x - offset;
-				found = true;
-				break;
-			}
-		}
-
-		/*-----if not found, scan from center to left to find obstacle-----*/
-		if (!found) {
-			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
-					x > edges[recL(y)]; x--) {
-				if (!image[x][y]) {
-					edges[recL(y)] = x + offset;
-					break;
-				}
-			}
-
-		}
+//		/*-----start finding obstacle-----*/
+//		bool found = false;
+//
+//		/*-----scan from center to right to find obstacle-----*/
+//		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+//				x < edges[recR(y)]; x++) {
+//			if (!image[x][y]) {
+//				edges[recR(y)] = x - offset;
+//				found = true;
+//				break;
+//			}
+//		}
+//
+//		/*-----if not found, scan from center to left to find obstacle-----*/
+//		if (!found) {
+//			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+//					x > edges[recL(y)]; x--) {
+//				if (!image[x][y]) {
+//					edges[recL(y)] = x + offset;
+//					break;
+//				}
+//			}
+//
+//		}
 		/*-----finish scanning-----*/
 	}
 }

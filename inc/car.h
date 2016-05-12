@@ -95,8 +95,6 @@ public:
 
 	void capture_image(void);
 	//capture and divide image,change data AND image
-	bool GetPixel(const Byte*, const int8_t, const int8_t);
-	//function used to divide image,
 
 	/*--------------------------------get data from component above------------------------------------*/
 
@@ -140,6 +138,8 @@ public:
 
 private:
 	// private means only member of it's only class can access it.
+	inline bool GetPixel(const Byte*, const int8_t, const int8_t);
+	//function used to divide image,
 
 protected:
 	//protected seems professional

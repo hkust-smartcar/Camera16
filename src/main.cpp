@@ -26,7 +26,7 @@ using namespace libutil;
 
 int main(void) {
 
-//code for ploting graph for a equation of y = mx +c, where y and x are encoder counting or motor PWM
+//code for plotting graph for a equation of y = mx +c, where y and x are encoder counting or motor PWM
 //uncomment for usage
 	/*
 	 //tune encoder here
@@ -77,13 +77,13 @@ int main(void) {
 	bool IsPrint = false;
 	bool IsProcess = false;
 	float K = 60.0f;
-	float T=0.47f;
+	float T=0.25f;
 	int16_t ideal_encoder_count=0;
 	int16_t real_encoder_count=0;
 	uint32_t dmid=0;//10*Kyle.mid, to look more significant on the graph
 	float Kp=0.37f;
 	float Ki=0.01f;
-	float Kd=0.1f;
+	float Kd=0.15f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -99,7 +99,6 @@ int main(void) {
 	Button but0(btncfg);
 
 	btncfg.id = 1;
-	btncfg.listener_trigger = Button::Config::Trigger::kDown;
 	btncfg.listener = [&](const uint8_t)
 	{
 		IsProcess = !IsProcess;
@@ -145,34 +144,6 @@ int main(void) {
 			{
 				T+=0.01f;
 				Kyle.beepbuzzer(100);
-			};
-
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kSelect)] =
-			Joystick::Config::Trigger::kDown;
-	fwaycfg.listeners[static_cast<int>(Joystick::State::kSelect)] =
-			[&](const uint8_t)//shutdown process, to prevent potential memory leak
-			{
-				Kyle.beepbuzzer(100);
-				Kyle.switchLED(3);
-				Timer::TimerInt m_t=System::Time();
-				Timer::TimerInt shut_down_delay=3000;
-				while(System::Time()<=m_t+shut_down_delay){
-					if(but0.IsDown()||but1.IsDown()){
-						looper.~Looper();
-						Kyle.~RunMode();
-						mvar.~pVarManager();
-						for(;;){
-							Watchdog::GoodDoggie();//treat your watchdog well
-							System::DelayMs(500);
-						}
-					}
-					if((System::Time()-m_t)%500==0){
-						Kyle.beepbuzzer(100);
-					}
-					Watchdog::Pet();
-					System::DelayMs(50);
-				}
-				Kyle.switchLED(3);
 			};
 
 	Joystick joy(fwaycfg);
