@@ -120,6 +120,7 @@ SimpleBuzzer::Config GetBuzzerConfig()
 
 k60::Ov7725::Config GetCamConfig(){
 	k60::Ov7725::Config camcfg;
+	camcfg.id=0;
 	camcfg.w=80;
 	camcfg.h=60;
 	camcfg.fps=k60::Ov7725::Config::Fps::kLow;

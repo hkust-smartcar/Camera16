@@ -6,8 +6,17 @@
  *      Adapted from code written by yungc
  *  Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  */
-#include "car.h"
-#include "config.h"
+
+#include "../inc/car.h"
+
+#include <libbase/misc_types.h>
+#include <libsc/lcd.h>
+#include <libsc/system.h>
+#include <libsc/timer.h>
+#include <cstdint>
+
+#include "../inc/config.h"
+
 #define data_size 600
 
 using namespace std;
@@ -198,14 +207,6 @@ void Car::switchLED(int8_t id) {
 		break;
 	}
 	LedToBlink->Switch();
-}
-
-inline bool Car::GetPixel(const Byte* src, const int8_t x, const int8_t y) {
-	//	const int offset = x/8 + (y * image_width / 8);
-	const int offset = x / 8 + (y * 80 / 8);
-
-	//	return (src[offset] << (x%8) & 0x80) ? 0 : 1;
-	return (src[offset] << (x % 8) & 0x80) ? false : true;
 }
 
 void Car::capture_image(void) {

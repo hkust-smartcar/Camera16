@@ -7,16 +7,23 @@
  * Refer to LICENSE for details
  */
 
-#include <cassert>
-#include <cstring>
-#include <libsc/system.h>
-#include <stdint.h>
-#include "pVarManager.h"
-#include "RunMode.h"
-#include <ImageProcess.h>
-#include <Planner.h>
-#include <libutil/looper.h>
 #include <libbase/k60/watchdog.h>
+#include <libsc/button.h>
+#include <libsc/encoder.h>
+#include <libsc/joystick.h>
+#include <libsc/lcd.h>
+#include <libsc/st7735r.h>
+#include <libsc/system.h>
+#include <libsc/timer.h>
+#include <libutil/looper.h>
+#include <stdint.h>
+#include <functional>
+
+#include "../inc/car.h"
+#include "../inc/ImageProcess.h"
+#include "../inc/pVarManager.h"
+#include "../inc/Planner.h"
+#include "../inc/RunMode.h"
 
 using namespace libsc;
 
@@ -108,12 +115,13 @@ int main(void) {
 	Button but1(btncfg);
 
 	Joystick::Config fwaycfg;
+	fwaycfg.is_active_low=true;
 	fwaycfg.id = 0;
 
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kUp)] =
 			Joystick::Config::Trigger::kDown;
-	fwaycfg.listeners[static_cast<int>(Joystick::State::kUp)] =
-			[&](const uint8_t)
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
+			[&](const uint8_t,const Joystick::State)
 			{
 				ideal_encoder_count+=100;
 				Kyle.beepbuzzer(100);
@@ -121,8 +129,8 @@ int main(void) {
 
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
 			Joystick::Config::Trigger::kDown;
-	fwaycfg.listeners[static_cast<int>(Joystick::State::kDown)] =
-			[&](const uint8_t)
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
+			[&](const uint8_t,const Joystick::State)
 			{
 				ideal_encoder_count-=100;
 				Kyle.beepbuzzer(100);
@@ -130,8 +138,8 @@ int main(void) {
 
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
 			Joystick::Config::Trigger::kDown;
-	fwaycfg.listeners[static_cast<int>(Joystick::State::kLeft)] =
-			[&](const uint8_t)
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
+			[&](const uint8_t,const Joystick::State)
 			{
 				T-=0.01f;
 				Kyle.beepbuzzer(100);
@@ -139,8 +147,8 @@ int main(void) {
 
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kRight)] =
 			Joystick::Config::Trigger::kDown;
-	fwaycfg.listeners[static_cast<int>(Joystick::State::kRight)] =
-			[&](const uint8_t)
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
+			[&](const uint8_t,const Joystick::State)
 			{
 				T+=0.01f;
 				Kyle.beepbuzzer(100);

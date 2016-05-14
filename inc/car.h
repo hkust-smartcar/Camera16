@@ -138,8 +138,13 @@ public:
 
 private:
 	// private means only member of it's only class can access it.
-	inline bool GetPixel(const Byte*, const int8_t, const int8_t);
+
 	//function used to divide image,
+	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
+		//	const int offset = x/8 + (y * image_width / 8);
+		//	return (src[offset] << (x%8) & 0x80) ? 0 : 1;
+		return (src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80) ? false : true;
+	}
 
 protected:
 	//protected seems professional
