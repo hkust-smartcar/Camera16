@@ -69,7 +69,6 @@ int main(void) {
 	 */
 
 //-------------------------------------your code below----------------------------------------//
-
 	Watchdog::Init();
 	System::Init();
 
@@ -83,24 +82,25 @@ int main(void) {
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
-	float K = 60.0f;
-	float T=0.25f;
-	int16_t ideal_encoder_count=0;
-	int16_t real_encoder_count=0;
-	uint32_t dmid=0;//10*Kyle.mid, to look more significant on the graph
-	float Kp=0.37f;
-	float Ki=0.01f;
-	float Kd=0.15f;
+	float K = 68.0f;
+	float T = 0.4f;
+	int16_t ideal_encoder_count = 0;
+	int16_t real_encoder_count = 0;
+	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
+	float Kp = 0.37f;
+	float Ki = 0.02f;
+	float Kd = 0.15f;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
 	btncfg.is_use_pull_resistor = false;
-	btncfg.id = 0;
 	btncfg.listener_trigger = Button::Config::Trigger::kDown;
+
+	btncfg.id = 0;
 	btncfg.listener = [&](const uint8_t)
 	{
 		IsPrint = !IsPrint;
-		Kyle.switchLED(3);
+		Kyle.switchLED(3,IsPrint);
 		Kyle.beepbuzzer(100);
 	};
 	Button but0(btncfg);
@@ -109,17 +109,26 @@ int main(void) {
 	btncfg.listener = [&](const uint8_t)
 	{
 		IsProcess = !IsProcess;
-		Kyle.switchLED(2);
+		Kyle.switchLED(2,IsProcess);
 		Kyle.beepbuzzer(100);
 	};
 	Button but1(btncfg);
 
 	Joystick::Config fwaycfg;
-	fwaycfg.is_active_low=true;
+	fwaycfg.is_active_low = true;
 	fwaycfg.id = 0;
 
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kUp)] =
 			Joystick::Config::Trigger::kDown;
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kRight)] =
+			Joystick::Config::Trigger::kDown;
+
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
@@ -127,8 +136,6 @@ int main(void) {
 				Kyle.beepbuzzer(100);
 			};
 
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
-			Joystick::Config::Trigger::kDown;
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
@@ -157,24 +164,24 @@ int main(void) {
 	Joystick joy(fwaycfg);
 
 	/*-------configure tuning parameters below-----*/
-	mvar.addWatchedVar(&real_encoder_count,"Real Encoder");
-	mvar.addWatchedVar(&Kyle.ideal_motor_speed,"Ideal Motor");
-	mvar.addWatchedVar(&dmid,"Mid-line");
-	mvar.addSharedVar(&Kp,"Kp");
-	mvar.addSharedVar(&Ki,"Ki");
-	mvar.addSharedVar(&Kd,"Kd");
-	mvar.addSharedVar(&K,"servoK");
-	mvar.addSharedVar(&T,"servoKd");
-	mvar.addSharedVar(&ideal_encoder_count,"Ideal Encoder");
+	mvar.addWatchedVar(&real_encoder_count, "Real Encoder");
+	mvar.addWatchedVar(&Kyle.ideal_motor_speed, "Ideal Motor");
+	mvar.addWatchedVar(&dmid, "Mid-line");
+	mvar.addSharedVar(&Kp, "Kp");
+	mvar.addSharedVar(&Ki, "Ki");
+	mvar.addSharedVar(&Kd, "Kd");
+	mvar.addSharedVar(&K, "servoK");
+	mvar.addSharedVar(&T, "servoKd");
+	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 
-	Looper::Callback m_imp =// configure the callback function for looper
+	Looper::Callback m_imp =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
 				Kyle.switchLED(1);
 				if(IsProcess) {
-					imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,3,5);
+					imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,5);
 					pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 				}
 				if(IsPrint) {
@@ -189,7 +196,7 @@ int main(void) {
 				}
 				Kyle.turningPID(Kyle.mid,K,T);
 //				Kyle.motorPID(4000,K);
-				Watchdog::GoodDoggie();//LOL, feed or get bitten
+				Watchdog::Refresh();//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper
@@ -204,6 +211,8 @@ int main(void) {
 			};
 
 	Kyle.beepbuzzer(200);
+	Kyle.switchLED(2,IsProcess);
+	Kyle.switchLED(3,IsPrint);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();

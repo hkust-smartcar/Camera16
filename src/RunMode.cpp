@@ -7,8 +7,14 @@
  *  Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  */
 
-#include "RunMode.h"
+#include "../inc/RunMode.h"
+
+#include <libsc/ab_encoder.h>
+#include <libsc/dir_motor.h>
+#include <libsc/encoder.h>
+#include <libsc/trs_d05.h>
 #include <libutil/misc.h>  //assist in protecting the hardware
+#include <cstdint>
 
 RunMode::RunMode() {
 	//can initialize the variable here,

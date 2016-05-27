@@ -31,6 +31,12 @@
 #define GetL(x) x
 #define GetR(x) x+60
 
+inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
+		//	const int offset = x/8 + (y * image_width / 8);
+		//	return (src[offset] << (x%8) & 0x80) ? false : true;
+		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
+	}
+
 class Car {
 public:
 	// public means anyone can access it
@@ -88,7 +94,7 @@ public:
 	//beep buzzer for t (ms)
 
 	void switchLED(int8_t id);
-	//use inside ticks
+	void switchLED(int8_t id,bool isEnable);
 	/*--------------------------------signal component above------------------------------------*/
 
 	/*--------------------------------get data from component below------------------------------------*/
@@ -140,11 +146,7 @@ private:
 	// private means only member of it's only class can access it.
 
 	//function used to divide image,
-	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
-		//	const int offset = x/8 + (y * image_width / 8);
-		//	return (src[offset] << (x%8) & 0x80) ? 0 : 1;
-		return (src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80) ? false : true;
-	}
+
 
 protected:
 	//protected seems professional

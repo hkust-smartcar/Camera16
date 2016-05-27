@@ -6,8 +6,12 @@
  * 	Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  *
  */
-#include <Planner.h>
-#include <car.h>
+
+#include "../inc/Planner.h"
+
+#include <sys/types.h>
+#include <cstdint>
+
 #define CAMH 60
 
 Planner::Planner() {

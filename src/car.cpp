@@ -205,8 +205,33 @@ void Car::switchLED(int8_t id) {
 	case 4:
 		LedToBlink = Led4;
 		break;
+	default:
+		return;
+		break;
 	}
 	LedToBlink->Switch();
+}
+
+void Car::switchLED(int8_t id,bool isEnable) {
+	libsc::Led* LedToBlink;
+	switch (id) {
+	case 1:
+		LedToBlink = Led1;
+		break;
+	case 2:
+		LedToBlink = Led2;
+		break;
+	case 3:
+		LedToBlink = Led3;
+		break;
+	case 4:
+		LedToBlink = Led4;
+		break;
+	default:
+		return;
+		break;
+	}
+	LedToBlink->SetEnable(isEnable);
 }
 
 void Car::capture_image(void) {

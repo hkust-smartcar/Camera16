@@ -123,9 +123,9 @@ k60::Ov7725::Config GetCamConfig(){
 	camcfg.id=0;
 	camcfg.w=80;
 	camcfg.h=60;
-	camcfg.fps=k60::Ov7725::Config::Fps::kLow;
+	camcfg.fps=k60::Ov7725::Config::Fps::kMid;
 	//TODO adjust proper FPS
-	camcfg.contrast = 0x30;
+//	camcfg.contrast = 0x30;
 //	camcfg.brightness=0x00;
 	return camcfg;
 }
