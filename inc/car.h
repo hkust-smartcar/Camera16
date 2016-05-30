@@ -31,13 +31,13 @@
 #define GetL(x) x
 #define GetR(x) x+60
 
-inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
-		//	const int offset = x/8 + (y * image_width / 8);
-		//	return (src[offset] << (x%8) & 0x80) ? false : true;
-		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
-	}
 
 class Car {
+	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
+			//	const int offset = x/8 + (y * image_width / 8);
+			//	return (src[offset] << (x%8) & 0x80) ? false : true;
+			return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
+		}
 public:
 	// public means anyone can access it
 	//there are even , that means really anyone can access it, even when the class object does not exist :O
@@ -73,7 +73,7 @@ public:
 
 	void printEdge(const int8_t xpos, const int8_t ypos);
 
-	void printWaypoint(int8_t xpos, int8_t ypos);
+	void printWaypoint(const int8_t xpos, const int8_t ypos);
 
 	void clearLcd(uint16_t);
 	//clear the lcd the the given color

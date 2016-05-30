@@ -19,10 +19,10 @@
 RunMode::RunMode() {
 	//can initialize the variable here,
 	motor->SetClockwise(false);
-	maxMotorSpeed = 400;
+	maxMotorSpeed = 600;
 	minMotorSpeed = 0;
 	maxServoAngle = 1350;
-	minServoAngle = 560;
+	minServoAngle = 570;
 	ideal_servo_degree = 900;
 	ideal_motor_speed = 0;
 
@@ -41,12 +41,12 @@ RunMode::~RunMode() {
 
 }
 
-void RunMode::turningPID(const int8_t mid_line, float Kd,float T) {
+void RunMode::turningPID(const int8_t mid_line, float Kd, float T) {
 
 //	float T = 0.3f; //TODO: find proper proportion and Kd
 //	float Kd = 12.0f;
 
-	//Error=SetPoint-ProcessVariable
+//Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;
 
 	/*-----Core dynamic PD formula-----*/
@@ -56,15 +56,14 @@ void RunMode::turningPID(const int8_t mid_line, float Kd,float T) {
 					+ Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
-	servo->SetDegree(libutil::Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
+	servo->SetDegree(
+			libutil::Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
 
 	ServoPrevErr = ServoErr;
 }
 
-void RunMode::motorPID(int16_t ideal_encoder_count,float Kp,float Ki,float Kd) {
-//	float Kp = 0.4f;
-//	float Ki = 0.0f;
-//	float Kd = 0.0f;
+void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
+		float Kd) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
@@ -74,9 +73,10 @@ void RunMode::motorPID(int16_t ideal_encoder_count,float Kp,float Ki,float Kd) {
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr
 			+ Kd * (MotorErr - 2 * MotorPrev1Err + MotorPrev2Err);
+	motor->SetClockwise(ideal_motor_speed>0 ? false : true);
 
-	motor->SetPower(libutil::Clamp(minMotorSpeed, ideal_motor_speed, maxMotorSpeed));
-
+	motor->SetPower(
+			libutil::Clamp(minMotorSpeed, (uint16_t)abs(ideal_motor_speed), maxMotorSpeed));
 
 	MotorPrev2Err = MotorPrev1Err;
 	MotorPrev1Err = MotorErr;

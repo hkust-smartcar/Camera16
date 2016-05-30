@@ -20,4 +20,5 @@ public:
 
 private:
 	uint weight[60];
+//	uint8_t status;
 };

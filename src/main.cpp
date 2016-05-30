@@ -82,14 +82,16 @@ int main(void) {
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
-	float K = 68.0f;
-	float T = 0.4f;
+	bool IsEditKd = false;
+	float K = 5.0f;
+	float T = 0.45f;
 	int16_t ideal_encoder_count = 0;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	float Kp = 0.37f;
 	float Ki = 0.02f;
 	float Kd = 0.15f;
+	int8_t offset=5;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -132,14 +134,14 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				ideal_encoder_count+=100;
+				ideal_encoder_count+=50;
 				Kyle.beepbuzzer(100);
 			};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				ideal_encoder_count-=100;
+				ideal_encoder_count-=50;
 				Kyle.beepbuzzer(100);
 			};
 
@@ -148,7 +150,8 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				T-=0.01f;
+				if(IsEditKd) T-=0.01f;
+				else K-=0.5f;
 				Kyle.beepbuzzer(100);
 			};
 
@@ -157,10 +160,20 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				T+=0.01f;
+				if(IsEditKd) T+=0.01f;
+				else K+=0.5;
 				Kyle.beepbuzzer(100);
 			};
 
+	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kSelect)] =
+			Joystick::Config::Trigger::kDown;
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
+			[&](const uint8_t,const Joystick::State)
+			{
+				IsEditKd=!IsEditKd;
+				Kyle.switchLED(4,IsEditKd);
+				Kyle.beepbuzzer(100);
+			};
 	Joystick joy(fwaycfg);
 
 	/*-------configure tuning parameters below-----*/
@@ -172,6 +185,7 @@ int main(void) {
 	mvar.addSharedVar(&Kd, "Kd");
 	mvar.addSharedVar(&K, "servoK");
 	mvar.addSharedVar(&T, "servoKd");
+	mvar.addSharedVar(&offset, "Offset");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 
@@ -180,42 +194,38 @@ int main(void) {
 			{
 				Kyle.capture_image();
 				Kyle.switchLED(1);
-				if(IsProcess) {
-					imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,5);
-					pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
-				}
 				if(IsPrint) {
 					Kyle.printRawCamGraph(0,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(0,0);
 					Kyle.printvalue(0,60,80,20,Kyle.mid,Lcd::kCyan);
-					Kyle.printvalue(0,80,80,20,real_encoder_count,Lcd::kBlue);
+					Kyle.printvalue(0,80,80,20,K,Lcd::kBlue);
 					Kyle.printvalue(0,100,80,20,T*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
 				}
-				Kyle.turningPID(Kyle.mid,K,T);
-//				Kyle.motorPID(4000,K);
-				Watchdog::Refresh();//LOL, feed or get bitten
+				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset);
+				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
+				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
+				Watchdog::Refresh();	//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-//				Kyle.GetMotor().SetPower(150);//TODO: adjust speed according to error from mid, i.e. the turning angle; add PID
 				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);//when using LCD the system slows down dramatically, causing the motor to go crazy
 				real_encoder_count=-Kyle.GetEnc().GetCount();
-				dmid=10*Kyle.mid;
+				dmid=10*Kyle.mid;//store in dmid for pGrapher
 				mvar.sendWatchData();
 				looper.RunAfter(request,m_motorPID);
 			};
 
 	Kyle.beepbuzzer(200);
-	Kyle.switchLED(2,IsProcess);
-	Kyle.switchLED(3,IsPrint);
+	Kyle.switchLED(2, IsProcess);
+	Kyle.switchLED(3, IsPrint);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
-	for (;;) {}
-	return 0;
+	for (;;)
+		return 0;
 }
