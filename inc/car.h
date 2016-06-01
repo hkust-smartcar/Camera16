@@ -31,7 +31,6 @@
 #define GetL(x) x
 #define GetR(x) x+60
 
-
 class Car {
 	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
 			//	const int offset = x/8 + (y * image_width / 8);
@@ -66,7 +65,7 @@ public:
 	void printvalue(std::string);
 	//print string to up-right corner in LCD
 
-	void printvalue(int x, int y, int w, int h, std::string Result);
+	void printvalue(int x, int y, int w, int h, std::string Result,int16_t color);
 
 	void printRawCamGraph(const int8_t x, const int8_t y, Byte* data);
 	//call after capture_raw_image

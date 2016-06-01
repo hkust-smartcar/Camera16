@@ -7,7 +7,8 @@
  *
  * Handle edge and obstacles searching
  */
-#include <array>//have to include
+#pragma once
+#include <stdint.h>
 
 class ImageProcess {
 	//C++11 so OP, even allow direct passing of 2D array!
@@ -29,4 +30,3 @@ public:
 private:
 
 };
-

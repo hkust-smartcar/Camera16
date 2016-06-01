@@ -110,9 +110,10 @@ void Car::printvalue(std::string Result) {
 	LCDwriter->WriteString(s);
 }
 
-void Car::printvalue(int x, int y, int w, int h, std::string Result) {
+void Car::printvalue(int x, int y, int w, int h, std::string Result,int16_t color) {
 	LCD->SetRegion(libsc::Lcd::Rect(x, y, w, h));
 	const char *s = Result.c_str();
+	LCDwriter->SetTextColor(color);
 	LCDwriter->WriteString(s);
 }
 

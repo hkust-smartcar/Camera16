@@ -8,7 +8,6 @@
  *
  *  Handle PID controllers for motor and servo, keeps the history encoder data
  */
-
 #pragma once
 #include "car.h"
 
