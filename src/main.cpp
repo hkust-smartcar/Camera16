@@ -24,12 +24,24 @@
 #include "../inc/pVarManager.h"
 #include "../inc/Planner.h"
 #include "../inc/RunMode.h"
+#include "../inc/VariableSets.h"
 
 using namespace libsc;
 
 using namespace libbase::k60;
 
 using namespace libutil;
+
+VarSet myVS1 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //850
+VarSet myVS2 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //950
+VarSet myVS3 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1050
+VarSet myVS4 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1150
+VarSet myVS5 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1250
+RunMode* Kyle = nullptr;
+uint8_t varset_index = 0;
+bool selecting_varset = true;
+VarSet Selected = { };
+VarSet SetVarSet();
 
 int main(void) {
 
@@ -72,7 +84,7 @@ int main(void) {
 	Watchdog::Init();
 	System::Init();
 
-	RunMode Kyle;
+	Kyle = new RunMode;
 	Looper looper;
 	ImageProcess imp;
 	Planner pln;
@@ -83,17 +95,20 @@ int main(void) {
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
-	float K = 0.1f;
-	float T = 0.2f;
 	int16_t ideal_encoder_count = 0;
-	int16_t prev_ideal_encoder_count = 0;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
-	float Kp = 0.37f;
-	float Ki = 0.02f;
-	float Kd = 0.35f;
-	int8_t offset = 5;
-	int8_t plnstart = 59;
+
+	Selected = SetVarSet();
+
+	/*-----assign selected VarSet-----*/
+	float K;
+	float T;
+	float Kp;
+	float Ki;
+	float Kd;
+	int8_t offset;
+	int8_t plnstart;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -103,20 +118,24 @@ int main(void) {
 	btncfg.id = 0;
 	btncfg.listener = [&](const uint8_t)
 	{
-		IsPrint = !IsPrint;
-		Kyle.switchLED(3,IsPrint);
-		Kyle.beepbuzzer(100);
-	};
-	Button but0(btncfg);
+		if(!selecting_varset) {//when finished selecting varset, trigger the following
+				IsPrint = !IsPrint;
+				Kyle->switchLED(3,IsPrint);
+			}
+			Kyle->beepbuzzer(100);
+		};
+	Button btn0(btncfg);
 
 	btncfg.id = 1;
 	btncfg.listener = [&](const uint8_t)
 	{
-		IsProcess = !IsProcess;
-		Kyle.switchLED(2,IsProcess);
-		Kyle.beepbuzzer(100);
+		if(!selecting_varset) {
+			IsProcess = !IsProcess;
+			Kyle->switchLED(2,IsProcess);
+		}
+		Kyle->beepbuzzer(100);
 	};
-	Button but1(btncfg);
+	Button btn1(btncfg);
 
 	Joystick::Config fwaycfg;
 	fwaycfg.is_active_low = true;
@@ -136,45 +155,82 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				ideal_encoder_count+=50;
-				Kyle.beepbuzzer(100);
+				if(!selecting_varset) {
+					ideal_encoder_count+=50;
+					Kyle->beepbuzzer(100);
+				}
+				else {
+					varset_index+=1;
+					Kyle->beepbuzzer(100);
+				}
 			};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				ideal_encoder_count-=50;
-				Kyle.beepbuzzer(100);
+				if(!selecting_varset) {
+					ideal_encoder_count-=50;
+					Kyle->beepbuzzer(100);
+				}
+				else {
+					varset_index-=1;
+					Kyle->beepbuzzer(100);
+				}
 			};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(IsEditKd) T-=0.01f;
-				else K-=0.01f;
-				Kyle.beepbuzzer(100);
+				if(!selecting_varset) {
+					if(IsEditKd) T-=0.01f;
+					else K-=0.01f;
+					Kyle->beepbuzzer(100);
+				}
+
 			};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(IsEditKd) T+=0.01f;
-				else K+=0.01f;
-				Kyle.beepbuzzer(100);
+				if(!selecting_varset) {
+					if(IsEditKd) T+=0.01f;
+					else K+=0.01f;
+					Kyle->beepbuzzer(100);
+				}
+
 			};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				IsEditKd=!IsEditKd;
-				Kyle.switchLED(4,IsEditKd);
-				Kyle.beepbuzzer(100);
+				if(!selecting_varset) {
+					IsEditKd=!IsEditKd;
+					Kyle->switchLED(4,IsEditKd);
+					Kyle->beepbuzzer(100);
+				}
+				else{
+					selecting_varset = false;
+					Kyle->beepbuzzer(100);
+				}
+
 			};
 	Joystick joy(fwaycfg);
 
+	Kyle->beepbuzzer(200);
+	Selected = SetVarSet();//into selecting VarSet, internal infinite loop implemented
+	Kyle->GetLCD().Clear();
+
+	K = Selected.K;
+	T = Selected.T;
+	Kp = Selected.Kp;
+	Ki = Selected.Ki;
+	Kd = Selected.Kd;
+	offset = Selected.offset;
+	plnstart = Selected.plnstart;
+
 	/*-------configure tuning parameters below-----*/
 	mvar.addWatchedVar(&real_encoder_count, "Real Encoder");
-	mvar.addWatchedVar(&Kyle.ideal_motor_speed, "Ideal Motor");
+	mvar.addWatchedVar(&Kyle->ideal_motor_speed, "Ideal Motor");
 	mvar.addWatchedVar(&dmid, "Mid-line");
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
@@ -189,44 +245,44 @@ int main(void) {
 	Looper::Callback m_imp =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				Kyle.capture_image();
-				Kyle.switchLED(1);
+				Kyle->capture_image();
+				Kyle->switchLED(1);
 				if(IsPrint) {
-					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
-					Kyle.printEdge(1,0);
-					Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
-					Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
-					Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
-					Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
-					Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
-					Kyle.printvalue(25,80,55,20,K*100,Lcd::kBlue);
-					Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
-					Kyle.printvalue(25,100,55,20,T*100,Lcd::kPurple);
-					Kyle.printWaypoint(0,0);
-					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
-					Kyle.GetLCD().FillColor(Lcd::kCyan);
-					Kyle.GetLCD().SetRegion(Lcd::Rect(0,125,80,25));
-					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
+					Kyle->printRawCamGraph(1,0,Kyle->data);	//print raw for better performance
+					Kyle->printEdge(1,0);
+					Kyle->printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
+					Kyle->printvalue(30,60,20,20,Kyle->mid,Lcd::kCyan);
+					Kyle->printvalue(60,60,30,20,"PWR=",Lcd::kRed);
+					Kyle->printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
+					Kyle->printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
+					Kyle->printvalue(25,80,55,20,K*100,Lcd::kBlue);
+					Kyle->printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
+					Kyle->printvalue(25,100,55,20,T*100,Lcd::kPurple);
+					Kyle->printWaypoint(0,0);
+					Kyle->GetLCD().SetRegion(Lcd::Rect(Kyle->mid+1,0,1,60));
+					Kyle->GetLCD().FillColor(Lcd::kCyan);
+					Kyle->GetLCD().SetRegion(Lcd::Rect(0,125,80,25));
+					Kyle->GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
-				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset);
-				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid,plnstart);
-				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
+				imp.FindEdge(Kyle->image,Kyle->edges,Kyle->bgstart,2,offset);
+				pln.Calc(Kyle->edges,Kyle->waypoints,Kyle->bgstart,Kyle->mid,plnstart);
+				if(IsProcess) Kyle->turningPID(Kyle->mid,K,T);
 				Watchdog::Refresh();	//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
 			};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);//when using LCD the system slows down dramatically, causing the motor to go crazy
-				real_encoder_count=-Kyle.GetEnc().GetCount();
-				dmid=10*Kyle.mid;//store in dmid for pGrapher
+				if(!IsPrint) Kyle->motorPID(ideal_encoder_count,Kp,Ki,Kd);	//when using LCD the system slows down dramatically, causing the motor to go crazy
+				real_encoder_count=-Kyle->GetEnc().GetCount();
+				dmid=10*Kyle->mid;//store in dmid for pGrapher
 				mvar.sendWatchData();
 				looper.RunAfter(request,m_motorPID);
 			};
 
-	Kyle.beepbuzzer(200);
-	Kyle.switchLED(2, IsProcess);
-	Kyle.switchLED(3, IsPrint);
+	Kyle->beepbuzzer(200);
+	Kyle->switchLED(2, IsProcess);
+	Kyle->switchLED(3, IsPrint);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
@@ -234,3 +290,43 @@ int main(void) {
 	}
 	return 0;
 }
+
+VarSet SetVarSet() { //remember to feed the WatchDog
+	VarSet m_selected = myVS1;
+	for (;;) { //loop infinitely until varset selected
+		Watchdog::Refresh();
+		if (varset_index > 4)
+			varset_index = 4; //if uint8_t overflowed, set it right
+		if (!selecting_varset)
+			return m_selected; //if selected by pressing select on joystick, return to break the pathetic infinite loop
+
+		Kyle->printvalue(0, 0, 80, 20, "HKUST Camera", Lcd::kWhite);
+		Kyle->printvalue(0, 20, 40, 20, "Select Speed:", Lcd::kBlue);
+
+		switch (varset_index) {
+		case 0:
+			m_selected = myVS1;
+			Kyle->printvalue(40, 20, 40, 20, 850, Lcd::kRed);
+			break;
+		case 1:
+			m_selected = myVS2;
+			Kyle->printvalue(40, 20, 40, 20, 950, Lcd::kRed);
+			break;
+		case 2:
+			m_selected = myVS3;
+			Kyle->printvalue(40, 20, 40, 20, 1050, Lcd::kRed);
+			break;
+		case 3:
+			m_selected = myVS4;
+			Kyle->printvalue(40, 20, 40, 20, 1150, Lcd::kRed);
+			break;
+		case 4:
+			m_selected = myVS5;
+			Kyle->printvalue(40, 20, 40, 20, 1250, Lcd::kRed);
+			break;
+		}
+		System::DelayMs(20);
+	}
+	return {};//useless return, to fool stupid IDE
+}
+

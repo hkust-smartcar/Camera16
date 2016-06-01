@@ -32,8 +32,6 @@ RunMode::RunMode() {
 	MotorErr = 0;
 	MotorPrev1Err = 0;
 	MotorPrev2Err = 0;
-//
-//	T = (900 - minServoAngle) / (39 - 15) * (39 - 15) * (39 - 15);
 
 }
 
