@@ -21,8 +21,10 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 
 	int8_t lastLeft = 0;
 	int8_t lastRight = 0;
-	int8_t last2Left = 0; //compute slope to estimate thres
+	int8_t last2Left = 0;
 	int8_t last2Right = 0;
+	int8_t last3Left = 0;
+	int8_t last3Right = 0;
 
 	/*-----find bottom left-----*/
 
@@ -30,6 +32,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (image[x][CAMH - 1]) {
 			lastLeft = x;
 			last2Left = x;
+			last3Left=x;
 			edges[recL(CAMH-1)] = x;
 			break;
 		}
@@ -41,6 +44,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (image[x][CAMH - 1]) {
 			lastRight = x;
 			last2Right = x;
+			last3Right=x;
 			edges[recR(CAMH-1)] = x;
 			break;
 		}
@@ -89,12 +93,15 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			break;
 		}
 
+		/*-----if both sides goes outward, predict according to estimated slope-----*/
 		if (leftOut && rightOut) {
-			edges[recL(y)] = std::max(0, 2 * lastLeft - last2Left);
-			edges[recR(y)] = std::min(CAMW - 1, 2 * lastRight - last2Right);
+			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
+			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
 		}
 
 		/*-----store variables for future processing-----*/
+		last3Left=last2Left;
+		last3Right=last2Right;
 		last2Left = lastLeft;
 		last2Right = lastRight;
 		lastLeft = edges[recL(y)];

@@ -83,16 +83,17 @@ int main(void) {
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
-	uint8_t K = 5;
-	float T = 0.4f;
+	uint8_t K = 10;
+	float T = 0.42f;
 	int16_t ideal_encoder_count = 0;
+	int16_t prev_ideal_encoder_count = 0;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	float Kp = 0.37f;
 	float Ki = 0.02f;
 	float Kd = 0.35f;
-	int8_t offset=5;
-	int8_t plnstart=59;
+	int8_t offset = 5;
+	int8_t plnstart = 59;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -200,7 +201,9 @@ int main(void) {
 					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(1,0);
 					Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
-					Kyle.printvalue(30,60,50,20,Kyle.mid,Lcd::kCyan);
+					Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
+					Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
+					Kyle.printvalue(100,60,10,20,ideal_encoder_count,Lcd::kRed);
 					Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
 					Kyle.printvalue(25,80,55,20,K,Lcd::kBlue);
 					Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
@@ -208,6 +211,8 @@ int main(void) {
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
+					Kyle.GetLCD().SetRegion(Lcd::Rect(0,125,80,25));
+					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset);
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid,plnstart);
@@ -231,6 +236,7 @@ int main(void) {
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
-	for (;;)
-		return 0;
+	for (;;) {
+	}
+	return 0;
 }
