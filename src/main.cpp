@@ -83,8 +83,8 @@ int main(void) {
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
-	uint8_t K = 10;
-	float T = 0.42f;
+	float K = 0.1f;
+	float T = 0.2f;
 	int16_t ideal_encoder_count = 0;
 	int16_t prev_ideal_encoder_count = 0;
 	int16_t real_encoder_count = 0;
@@ -147,28 +147,22 @@ int main(void) {
 				Kyle.beepbuzzer(100);
 			};
 
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
-			Joystick::Config::Trigger::kDown;
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(IsEditKd) T-=0.01f;
-				else K-=0.5f;
+				else K-=0.01f;
 				Kyle.beepbuzzer(100);
 			};
 
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kRight)] =
-			Joystick::Config::Trigger::kDown;
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(IsEditKd) T+=0.01f;
-				else K+=0.5;
+				else K+=0.01f;
 				Kyle.beepbuzzer(100);
 			};
 
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kSelect)] =
-			Joystick::Config::Trigger::kDown;
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
@@ -203,9 +197,9 @@ int main(void) {
 					Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
 					Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
 					Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
-					Kyle.printvalue(100,60,10,20,ideal_encoder_count,Lcd::kRed);
+					Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
 					Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
-					Kyle.printvalue(25,80,55,20,K,Lcd::kBlue);
+					Kyle.printvalue(25,80,55,20,K*100,Lcd::kBlue);
 					Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
 					Kyle.printvalue(25,100,55,20,T*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
