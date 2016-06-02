@@ -9,14 +9,11 @@
 
 #pragma once
 
-#include <libbase/k60/watchdog.h>
-#include <libsc/lcd.h>
-#include <libsc/system.h>
 #include <stdint.h>
 
-#include "RunMode.h"
 
 struct VarSet {
+	int16_t ideal_encoder_count;
 	/*-----servo-----*/
 	float K;
 	float T;

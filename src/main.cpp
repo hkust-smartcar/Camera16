@@ -32,15 +32,9 @@ using namespace libbase::k60;
 
 using namespace libutil;
 
-VarSet myVS1 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //850
-VarSet myVS2 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //950
-VarSet myVS3 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1050
-VarSet myVS4 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1150
-VarSet myVS5 = { 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1250
 RunMode* Kyle = nullptr;
 uint8_t varset_index = 0;
 bool selecting_varset = true;
-VarSet Selected = { };
 VarSet SetVarSet();
 
 int main(void) {
@@ -88,20 +82,17 @@ int main(void) {
 	Looper looper;
 	ImageProcess imp;
 	Planner pln;
-	pVarManager mvar;
 	//MUST initialize for using LCD and anything that contain function inside "System"
 	//use tick
 	//...
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
-	int16_t ideal_encoder_count = 0;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 
-	Selected = SetVarSet();
-
-	/*-----assign selected VarSet-----*/
+	/*-----variables waiting to be assigned-----*/
+	int16_t ideal_encoder_count;
 	float K;
 	float T;
 	float Kp;
@@ -208,7 +199,7 @@ int main(void) {
 					Kyle->switchLED(4,IsEditKd);
 					Kyle->beepbuzzer(100);
 				}
-				else{
+				else {
 					selecting_varset = false;
 					Kyle->beepbuzzer(100);
 				}
@@ -217,9 +208,11 @@ int main(void) {
 	Joystick joy(fwaycfg);
 
 	Kyle->beepbuzzer(200);
-	Selected = SetVarSet();//into selecting VarSet, internal infinite loop implemented
+	VarSet Selected = SetVarSet();//into selecting VarSet, internal infinite loop implemented
 	Kyle->GetLCD().Clear();
 
+	/*------assign VarSet variables-----*/
+	ideal_encoder_count = Selected.ideal_encoder_count;
 	K = Selected.K;
 	T = Selected.T;
 	Kp = Selected.Kp;
@@ -228,6 +221,7 @@ int main(void) {
 	offset = Selected.offset;
 	plnstart = Selected.plnstart;
 
+	pVarManager mvar;//call constructor after selecting VarSet, in case memory addresses freak out
 	/*-------configure tuning parameters below-----*/
 	mvar.addWatchedVar(&real_encoder_count, "Real Encoder");
 	mvar.addWatchedVar(&Kyle->ideal_motor_speed, "Ideal Motor");
@@ -291,42 +285,56 @@ int main(void) {
 	return 0;
 }
 
-VarSet SetVarSet() { //remember to feed the WatchDog
-	VarSet m_selected = myVS1;
-	for (;;) { //loop infinitely until varset selected
-		Watchdog::Refresh();
-		if (varset_index > 4)
-			varset_index = 4; //if uint8_t overflowed, set it right
-		if (!selecting_varset)
-			return m_selected; //if selected by pressing select on joystick, return to break the pathetic infinite loop
+VarSet SetVarSet() {
+	VarSet myVS1 = { 850, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //850
+	VarSet myVS2 = { 950, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //950
+	VarSet myVS3 = { 1050, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1050
+	VarSet myVS4 = { 1150, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1150
+	VarSet myVS5 = { 1250, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1250
 
-		Kyle->printvalue(0, 0, 80, 20, "HKUST Camera", Lcd::kWhite);
+	VarSet m_selected = myVS1;
+	for (;;) { //loop infinitely until VarSet selected
+		Watchdog::Refresh(); //remember to treat your doggy well
+
+		if (varset_index > 5)
+			varset_index = 4; //if uint8_t overflowed, causing index==100+, set it right
+		if (varset_index == 5)
+			varset_index = 0; //if reaches the end, loop back to 0
+		if (!selecting_varset)
+			break; //if selected by pressing select on joystick, break the pathetic infinite loop
+
+		Kyle->printvalue(0, 0, 80, 20, "HKUST Camera", Lcd::kWhite); //some welcome messages
 		Kyle->printvalue(0, 20, 40, 20, "Select Speed:", Lcd::kBlue);
 
-		switch (varset_index) {
+		switch (varset_index) { //print speed according to corresponding VarSet
 		case 0:
 			m_selected = myVS1;
-			Kyle->printvalue(40, 20, 40, 20, 850, Lcd::kRed);
+			Kyle->printvalue(40, 20, 40, 20, m_selected.ideal_encoder_count,
+					Lcd::kRed);
 			break;
 		case 1:
 			m_selected = myVS2;
-			Kyle->printvalue(40, 20, 40, 20, 950, Lcd::kRed);
+			Kyle->printvalue(40, 20, 40, 20, m_selected.ideal_encoder_count,
+					Lcd::kRed);
 			break;
 		case 2:
 			m_selected = myVS3;
-			Kyle->printvalue(40, 20, 40, 20, 1050, Lcd::kRed);
+			Kyle->printvalue(40, 20, 40, 20, m_selected.ideal_encoder_count,
+					Lcd::kRed);
 			break;
 		case 3:
 			m_selected = myVS4;
-			Kyle->printvalue(40, 20, 40, 20, 1150, Lcd::kRed);
+			Kyle->printvalue(40, 20, 40, 20, m_selected.ideal_encoder_count,
+					Lcd::kRed);
 			break;
 		case 4:
 			m_selected = myVS5;
-			Kyle->printvalue(40, 20, 40, 20, 1250, Lcd::kRed);
+			Kyle->printvalue(40, 20, 40, 20, m_selected.ideal_encoder_count,
+					Lcd::kRed);
 			break;
 		}
-		System::DelayMs(20);
+		System::DelayMs(20); //don't overload the mcu before image processing even begin
 	}
-	return {};//useless return, to fool stupid IDE
+	return m_selected;
 }
 
