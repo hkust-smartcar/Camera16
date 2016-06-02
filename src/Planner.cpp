@@ -36,4 +36,3 @@ void Planner::Calc(int8_t const edge[120], int8_t waypoints[60],
 
 	mid = m_mid_sum / m_weight_sum;
 }
-

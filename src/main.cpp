@@ -52,7 +52,6 @@ int main(void) {
 	 Run.update_encoder();
 	 System::DelayMs(30);
 	 Run.update_encoder();
-
 	 encoder_counting = Run.get_encoder_count();
 	 int n = sprintf(PWM_buffer,"%d %d \n",(int)motor_speed,(int)encoder_counting);
 	 fuck.SendBuffer((Byte*)PWM_buffer,n);
@@ -102,7 +101,7 @@ int main(void) {
 	btncfg.listener = [&](const uint8_t)
 	{
 		IsPrint = !IsPrint;
-		Kyle.switchLED(3,IsPrint);
+		Kyle.switchLED(3);
 		Kyle.beepbuzzer(100);
 	};
 	Button but0(btncfg);
@@ -111,7 +110,7 @@ int main(void) {
 	btncfg.listener = [&](const uint8_t)
 	{
 		IsProcess = !IsProcess;
-		Kyle.switchLED(2,IsProcess);
+		Kyle.switchLED(2);
 		Kyle.beepbuzzer(100);
 	};
 	Button but1(btncfg);
@@ -123,8 +122,6 @@ int main(void) {
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kUp)] =
 			Joystick::Config::Trigger::kDown;
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kDown)] =
-			Joystick::Config::Trigger::kDown;
-	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
 			Joystick::Config::Trigger::kDown;
 	fwaycfg.listener_triggers[static_cast<int>(Joystick::State::kLeft)] =
 			Joystick::Config::Trigger::kDown;
@@ -171,7 +168,7 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				IsEditKd=!IsEditKd;
-				Kyle.switchLED(4,IsEditKd);
+				Kyle.switchLED(4);
 				Kyle.beepbuzzer(100);
 			};
 	Joystick joy(fwaycfg);
@@ -203,8 +200,11 @@ int main(void) {
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
+					if(Kyle.stop)Kyle.printvalue(0,120,80,20,"end la");
+					else Kyle.printvalue(0,120,80,20,"continue");
+
 				}
-				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset);
+				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,Kyle.stop);
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
 				Watchdog::Refresh();	//LOL, feed or get bitten
@@ -221,11 +221,10 @@ int main(void) {
 			};
 
 	Kyle.beepbuzzer(200);
-	Kyle.switchLED(2, IsProcess);
-	Kyle.switchLED(3, IsPrint);
+	Kyle.switchLED(2);
+	Kyle.switchLED(3);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
-	for (;;)
-		return 0;
+	while (true);
 }

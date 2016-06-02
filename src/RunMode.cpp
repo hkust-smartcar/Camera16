@@ -76,9 +76,8 @@ void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
 	motor->SetClockwise(ideal_motor_speed>0 ? false : true);
 
 	motor->SetPower(
-			libutil::Clamp(minMotorSpeed, (uint16_t)abs(ideal_motor_speed), maxMotorSpeed));
+			libutil::Clamp(minMotorSpeed,(int16_t)(abs(ideal_motor_speed)), maxMotorSpeed));
 
 	MotorPrev2Err = MotorPrev1Err;
 	MotorPrev1Err = MotorErr;
 }
-

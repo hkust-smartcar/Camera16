@@ -39,18 +39,21 @@ Car::Car() {
 
 	LcdTypewriter::Config LcdWconfig;
 	LcdWconfig.lcd = LCD;
+	LcdWconfig.text_color = Lcd::kWhite;
 	LCDwriter = new LcdTypewriter(LcdWconfig);
 
 	LcdConsole::Config LCDCConfig;
 	LCDCConfig.lcd = LCD;
 	LCDconsole = new LcdConsole(LCDCConfig);
 
-	memset(this->data, 0, 600);
-	memset(this->image, false, true * 80 * 60);
-	memset(this->edges, 0, 120);
-	memset(this->waypoints, 0, 60);
-	this->bgstart = 0;
-	this->mid = 39;
+	memset(data, 0, 600);
+	memset(image, false, true * 80 * 60);
+	memset(edges, 0, 120);
+	memset(waypoints, 0, 60);
+	bgstart = 0;
+	mid = 39;
+	iscrossroad = false;
+
 }
 // for constructor, you can temporarily understand it as :
 // initialize all variable ( & pointer)
@@ -141,7 +144,7 @@ void Car::printEdge(const int8_t xpos, const int8_t ypos) {
 
 }
 
-void Car::printWaypoint(const int8_t xpos, const int8_t ypos) {
+void Car::printWaypoint(int8_t xpos, int8_t ypos) {
 	for (int8_t row = bgstart + 1; row < 60; row++) {
 		LCD->SetRegion(Lcd::Rect(xpos + waypoints[row], ypos + row, 1, 1));
 		LCD->FillColor(Lcd::kPurple);
@@ -161,16 +164,16 @@ void Car::blinkLED(int8_t id, int delay_time, int persist_time) {
 	libsc::Led* LedToBlink;
 	switch (id) {
 	case 1:
-		LedToBlink = this->Led1;
+		LedToBlink = Led1;
 		break;
 	case 2:
-		LedToBlink = this->Led2;
+		LedToBlink = Led2;
 		break;
 	case 3:
-		LedToBlink = this->Led3;
+		LedToBlink = Led3;
 		break;
 	case 4:
-		LedToBlink = this->Led4;
+		LedToBlink = Led4;
 		break;
 	}
 	LedToBlink->SetEnable(true);
@@ -185,65 +188,40 @@ void Car::blinkLED(int8_t id, int delay_time, int persist_time) {
 
 void Car::beepbuzzer(uint32_t t) {
 	Timer::TimerInt m_t = System::Time();
-	this->buzzer->SetBeep(true);
+	buzzer->SetBeep(true);
 	while (System::Time() < m_t + t){}
-	this->buzzer->SetBeep(false);
+	buzzer->SetBeep(false);
 }
 
 void Car::switchLED(int8_t id) {
 	libsc::Led* LedToBlink;
 	switch (id) {
 	case 1:
-		LedToBlink = this->Led1;
+		LedToBlink = Led1;
 		break;
 	case 2:
-		LedToBlink = this->Led2;
+		LedToBlink = Led2;
 		break;
 	case 3:
-		LedToBlink = this->Led3;
+		LedToBlink = Led3;
 		break;
 	case 4:
-		LedToBlink = this->Led4;
-		break;
-	default:
-		return;
+		LedToBlink = Led4;
 		break;
 	}
 	LedToBlink->Switch();
 }
 
-void Car::switchLED(int8_t id,bool isEnable) {
-	libsc::Led* LedToBlink;
-	switch (id) {
-	case 1:
-		LedToBlink = this->Led1;
-		break;
-	case 2:
-		LedToBlink = this->Led2;
-		break;
-	case 3:
-		LedToBlink = this->Led3;
-		break;
-	case 4:
-		LedToBlink = this->Led4;
-		break;
-	default:
-		return;
-		break;
-	}
-	LedToBlink->SetEnable(isEnable);
-}
-
 void Car::capture_image(void) {
 
 	// capture raw image
-	memcpy(this->data, this->cam->LockBuffer(), data_size);
-	this->cam->UnlockBuffer();
+	memcpy(data, cam->LockBuffer(), data_size);
+	cam->UnlockBuffer();
 
 	// divide image
 	for (int8_t col = 0; col < 80; col++) {
 		for (int8_t row = 0; row < 60; row++) {
-			this->image[col][row] = this->GetPixel(data, col, row);
+			image[col][row] = GetPixel(data, col, row);
 		}
 	}
 }

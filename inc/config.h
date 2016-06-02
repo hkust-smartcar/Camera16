@@ -42,10 +42,11 @@ namespace libbase
 		}
 
 		Watchdog::Config Watchdog::GetWatchdogConfig(){//remove the same function in libbase to use watchdog
-			Watchdog::Config doggiecfg;
+			/*Watchdog::Config doggiecfg;
 			doggiecfg.is_enable=true;
-			doggiecfg.time_out_ms=1000;
-			return doggiecfg;
+			doggiecfg.time_out_ms=2000;
+			return doggiecfg;*/
+			return {};
 		}
 
 	}
@@ -123,9 +124,9 @@ k60::Ov7725::Config GetCamConfig(){
 	camcfg.id=0;
 	camcfg.w=80;
 	camcfg.h=60;
-	camcfg.fps=k60::Ov7725::Config::Fps::kMid;
+	camcfg.fps=k60::Ov7725::Config::Fps::kLow;
 	//TODO adjust proper FPS
-//	camcfg.contrast = 0x30;
+	camcfg.contrast = 0x30;
 //	camcfg.brightness=0x00;
 	return camcfg;
 }
