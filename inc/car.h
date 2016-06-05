@@ -109,6 +109,8 @@ public:
 
 	libsc::AbEncoder& GetEnc(void) {return *encoder;}
 
+	libsc::TrsD05& GetServo(){return *servo;}
+
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/

@@ -34,7 +34,6 @@ using namespace libutil;
 
 uint8_t varset_index = 0;
 bool selecting_varset = true;
-VarSet SelectVarSet();
 
 int main(void) {
 
@@ -89,6 +88,7 @@ int main(void) {
 	bool IsEditKd = false;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
+//	uint16_t deg=900;
 
 	/*-----variables waiting to be assigned-----*/
 	int16_t ideal_encoder_count;
@@ -151,6 +151,7 @@ int main(void) {
 				}
 				else {
 					varset_index--;
+//					deg+=10;
 					Kyle.beepbuzzer(100);
 				}
 			};
@@ -164,6 +165,7 @@ int main(void) {
 				}
 				else {
 					varset_index++;
+//					deg-=10;
 					Kyle.beepbuzzer(100);
 				}
 			};
@@ -209,7 +211,8 @@ int main(void) {
 	Kyle.beepbuzzer(200);
 
 	/*-----moved selecting process here, otherwise car pointer will go wild-----*/
-	VarSet myVS1 = { 0, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //0
+	//Servo Kp, Kd, motor PID, offset, plnstart
+	VarSet myVS1 = { 0, 2.5f, 0.2f, 0.37f, 0.08f, 0.35f, 5, 59 }; //0
 	VarSet myVS2 = { 850, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //850
 	VarSet myVS3 = { 1050, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1050
 	VarSet myVS4 = { 1150, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1150
@@ -256,6 +259,8 @@ int main(void) {
 					Lcd::kPurple);
 			break;
 		}
+//		Kyle.printvalue(deg,Lcd::kWhite);
+//		Kyle.GetServo().SetDegree(deg);
 		System::DelayMs(20); //don't overload the mcu before image processing even begin
 	}
 	Kyle.GetLCD().Clear();
@@ -279,8 +284,8 @@ int main(void) {
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&Kd, "Kd");
-	mvar.addSharedVar(&K, "servoK");
-	mvar.addSharedVar(&T, "servoKd");
+	mvar.addSharedVar(&K, "servoKd");
+	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&offset, "Offset");
 	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
@@ -299,9 +304,9 @@ int main(void) {
 					Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
 					Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
 					Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
-					Kyle.printvalue(25,80,55,20,K*100,Lcd::kBlue);
+					Kyle.printvalue(25,80,55,20,T*100,Lcd::kBlue);
 					Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
-					Kyle.printvalue(25,100,55,20,T*100,Lcd::kPurple);
+					Kyle.printvalue(25,100,55,20,K*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);

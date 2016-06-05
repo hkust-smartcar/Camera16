@@ -17,15 +17,13 @@
 #include <stdint.h>
 #include <cstdlib>
 
-
-
 RunMode::RunMode() {
 	//can initialize the variable here,
 	motor->SetClockwise(false);
 	maxMotorSpeed = 600;
 	minMotorSpeed = 0;
-	maxServoAngle = 1350;
-	minServoAngle = 570;
+	maxServoAngle = 1270;
+	minServoAngle = 540;
 	ideal_servo_degree = 900;
 	ideal_motor_speed = 0;
 
@@ -53,7 +51,7 @@ void RunMode::turningPID(const int8_t mid_line, float Kd, float T) {
 	/*-----Core dynamic PD formula-----*/
 	//positional PD = T*(err in line)^2 * error +kd *(error-error_prev), try to let Kp be proportional to error squared
 	ideal_servo_degree = uint16_t(
-			900 + T * ServoErr * ServoErr * ServoErr
+			900 + T * abs(ServoErr) * ServoErr
 					+ Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
@@ -74,10 +72,11 @@ void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr
 			+ Kd * (MotorErr - 2 * MotorPrev1Err + MotorPrev2Err);
-	motor->SetClockwise(ideal_motor_speed>0 ? false : true);
+	motor->SetClockwise(ideal_motor_speed > 0 ? false : true);
 
 	motor->SetPower(
-			libutil::Clamp(minMotorSpeed, (uint16_t)abs(ideal_motor_speed), maxMotorSpeed));
+			libutil::Clamp(minMotorSpeed, (uint16_t) abs(ideal_motor_speed),
+					maxMotorSpeed));
 
 	MotorPrev2Err = MotorPrev1Err;
 	MotorPrev1Err = MotorErr;

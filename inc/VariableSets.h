@@ -11,12 +11,11 @@
 
 #include <stdint.h>
 
-
 struct VarSet {
 	int16_t ideal_encoder_count;
 	/*-----servo-----*/
-	float K;
-	float T;
+	float T; //kp
+	float K; //kd
 
 	/*-----motor-----*/
 	float Kp;
