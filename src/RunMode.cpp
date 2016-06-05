@@ -14,7 +14,10 @@
 #include <libsc/encoder.h>
 #include <libsc/trs_d05.h>
 #include <libutil/misc.h>  //assist in protecting the hardware
-#include <cstdint>
+#include <stdint.h>
+#include <cstdlib>
+
+
 
 RunMode::RunMode() {
 	//can initialize the variable here,
