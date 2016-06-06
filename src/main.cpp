@@ -92,6 +92,9 @@ int main(void) {
 	float Kd = 0.15f;
 	int8_t offset=5;
 
+	//add temporary delay second n (ms)
+	float n = 0.0f;
+
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
 	btncfg.is_use_pull_resistor = false;
@@ -184,6 +187,8 @@ int main(void) {
 	mvar.addSharedVar(&T, "servoKd");
 	mvar.addSharedVar(&offset, "Offset");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
+	// temporary n
+	mvar.addSharedVar(&n, "delay time for ending");
 	/*------configure tuning parameters above------*/
 
 	Looper::Callback m_imp =	// configure the callback function for looper
@@ -200,7 +205,11 @@ int main(void) {
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
-					if(Kyle.stop)Kyle.printvalue(0,120,80,20,"end la");
+					if(Kyle.stop){
+						Kyle.printvalue(0,120,80,20,"end la");
+						System::DelayMs(n);
+						ideal_encoder_count = 0;
+					}
 					else Kyle.printvalue(0,120,80,20,"continue");
 
 				}
