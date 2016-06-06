@@ -25,6 +25,7 @@
 #include <libsc/dir_motor.h>
 #include <libsc/lcd_console.h>
 #include <libsc/lcd_typewriter.h>
+#include <libsc/battery_meter.h>
 #include <cstring>
 #include <sstream>
 #include <functional>
@@ -109,8 +110,6 @@ public:
 
 	libsc::AbEncoder& GetEnc(void) {return *encoder;}
 
-	libsc::TrsD05& GetServo(){return *servo;}
-
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/
@@ -165,6 +164,7 @@ protected:
 	libsc::LcdTypewriter* LCDwriter = nullptr;
 	libsc::SimpleBuzzer* buzzer = nullptr;
 	libsc::k60::Ov7725* cam = nullptr;
+	libsc::BatteryMeter* batt=nullptr;
 
 	//the above * means its a pointer.
 	// either  int* a;

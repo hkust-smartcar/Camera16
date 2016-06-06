@@ -9,7 +9,11 @@
  */
 
 #pragma once
-
+	/*
+	 to use pVarManager, you need to use Chrome to download the app by peter
+	 link:
+	 https://chrome.google.com/webstore/search/pgrapher?utm_source=chrome-ntp-icon
+	 */
 //#ifdef LIBSC_USE_UART
 
 #include <functional>

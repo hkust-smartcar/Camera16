@@ -24,7 +24,6 @@
 #include "../inc/pVarManager.h"
 #include "../inc/Planner.h"
 #include "../inc/RunMode.h"
-#include "../inc/VariableSets.h"
 
 using namespace libsc;
 
@@ -32,47 +31,7 @@ using namespace libbase::k60;
 
 using namespace libutil;
 
-uint8_t varset_index = 0;
-bool selecting_varset = true;
-
 int main(void) {
-
-//code for plotting graph for a equation of y = mx +c, where y and x are encoder counting or motor PWM
-//uncomment for usage
-	/*
-	 //tune encoder here
-	 //to uncomment this code, comment all pVarManager object
-	 JyMcuBt106::Config config;
-	 config.id = 0;
-	 config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
-	 config.rx_irq_threshold = 2;
-	 JyMcuBt106 fuck(config);
-	 char *PWM_buffer = new char[120]{0};
-	 float encoder_counting = 0;
-	 int motor_speed =0;
-	 while(1){
-	 motor_speed += 1;
-	 Run.motor_control(motor_speed,true);
-	 Run.update_encoder();
-	 System::DelayMs(30);
-	 Run.update_encoder();
-
-	 encoder_counting = Run.get_encoder_count();
-	 int n = sprintf(PWM_buffer,"%d %d \n",(int)motor_speed,(int)encoder_counting);
-	 fuck.SendBuffer((Byte*)PWM_buffer,n);
-	 memset(PWM_buffer,0,n);
-	 if (motor_speed > 500) {	 Run.motor_control(0,true);while(1);}
-	 System::DelayMs(20);
-	 }
-	 */
-
-	/*
-	 to use pVarManager, you need to use Chrome to download the app by peter
-	 link:
-	 https://chrome.google.com/webstore/search/pgrapher?utm_source=chrome-ntp-icon
-	 */
-
-//-------------------------------------your code below----------------------------------------//
 	Watchdog::Init();
 	System::Init();
 
@@ -108,7 +67,7 @@ int main(void) {
 	btncfg.id = 0;
 	btncfg.listener = [&](const uint8_t)
 	{
-		if(!selecting_varset) {//when finished selecting varset, trigger the following
+		if(!Kyle.selecting_varset) {//when finished selecting varset, trigger the following
 				IsPrint = !IsPrint;
 				Kyle.switchLED(3,IsPrint);
 				Kyle.beepbuzzer(100);
@@ -119,7 +78,7 @@ int main(void) {
 	btncfg.id = 1;
 	btncfg.listener = [&](const uint8_t)
 	{
-		if(!selecting_varset) {
+		if(!Kyle.selecting_varset) {
 			IsProcess = !IsProcess;
 			Kyle.switchLED(2,IsProcess);
 			Kyle.beepbuzzer(100);
@@ -145,12 +104,12 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!selecting_varset) {
+				if(!Kyle.selecting_varset) {
 					ideal_encoder_count+=50;
 					Kyle.beepbuzzer(100);
 				}
 				else {
-					varset_index--;
+					Kyle.varset_index--;
 //					deg+=10;
 					Kyle.beepbuzzer(100);
 				}
@@ -159,12 +118,12 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!selecting_varset) {
+				if(!Kyle.selecting_varset) {
 					ideal_encoder_count-=50;
 					Kyle.beepbuzzer(100);
 				}
 				else {
-					varset_index++;
+					Kyle.varset_index++;
 //					deg-=10;
 					Kyle.beepbuzzer(100);
 				}
@@ -173,9 +132,9 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!selecting_varset) {
+				if(!Kyle.selecting_varset) {
 					if(IsEditKd) T-=0.01f;
-					else K-=0.01f;
+					else K-=0.1f;
 					Kyle.beepbuzzer(100);
 				}
 
@@ -184,9 +143,9 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!selecting_varset) {
+				if(!Kyle.selecting_varset) {
 					if(IsEditKd) T+=0.01f;
-					else K+=0.01f;
+					else K+=0.1f;
 					Kyle.beepbuzzer(100);
 				}
 
@@ -195,13 +154,13 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!selecting_varset) {
+				if(!Kyle.selecting_varset) {
 					IsEditKd=!IsEditKd;
 					Kyle.switchLED(4,IsEditKd);
 					Kyle.beepbuzzer(100);
 				}
 				else {
-					selecting_varset = false;
+					Kyle.selecting_varset = false;
 					Kyle.beepbuzzer(100);
 				}
 
@@ -209,60 +168,7 @@ int main(void) {
 	Joystick joy(fwaycfg);
 
 	Kyle.beepbuzzer(200);
-
-	/*-----moved selecting process here, otherwise car pointer will go wild-----*/
-	//Servo Kp, Kd, motor PID, offset, plnstart
-	VarSet myVS1 = { 0, 2.5f, 0.2f, 0.37f, 0.08f, 0.35f, 5, 59 }; //0
-	VarSet myVS2 = { 850, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //850
-	VarSet myVS3 = { 1050, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1050
-	VarSet myVS4 = { 1150, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1150
-	VarSet myVS5 = { 1250, 0.1f, 0.2f, 0.37f, 0.02f, 0.35f, 5, 59 }; //1250
-
-	VarSet Selected = myVS1;
-	for (;;) { //loop infinitely until VarSet selected
-		Watchdog::Refresh(); //remember to treat your doggy well
-
-		if (varset_index > 5)
-			varset_index = 4; //if uint8_t overflowed, causing index==100+, set it right
-		if (varset_index == 5)
-			varset_index = 0; //if reaches the end, loop back to 0
-		if (!selecting_varset)
-			break; //if selected by pressing select on joystick, break the pathetic infinite loop
-
-		Kyle.printvalue(0, 0, 128, 20, "HKUST Camera", Lcd::kWhite); //some welcome messages
-		Kyle.printvalue(0, 20, 128, 20, "Select Speed:", Lcd::kCyan);
-
-		switch (varset_index) { //print speed according to corresponding VarSet
-		case 0:
-			Selected = myVS1;
-			Kyle.printvalue(0, 40, 40, 20, Selected.ideal_encoder_count,
-					Lcd::kGreen);
-			break;
-		case 1:
-			Selected = myVS2;
-			Kyle.printvalue(0, 40, 40, 20, Selected.ideal_encoder_count,
-					Lcd::kGreen);
-			break;
-		case 2:
-			Selected = myVS3;
-			Kyle.printvalue(0, 40, 40, 20, Selected.ideal_encoder_count,
-					Lcd::kYellow);
-			break;
-		case 3:
-			Selected = myVS4;
-			Kyle.printvalue(0, 40, 40, 20, Selected.ideal_encoder_count,
-					Lcd::kRed);
-			break;
-		case 4:
-			Selected = myVS5;
-			Kyle.printvalue(0, 40, 40, 20, Selected.ideal_encoder_count,
-					Lcd::kPurple);
-			break;
-		}
-//		Kyle.printvalue(deg,Lcd::kWhite);
-//		Kyle.GetServo().SetDegree(deg);
-		System::DelayMs(20); //don't overload the mcu before image processing even begin
-	}
+	VarSet Selected=Kyle.SelectVarSet();
 	Kyle.GetLCD().Clear();
 
 	/*------assign VarSet variables-----*/
@@ -284,8 +190,8 @@ int main(void) {
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&Kd, "Kd");
-	mvar.addSharedVar(&K, "servoKd");
 	mvar.addSharedVar(&T, "servoK");
+	mvar.addSharedVar(&K, "servoKd");
 	mvar.addSharedVar(&offset, "Offset");
 	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");

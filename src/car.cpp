@@ -32,6 +32,7 @@ Car::Car() {
 	motor = new DirMotor(GetDirmotorConfig());
 	LCD = new St7735r(GetLcdConfig());
 	buzzer = new SimpleBuzzer(GetBuzzerConfig());
+	batt = new BatteryMeter(GetBattConfig());
 	cam = new k60::Ov7725(GetCamConfig());
 	cam->Start();
 	while (!cam->IsAvailable()) {
@@ -110,7 +111,8 @@ void Car::printvalue(std::string Result) {
 	LCDwriter->WriteString(s);
 }
 
-void Car::printvalue(int x, int y, int w, int h, std::string Result,int16_t color) {
+void Car::printvalue(int x, int y, int w, int h, std::string Result,
+		int16_t color) {
 	LCD->SetRegion(libsc::Lcd::Rect(x, y, w, h));
 	const char *s = Result.c_str();
 	LCDwriter->SetTextColor(color);
@@ -187,7 +189,8 @@ void Car::blinkLED(int8_t id, int delay_time, int persist_time) {
 void Car::beepbuzzer(uint32_t t) {
 	Timer::TimerInt m_t = System::Time();
 	this->buzzer->SetBeep(true);
-	while (System::Time() < m_t + t){}
+	while (System::Time() < m_t + t) {
+	}
 	this->buzzer->SetBeep(false);
 }
 
@@ -213,7 +216,7 @@ void Car::switchLED(int8_t id) {
 	LedToBlink->Switch();
 }
 
-void Car::switchLED(int8_t id,bool isEnable) {
+void Car::switchLED(int8_t id, bool isEnable) {
 	libsc::Led* LedToBlink;
 	switch (id) {
 	case 1:
