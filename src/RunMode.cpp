@@ -2,7 +2,7 @@
  * RunMode.cpp
  *
  *  Created on: 26-03-2016
- *      Author: this
+ *      Author: Kyle
  *      Adapted from code written by yungc
  *  Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  */
@@ -25,8 +25,8 @@ RunMode::RunMode() {
 	motor->SetClockwise(false);
 	maxMotorSpeed = 600;
 	minMotorSpeed = 0;
-	maxServoAngle = 1240;
-	minServoAngle = 540;
+	maxServoAngle = 1310;
+	minServoAngle = 520;
 	ideal_servo_degree = 900;
 	ideal_motor_speed = 0;
 
@@ -89,9 +89,9 @@ void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	VarSet myVS1 = { 0, 2.5f, 0.2f, 0.21f, 0.08f, 0.35f, 5, 59 }; //0
-	VarSet myVS2 = { 850, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //850
-	VarSet myVS3 = { 1050, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1050
+	VarSet myVS1 = { 0, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 5, 59 }; //left vacant for tuning
+	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 5, 59 }; //working fine
+	VarSet myVS3 = { 800, 1.9f, 0.42f, 0.17f, 0.02f, 0.35f, 5, 59 }; //1050
 	VarSet myVS4 = { 1150, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1150
 	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1250
 	VarSet m_selected = myVS1;
@@ -100,6 +100,7 @@ VarSet RunMode::SelectVarSet(void) {
 	printvalue(30,20,60,20,"cV",libsc::Lcd::kWhite);
 	for (;;) { //loop infinitely until VarSet selected
 		libbase::k60::Watchdog::Refresh(); //remember to treat your doggy well
+
 
 		if (varset_index > 5)
 			varset_index = 4; //if uint8_t overflowed, causing index==100+, set it right
@@ -135,8 +136,8 @@ VarSet RunMode::SelectVarSet(void) {
 					libsc::Lcd::kPurple);
 			break;
 		}
-		//		this.printvalue(deg,Lcd::kWhite);
-		//		this.GetServo().SetDegree(deg);
+//		printvalue(deg,libsc::Lcd::kWhite);
+//		servo->SetDegree(deg);
 		printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
 				libsc::Lcd::kWhite);
 		libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin

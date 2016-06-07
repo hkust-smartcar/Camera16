@@ -56,6 +56,7 @@ public:
 	int16_t MotorErr, ServoErr;	// put to public to facilitate tuning
 	uint8_t varset_index;
 	bool selecting_varset;
+	//uint16_t deg=900;
 
 private:
 	//yes, I add these variable as private, because they are not important

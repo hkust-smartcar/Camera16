@@ -17,7 +17,8 @@
 #define recR(y) y+60
 
 void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
-		int8_t& m_bgstart, const int8_t thres, const int8_t offset) {
+		int8_t& m_bgstart, const int8_t thres, const int8_t offset,
+		bool& stop) {
 
 	int8_t lastLeft = 0;
 	int8_t lastRight = 0;
@@ -32,7 +33,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (image[x][CAMH - 1]) {
 			lastLeft = x;
 			last2Left = x;
-			last3Left=x;
+			last3Left = x;
 			edges[recL(CAMH-1)] = x;
 			break;
 		}
@@ -44,7 +45,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (image[x][CAMH - 1]) {
 			lastRight = x;
 			last2Right = x;
-			last3Right=x;
+			last3Right = x;
 			edges[recR(CAMH-1)] = x;
 			break;
 		}
@@ -63,7 +64,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		for (int8_t x = std::max(0, 2 * lastLeft - last2Left - thres);
 				x < std::min(CAMW - 1, 2 * lastLeft - last2Left + thres); x++) {
 			if (image[x][y]) {
-				edges[recL(y)] = x;//(x == 0 ? -1 : x);//inspired by Judy, if right on the edge, record -1 or 80
+				edges[recL(y)] = x; //(x == 0 ? -1 : x);//inspired by Judy, if right on the edge, record -1 or 80
 				leftFound = true;
 				if (x - lastLeft < 0)
 					leftOut = true;
@@ -77,7 +78,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		for (int8_t x = std::min(CAMW - 1, 2 * lastRight - last2Right + thres);
 				x > std::max(0, 2 * lastRight - last2Right - thres); x--) {
 			if (image[x][y]) {
-				edges[recR(y)] = x;//(x == 79 ? 80 : x);
+				edges[recR(y)] = x; //(x == 79 ? 80 : x);
 				rightFound = true;
 				if (x - lastRight > 0)
 					rightOut = true;
@@ -93,6 +94,31 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			break;
 		}
 
+		/*------stop condition by Judy------*/
+		if (y > CAMH - 5) {
+			bool rightfulfill = false;
+			int middle = (edges[recL(y)] + edges[recR(y)]) / 2;
+			if (image[middle][y])
+				for (int i = middle; i < edges[recR(y)]; i++)
+					if (!image[i][y]){
+						for (int j = i; j < edges[recR(y)]; j++)
+							if (image[j][y]) {
+								rightfulfill = true;
+								goto left;
+							}
+					}
+			left: if (rightfulfill) {
+				for (int i = middle; i > edges[recL(y)]; i--)
+					if (!image[i][y]){
+						for (int j = i; j > edges[recL(y)]; j--)
+							if (image[j][y]) {
+								stop = true;
+								goto end;
+							}
+					}
+			}
+		}
+		stop = false;
 		/*-----if both sides goes outward, predict according to estimated slope-----*/
 		if (leftOut && rightOut) {
 			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
@@ -100,8 +126,8 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		}
 
 		/*-----store variables for future processing-----*/
-		last3Left=last2Left;
-		last3Right=last2Right;
+		last3Left = last2Left;
+		last3Right = last2Right;
 		last2Left = lastLeft;
 		last2Right = lastRight;
 		lastLeft = edges[recL(y)];
@@ -133,4 +159,5 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		}
 		/*-----finish scanning-----*/
 	}
+	end: ;
 }

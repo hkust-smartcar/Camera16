@@ -47,7 +47,7 @@ int main(void) {
 	bool IsEditKd = false;
 	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
-//	uint16_t deg=900;
+	bool stop = false;
 
 	/*-----variables waiting to be assigned-----*/
 	int16_t ideal_encoder_count;
@@ -110,7 +110,7 @@ int main(void) {
 				}
 				else {
 					Kyle.varset_index--;
-//					deg+=10;
+					//Kyle.deg+=10;
 					Kyle.beepbuzzer(100);
 				}
 			};
@@ -124,7 +124,7 @@ int main(void) {
 				}
 				else {
 					Kyle.varset_index++;
-//					deg-=10;
+					//Kyle.deg-=10;
 					Kyle.beepbuzzer(100);
 				}
 			};
@@ -168,7 +168,7 @@ int main(void) {
 	Joystick joy(fwaycfg);
 
 	Kyle.beepbuzzer(200);
-	VarSet Selected=Kyle.SelectVarSet();
+	VarSet Selected = Kyle.SelectVarSet();
 	Kyle.GetLCD().Clear();
 
 	/*------assign VarSet variables-----*/
@@ -219,7 +219,11 @@ int main(void) {
 					Kyle.GetLCD().SetRegion(Lcd::Rect(0,125,80,25));
 					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
-				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset);
+				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop);
+				if(stop) {
+					//System::DelayMs(n);
+					ideal_encoder_count = 0;
+				}
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid,plnstart);
 				dmid=10*Kyle.mid;	//store in dmid for pGrapher
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
