@@ -64,7 +64,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		for (int8_t x = std::max(0, 2 * lastLeft - last2Left - thres);
 				x < std::min(CAMW - 1, 2 * lastLeft - last2Left + thres); x++) {
 			if (image[x][y]) {
-				edges[recL(y)] = x; //(x == 0 ? -1 : x);//inspired by Judy, if right on the edge, record -1 or 80
+				edges[recL(y)] = x;
 				leftFound = true;
 				if (x - lastLeft < 0)
 					leftOut = true;
@@ -78,7 +78,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		for (int8_t x = std::min(CAMW - 1, 2 * lastRight - last2Right + thres);
 				x > std::max(0, 2 * lastRight - last2Right - thres); x--) {
 			if (image[x][y]) {
-				edges[recR(y)] = x; //(x == 79 ? 80 : x);
+				edges[recR(y)] = x;
 				rightFound = true;
 				if (x - lastRight > 0)
 					rightOut = true;

@@ -221,7 +221,6 @@ int main(void) {
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop);
 				if(stop) {
-					//System::DelayMs(n);
 					ideal_encoder_count = 0;
 				}
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid,plnstart);

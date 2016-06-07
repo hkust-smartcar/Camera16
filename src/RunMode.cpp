@@ -89,10 +89,10 @@ void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	VarSet myVS1 = { 0, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 5, 59 }; //left vacant for tuning
-	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 5, 59 }; //working fine
-	VarSet myVS3 = { 800, 1.9f, 0.42f, 0.17f, 0.02f, 0.35f, 5, 59 }; //1050
-	VarSet myVS4 = { 1150, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1150
+	VarSet myVS1 = { 0, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 8, 59 }; //left vacant for tuning
+	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 8, 59 }; //working fine
+	VarSet myVS3 = { 800, 1.7f, 0.44f, 0.17f, 0.02f, 0.35f, 5, 59 }; //working fine
+	VarSet myVS4 = { 850, 1.45f, 0.47f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1150
 	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1250
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
