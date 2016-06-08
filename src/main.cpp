@@ -133,8 +133,8 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
-					if(IsEditKd) T-=0.01f;
-					else K-=0.1f;
+					if(IsEditKd) T-=0.05f;
+					else K-=0.01f;
 					Kyle.beepbuzzer(100);
 				}
 
@@ -144,8 +144,8 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
-					if(IsEditKd) T+=0.01f;
-					else K+=0.1f;
+					if(IsEditKd) T+=0.05f;
+					else K+=0.01f;
 					Kyle.beepbuzzer(100);
 				}
 

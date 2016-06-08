@@ -21,7 +21,8 @@
 
 using namespace std;
 
-Car::Car() {
+Car::Car() :
+		bgstart(0), mid(39) {
 	Led1 = new Led(GetLed1Config());
 	Led2 = new Led(GetLed2Config());
 	Led3 = new Led(GetLed3Config());
@@ -46,12 +47,10 @@ Car::Car() {
 	LCDCConfig.lcd = LCD;
 	LCDconsole = new LcdConsole(LCDCConfig);
 
-	memset(this->data, 0, 600);
-	memset(this->image, false, true * 80 * 60);
-	memset(this->edges, 0, 120);
-	memset(this->waypoints, 0, 60);
-	this->bgstart = 0;
-	this->mid = 39;
+	memset(this->data, 0, sizeof(data));
+	memset(this->image, false, sizeof(image));
+	memset(this->edges, 0, sizeof(edges));
+	memset(this->waypoints, 0, sizeof(waypoints));
 }
 // for constructor, you can temporarily understand it as :
 // initialize all variable ( & pointer)

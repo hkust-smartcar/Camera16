@@ -20,33 +20,15 @@
 #include <stdint.h>
 #include <cstdlib>
 
-RunMode::RunMode() {
-	//can initialize the variable here,
-	motor->SetClockwise(false);
-	maxMotorSpeed = 600;
-	minMotorSpeed = 0;
-	maxServoAngle = 1310;
-	minServoAngle = 520;
-	ideal_servo_degree = 900;
-	ideal_motor_speed = 0;
+RunMode::RunMode() :
+		ideal_servo_degree(900), ideal_motor_speed(0), MotorErr(0), ServoErr(0), varset_index(
+				0), selecting_varset(true), maxServoAngle(1310), minServoAngle(
+				520), maxMotorSpeed(600), minMotorSpeed(0), ServoPrevErr(0), MotorPrev1Err(
+				0), MotorPrev2Err(0) {}
 
-	ServoErr = 0;
-	ServoPrevErr = 0;
+RunMode::~RunMode() {}
 
-	MotorErr = 0;
-	MotorPrev1Err = 0;
-	MotorPrev2Err = 0;
-
-	varset_index = 0;
-	selecting_varset = true;
-
-}
-
-RunMode::~RunMode() {
-
-}
-
-void RunMode::turningPID(const int8_t mid_line, float Kd, float T) {
+void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 
 //	float T = 0.3f; //TODO: find proper proportion and Kd
 //	float Kd = 12.0f;
@@ -67,8 +49,8 @@ void RunMode::turningPID(const int8_t mid_line, float Kd, float T) {
 	ServoPrevErr = ServoErr;
 }
 
-void RunMode::motorPID(int16_t ideal_encoder_count, float Kp, float Ki,
-		float Kd) {
+void RunMode::motorPID(int16_t ideal_encoder_count, const float Kp,
+		const float Ki, float Kd) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
@@ -97,10 +79,9 @@ VarSet RunMode::SelectVarSet(void) {
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
-	printvalue(30,20,60,20,"cV",libsc::Lcd::kWhite);
+	printvalue(30, 20, 60, 20, "cV", libsc::Lcd::kWhite);
 	for (;;) { //loop infinitely until VarSet selected
 		libbase::k60::Watchdog::Refresh(); //remember to treat your doggy well
-
 
 		if (varset_index > 5)
 			varset_index = 4; //if uint8_t overflowed, causing index==100+, set it right
