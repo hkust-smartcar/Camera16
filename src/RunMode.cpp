@@ -21,12 +21,14 @@
 #include <cstdlib>
 
 RunMode::RunMode() :
-		ideal_servo_degree(900), ideal_motor_speed(0), MotorErr(0), ServoErr(0), varset_index(
-				0), selecting_varset(true), maxServoAngle(1310), minServoAngle(
-				520), maxMotorSpeed(600), minMotorSpeed(0), ServoPrevErr(0), MotorPrev1Err(
-				0), MotorPrev2Err(0) {}
+		varset_index(0), selecting_varset(true), real_encodercount(0), encodercount(
+				0), maxServoAngle(1310), minServoAngle(520), maxMotorSpeed(600), minMotorSpeed(
+				0), ServoErr(0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(
+				0), MotorPrev1Err(0), MotorPrev2Err(0), ideal_motor_speed(0) {
+}
 
-RunMode::~RunMode() {}
+RunMode::~RunMode() {
+}
 
 void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 
@@ -50,13 +52,15 @@ void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 }
 
 void RunMode::motorPID(int16_t ideal_encoder_count, const float Kp,
-		const float Ki, float Kd) {
+		const float Ki, float Kd, float m_beta) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
-	MotorErr = ideal_encoder_count + encoder->GetCount(); //encoder count is negative, therefore the algebraic sum is plus
+	real_encodercount = -encoder->GetCount(); //record raw encoder count for comparison
+	encodercount = encodercount - m_beta * (encodercount - real_encodercount); //LPF
+	MotorErr = ideal_encoder_count - encodercount;
 
-			/*-----Core PID formula-----*/
+	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr
 			+ Kd * (MotorErr - 2 * MotorPrev1Err + MotorPrev2Err);
@@ -71,11 +75,11 @@ void RunMode::motorPID(int16_t ideal_encoder_count, const float Kp,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	VarSet myVS1 = { 0, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 8, 59 }; //left vacant for tuning
-	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.17f, 0.08f, 0.35f, 8, 59 }; //working fine
-	VarSet myVS3 = { 800, 1.7f, 0.44f, 0.17f, 0.02f, 0.35f, 5, 59 }; //working fine
-	VarSet myVS4 = { 850, 1.45f, 0.47f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1150
-	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.21f, 0.02f, 0.35f, 5, 59 }; //1250
+	VarSet myVS1 = { 0, 1.45f, 0.47f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //left vacant for tuning
+	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //working fine
+	VarSet myVS3 = { 800, 1.7f, 0.44f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //working fine
+	VarSet myVS4 = { 850, 1.45f, 0.47f, 0.42f, 0.21f, 0.02f, 0.35f, 8, 59 }; //1150
+	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.42f, 0.21f, 0.02f, 0.35f, 8, 59 }; //1250
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);

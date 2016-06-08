@@ -45,7 +45,6 @@ int main(void) {
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
-	int16_t real_encoder_count = 0;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
 
@@ -53,6 +52,7 @@ int main(void) {
 	int16_t ideal_encoder_count;
 	float K;
 	float T;
+	float servo_beta;
 	float Kp;
 	float Ki;
 	float Kd;
@@ -175,6 +175,7 @@ int main(void) {
 	ideal_encoder_count = Selected.ideal_encoder_count;
 	K = Selected.K;
 	T = Selected.T;
+	servo_beta = Selected.servo_beta;
 	Kp = Selected.Kp;
 	Ki = Selected.Ki;
 	Kd = Selected.Kd;
@@ -184,16 +185,17 @@ int main(void) {
 	pVarManager mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/
-	mvar.addWatchedVar(&real_encoder_count, "Real Encoder");
-	mvar.addWatchedVar(&Kyle.ideal_motor_speed, "Ideal Motor");
+	mvar.addWatchedVar(&Kyle.real_encodercount, "Real Encoder");
+	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&Kd, "Kd");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
-	mvar.addSharedVar(&offset, "Offset");
-	mvar.addSharedVar(&plnstart, "PLNStart");
+	mvar.addSharedVar(&servo_beta, "servoBeta");
+//	mvar.addSharedVar(&offset, "Offset");
+//	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 
@@ -232,8 +234,7 @@ int main(void) {
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd);//when using LCD the system slows down dramatically, causing the motor to go crazy
-				real_encoder_count=-Kyle.GetEnc().GetCount();
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,servo_beta);//when using LCD the system slows down dramatically, causing the motor to go crazy
 				mvar.sendWatchData();
 				looper.RunAfter(request,m_motorPID);
 			};

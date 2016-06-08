@@ -19,6 +19,7 @@ struct VarSet {
 	/*-----servo-----*/
 	float T; //kp
 	float K; //kd
+	float servo_beta; //beta for servo's LPF
 
 	/*-----motor-----*/
 	float Kp;
@@ -41,33 +42,38 @@ public:
 	~RunMode();
 
 	//positional PID = kp *error +kd *(error_prev - error), try to let Kp be proportional to error squared
-	void turningPID(int8_t const mid_line, const float Kp, const float T) override;
+	void turningPID(int8_t const mid_line, const float Kp, const float T)
+			override;
 
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
-	void motorPID(int16_t ideal_encoder_count, const float, const float, const float) override;
+	void motorPID(int16_t ideal_encoder_count, const float, const float,
+			const float, const float) override;
 
 	VarSet SelectVarSet(void);
 
 	//--------------------------variable below---------------------------//
 	//to access the public variable, you can use (obj_name).(var_name) to access
-
-	int16_t ideal_servo_degree, ideal_motor_speed;
-	int16_t MotorErr, ServoErr;	// put to public to facilitate tuning
 	uint8_t varset_index;
 	bool selecting_varset;
 	//uint16_t deg=900;
+	int32_t real_encodercount;
+	int32_t encodercount;
 
 private:
 	//yes, I add these variable as private, because they are not important
 	// Moreover, variable can be declare in header(.h), and define in either header(.h) or source(.cpp)
 
-	const int16_t maxServoAngle, minServoAngle;// give a maximun& minimun angle for servo to turn
+	const int16_t maxServoAngle, minServoAngle;	// give a maximun& minimun angle for servo to turn
 	const uint16_t maxMotorSpeed, minMotorSpeed; // give a maximun& minimun PWM for motor to run
 
+	int16_t ServoErr;
 	int16_t ServoPrevErr;
+	int16_t ideal_servo_degree;
 
+	int16_t MotorErr;
 	int16_t MotorPrev1Err;
 	int16_t MotorPrev2Err;
+	int16_t ideal_motor_speed;
 
 };

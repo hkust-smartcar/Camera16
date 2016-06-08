@@ -34,10 +34,10 @@
 
 class Car {
 	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
-			//	const int offset = x/8 + (y * image_width / 8);
-			//	return (src[offset] << (x%8) & 0x80) ? false : true;
-			return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
-		}
+		//	const int offset = x/8 + (y * image_width / 8);
+		//	return (src[offset] << (x%8) & 0x80) ? false : true;
+		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
+	}
 public:
 	// public means anyone can access it
 	//there are even , that means really anyone can access it, even when the class object does not exist :O
@@ -66,7 +66,8 @@ public:
 	void printvalue(std::string);
 	//print string to up-right corner in LCD
 
-	void printvalue(int x, int y, int w, int h, std::string Result,int16_t color);
+	void printvalue(int x, int y, int w, int h, std::string Result,
+			int16_t color);
 
 	void printRawCamGraph(const int8_t x, const int8_t y, Byte* data);
 	//call after capture_raw_image
@@ -94,7 +95,7 @@ public:
 	//beep buzzer for t (ms)
 
 	void switchLED(int8_t id);
-	void switchLED(int8_t id,bool isEnable);
+	void switchLED(int8_t id, bool isEnable);
 	/*--------------------------------signal component above------------------------------------*/
 
 	/*--------------------------------get data from component below------------------------------------*/
@@ -106,19 +107,24 @@ public:
 
 	/*--------------------------------(temporarily) get devices below------------------------------------*/
 
-	libsc::St7735r& GetLCD(void) {return *LCD;}
+	libsc::St7735r& GetLCD(void) {
+		return *LCD;
+	}
 
-	libsc::AbEncoder& GetEnc(void) {return *encoder;}
+	libsc::AbEncoder& GetEnc(void) {
+		return *encoder;
+	}
 
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/
 	//virtual simply means you can have different implementation of that function in the inherited class
 	// dont understand? NVM, just skip this part
-	virtual void turningPID(int8_t const mid_line, const float,const float)=0;
+	virtual void turningPID(int8_t const mid_line, const float, const float)=0;
 	//positional PID = kp *error +kd *(error_prev - error), try change Kp according to error magnitude
 
-	virtual void motorPID(int16_t ideal_encoder_count,const float,const float,const float)=0;
+	virtual void motorPID(int16_t ideal_encoder_count, const float, const float,
+			const float, const float)=0;
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
 
@@ -147,7 +153,6 @@ private:
 
 	//function used to divide image,
 
-
 protected:
 	//protected seems professional
 	//protected means either member of it's only class or class inherited
@@ -164,7 +169,7 @@ protected:
 	libsc::LcdTypewriter* LCDwriter = nullptr;
 	libsc::SimpleBuzzer* buzzer = nullptr;
 	libsc::k60::Ov7725* cam = nullptr;
-	libsc::BatteryMeter* batt=nullptr;
+	libsc::BatteryMeter* batt = nullptr;
 
 	//the above * means its a pointer.
 	// either  int* a;
