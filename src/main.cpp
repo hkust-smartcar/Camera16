@@ -21,9 +21,11 @@
 
 #include "../inc/car.h"
 #include "../inc/ImageProcess.h"
-#include "../inc/pVarManager.h"
 #include "../inc/Planner.h"
 #include "../inc/RunMode.h"
+#ifdef USE_PGRAPHER
+#include "../inc/pVarManager.h"
+#endif
 
 using namespace libsc;
 
@@ -52,7 +54,7 @@ int main(void) {
 	int16_t ideal_encoder_count;
 	float K;
 	float T;
-	float servo_beta;
+	float motor_beta;
 	float Kp;
 	float Ki;
 	float Kd;
@@ -110,10 +112,12 @@ int main(void) {
 				}
 				else {
 					Kyle.varset_index--;
-					//Kyle.deg+=10;
-					Kyle.beepbuzzer(100);
-				}
-			};
+#ifdef TESTSERVO
+			Kyle.deg+=10;
+#endif
+			Kyle.beepbuzzer(100);
+		}
+	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
@@ -124,10 +128,12 @@ int main(void) {
 				}
 				else {
 					Kyle.varset_index++;
-					//Kyle.deg-=10;
-					Kyle.beepbuzzer(100);
-				}
-			};
+#ifdef TESTSERVO
+			Kyle.deg-=10;
+#endif
+			Kyle.beepbuzzer(100);
+		}
+	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
@@ -175,13 +181,15 @@ int main(void) {
 	ideal_encoder_count = Selected.ideal_encoder_count;
 	K = Selected.K;
 	T = Selected.T;
-	servo_beta = Selected.servo_beta;
+	motor_beta = Selected.motor_beta;
 	Kp = Selected.Kp;
 	Ki = Selected.Ki;
 	Kd = Selected.Kd;
 	offset = Selected.offset;
 	plnstart = Selected.plnstart;
+	int16_t last_count = ideal_encoder_count;
 
+#ifdef USE_PGRAPHER
 	pVarManager mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/
@@ -193,11 +201,34 @@ int main(void) {
 	mvar.addSharedVar(&Kd, "Kd");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
-	mvar.addSharedVar(&servo_beta, "servoBeta");
+	mvar.addSharedVar(&motor_beta, "motorβ");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
+	pVarManager::OnReceiveListener mvarlistener =
+			[&](const std::vector<Byte>& msg) {
+				switch(msg[0]) {
+					case 'w':
+					last_count=ideal_encoder_count==0?last_count:ideal_encoder_count;
+					ideal_encoder_count=0;
+					break;
+					case 's':
+					ideal_encoder_count=last_count;
+					break;
+					case 'x':
+					ideal_encoder_count=-last_count;
+					break;
+					case 'e':
+					ideal_encoder_count+=50;
+					break;
+					case 'q':
+					ideal_encoder_count-=50;
+					break;
+				};
+			};
+	mvar.SetOnReceiveListener(mvarlistener);
+#endif
 
 	Looper::Callback m_imp =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
@@ -234,10 +265,12 @@ int main(void) {
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,servo_beta);//when using LCD the system slows down dramatically, causing the motor to go crazy
-				mvar.sendWatchData();
-				looper.RunAfter(request,m_motorPID);
-			};
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,motor_beta);//when using LCD the system slows down dramatically, causing the motor to go crazy
+#ifdef USE_PGRAPHER
+			mvar.sendWatchData();
+#endif
+			looper.RunAfter(request,m_motorPID);
+		};
 
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);

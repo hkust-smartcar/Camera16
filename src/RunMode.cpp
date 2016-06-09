@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), real_encodercount(0), encodercount(
-				0), maxServoAngle(1310), minServoAngle(520), maxMotorSpeed(600), minMotorSpeed(
+				0), maxServoAngle(1280), minServoAngle(520), maxMotorSpeed(600), minMotorSpeed(
 				0), ServoErr(0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(
 				0), MotorPrev1Err(0), MotorPrev2Err(0), ideal_motor_speed(0) {
 }
@@ -75,18 +75,19 @@ void RunMode::motorPID(int16_t ideal_encoder_count, const float Kp,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	VarSet myVS1 = { 0, 1.45f, 0.47f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //left vacant for tuning
-	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //working fine
-	VarSet myVS3 = { 800, 1.7f, 0.44f, 0.42f, 0.21f, 0.08f, 0.35f, 8, 59 }; //working fine
-	VarSet myVS4 = { 850, 1.45f, 0.47f, 0.42f, 0.21f, 0.02f, 0.35f, 8, 59 }; //1150
-	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.42f, 0.21f, 0.02f, 0.35f, 8, 59 }; //1250
+	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, PLNStart
+	VarSet myVS1 = { 0, 1.45f, 0.47f, 0.21f, 0.08f, 0.4f, 0.35f, 8, 59 }; //left vacant for tuning
+	VarSet myVS2 = { 750, 1.8f, 0.35f, 0.21f, 0.08f, 0.4f, 0.35f, 8, 59 }; //working fine
+	VarSet myVS3 = { 800, 1.7f, 0.44f, 0.21f, 0.08f, 0.4f, 0.35f, 8, 59 }; //working fine
+	VarSet myVS4 = { 850, 1.45f, 0.47f, 0.21f, 0.08f, 0.4f, 0.35f, 8, 59 }; //1150
+	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.21f, 0.08f, 0.4f, 0.35f, 8, 59 }; //1250
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
 	printvalue(30, 20, 60, 20, "cV", libsc::Lcd::kWhite);
 	for (;;) { //loop infinitely until VarSet selected
 		libbase::k60::Watchdog::Refresh(); //remember to treat your doggy well
-
+#ifndef TESTSERVO
 		if (varset_index > 5)
 			varset_index = 4; //if uint8_t overflowed, causing index==100+, set it right
 		if (varset_index == 5)
@@ -121,8 +122,10 @@ VarSet RunMode::SelectVarSet(void) {
 					libsc::Lcd::kPurple);
 			break;
 		}
-//		printvalue(deg,libsc::Lcd::kWhite);
-//		servo->SetDegree(deg);
+#else
+		printvalue(deg,libsc::Lcd::kWhite);
+		servo->SetDegree(deg);
+#endif
 		printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
 				libsc::Lcd::kWhite);
 		libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin

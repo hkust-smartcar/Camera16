@@ -17,8 +17,6 @@
 
 #include "../inc/config.h"
 
-#define data_size 600
-
 using namespace std;
 
 Car::Car() :
@@ -28,6 +26,7 @@ Car::Car() :
 	Led3 = new Led(GetLed3Config());
 	Led4 = new Led(GetLed4Config());
 	encoder = new AbEncoder(GetAbEncoderConfig());
+	encoder->Update();
 	servo = new TrsD05(GetServoConfig());
 	servo->SetDegree(900);
 	motor = new DirMotor(GetDirmotorConfig());
@@ -240,7 +239,7 @@ void Car::switchLED(int8_t id, bool isEnable) {
 void Car::capture_image(void) {
 
 	// capture raw image
-	memcpy(this->data, this->cam->LockBuffer(), data_size);
+	memcpy(this->data, this->cam->LockBuffer(), 600);
 	this->cam->UnlockBuffer();
 
 	// divide image

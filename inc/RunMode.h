@@ -9,6 +9,8 @@
  *  Handle PID controllers for motor and servo, keeps the history encoder data
  */
 #pragma once
+#define USE_PGRAPHER
+//#define TESTSERVO
 
 #include <cstdint>
 
@@ -19,12 +21,12 @@ struct VarSet {
 	/*-----servo-----*/
 	float T; //kp
 	float K; //kd
-	float servo_beta; //beta for servo's LPF
 
 	/*-----motor-----*/
 	float Kp;
 	float Ki;
 	float Kd;
+	float motor_beta; //beta for motor's LPF
 
 	/*-----other processing variables-----*/
 	int8_t offset;
@@ -56,7 +58,9 @@ public:
 	//to access the public variable, you can use (obj_name).(var_name) to access
 	uint8_t varset_index;
 	bool selecting_varset;
-	//uint16_t deg=900;
+#ifdef TESTSERVO
+	uint16_t deg=900;
+#endif
 	int32_t real_encodercount;
 	int32_t encodercount;
 
