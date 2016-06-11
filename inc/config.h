@@ -123,16 +123,16 @@ k60::Ov7725::Config GetCamConfig(){
 	camcfg.id=0;
 	camcfg.w=80;
 	camcfg.h=60;
-	camcfg.fps=k60::Ov7725::Config::Fps::kMid;
+	camcfg.fps=k60::Ov7725::Config::Fps::kLow;
 	//TODO adjust proper FPS
-	camcfg.contrast = 0x30;
-//	camcfg.brightness=0x00;
+	camcfg.contrast = 0x38;
+	camcfg.brightness=0x00;
 	return camcfg;
 }
 
 BatteryMeter::Config GetBattConfig(){
 	BatteryMeter::Config battcfg;
-	battcfg.voltage_ratio=0.3962f;
+	battcfg.voltage_ratio=0.4f;
 	return battcfg;
 }
 

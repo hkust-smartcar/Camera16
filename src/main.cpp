@@ -54,10 +54,10 @@ int main(void) {
 	int16_t ideal_encoder_count;
 	float K;
 	float T;
-	float motor_beta;
 	float Kp;
 	float Ki;
 	float Kd;
+	float motor_beta;
 	int8_t offset;
 	int8_t plnstart;
 
@@ -199,9 +199,9 @@ int main(void) {
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&Kd, "Kd");
+	mvar.addSharedVar(&motor_beta, "Motor Beta");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
-	mvar.addSharedVar(&motor_beta, "motorβ");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
@@ -210,11 +210,11 @@ int main(void) {
 			[&](const std::vector<Byte>& msg) {
 				switch(msg[0]) {
 					case 'w':
-					last_count=ideal_encoder_count==0?last_count:ideal_encoder_count;
-					ideal_encoder_count=0;
+					ideal_encoder_count=last_count;
 					break;
 					case 's':
-					ideal_encoder_count=last_count;
+					last_count=ideal_encoder_count==0?last_count:ideal_encoder_count;
+					ideal_encoder_count=0;
 					break;
 					case 'x':
 					ideal_encoder_count=-last_count;

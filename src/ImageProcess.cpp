@@ -8,7 +8,6 @@
 
 #include "../inc/ImageProcess.h"
 
-#include <stdint.h>
 #include <algorithm>
 
 #define CAMW 80
@@ -119,11 +118,6 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			}
 		}
 		stop = false;
-		/*-----if both sides goes outward, predict according to estimated slope-----*/
-		if (leftOut && rightOut) {
-			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
-			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
-		}
 
 		/*-----store variables for future processing-----*/
 		last3Left = last2Left;
@@ -157,6 +151,13 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			}
 
 		}
+
+		/*-----if both sides goes outward, predict according to estimated slope-----*/
+		if (leftOut && rightOut) {
+			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
+			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
+		}
+
 		/*-----finish scanning-----*/
 	}
 	end: ;

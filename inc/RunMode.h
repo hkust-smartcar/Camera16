@@ -44,12 +44,12 @@ public:
 	~RunMode();
 
 	//positional PID = kp *error +kd *(error_prev - error), try to let Kp be proportional to error squared
-	void turningPID(int8_t const mid_line, const float Kp, const float T)
+	void turningPID(int8_t const real_mid_line, const float Kp, const float T)
 			override;
 
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
-	void motorPID(int16_t ideal_encoder_count, const float, const float,
+	void motorPID(const int16_t ideal_encoder_count, const float, const float,
 			const float, const float) override;
 
 	VarSet SelectVarSet(void);
