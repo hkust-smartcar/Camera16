@@ -30,7 +30,7 @@ struct VarSet {
 
 	/*-----other processing variables-----*/
 	int8_t offset;
-	int8_t plnstart;
+	uint8_t KDec; //deceleration constant
 };
 
 class RunMode: public Car {
@@ -50,7 +50,7 @@ public:
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
 	void motorPID(const int16_t ideal_encoder_count, const float, const float,
-			const float, const float) override;
+			const float, const float,const uint8_t) override;
 
 	VarSet SelectVarSet(void);
 

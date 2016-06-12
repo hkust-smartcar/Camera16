@@ -8,6 +8,7 @@
  */
 
 #include "../inc/Planner.h"
+#include "car.h"
 
 #include <sys/types.h>
 #include <cstdint>
@@ -23,13 +24,13 @@ Planner::Planner() {
 Planner::~Planner(){
 }
 void Planner::Calc(int8_t const edge[120], int8_t waypoints[60],
-		int8_t const bgstart, uint32_t& mid,int8_t plnstart) {
+		int8_t const bgstart, uint32_t& mid) {
 
 	uint m_mid_sum = 0;
 	uint m_weight_sum = 0;
 
-	for (int8_t y = plnstart>CAMH-1?CAMH-1:plnstart; y > bgstart; y--) {
-		waypoints[y] = (edge[GetL(y)] + edge[GetR(y)]) / 2; //TODO: try adding imaginary lines here
+	for (int8_t y = CAMH-1; y > bgstart; y--) {
+		waypoints[y] = (edge[GetL(y)] + edge[GetR(y)]) / 2;
 		m_mid_sum += waypoints[y] * weight[y];
 		m_weight_sum += weight[y];
 	}

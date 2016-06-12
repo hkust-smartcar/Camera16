@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), real_encodercount(0), encodercount(
-				0), maxServoAngle(1280), minServoAngle(480), maxMotorSpeed(400), minMotorSpeed(
+				0), maxServoAngle(1460), minServoAngle(430), maxMotorSpeed(400), minMotorSpeed(
 				0), ServoErr(0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(
 				0), MotorPrev1Err(0), MotorPrev2Err(0), ideal_motor_speed(0) {
 }
@@ -32,8 +32,6 @@ RunMode::~RunMode() {
 
 void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 
-//	float T = 0.3f; //TODO: find proper proportion and Kd
-//	float Kd = 12.0f;
 //Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;
 
@@ -51,13 +49,15 @@ void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 }
 
 void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
-		const float Ki, const float Kd, float m_beta) {
+		const float Ki, const float Kd, const float m_beta,const uint8_t KDec) {
+	//TODO: try ideal_encoder_count = ideal_encoder_count - K * ServoErr, to achieve acceleration and deceleration before curves.
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
 	real_encodercount = -encoder->GetCount(); //record raw encoder count for comparison
 	encodercount = encodercount - m_beta * (encodercount - real_encodercount); //LPF
-	MotorErr = ideal_encoder_count - encodercount;
+	//ideal encoder count = 2000 - 30*abs(servoerr)
+	MotorErr = (ideal_encoder_count - KDec * abs(ServoErr)) - encodercount;
 
 	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
@@ -74,12 +74,12 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, PLNStart
-	VarSet myVS1 = { 0, 1.46f, 1.3f, 0.22f, 0.035f, 0.96f, 0.35f, 8, 59 }; //left vacant for tuning
-	VarSet myVS2 = { 1700, 1.5f, 0.6f, 0.2f, 0.04f, 0.75f, 0.35f, 8, 59 }; //working fine 1.5m/s
-	VarSet myVS3 = { 800, 1.88f, 0.64f, 0.75f, 0.08f, 2.0f, 1.0f, 8, 59 }; //not sure
-	VarSet myVS4 = { 850, 1.5f, 0.47f, 1.0f, 0.08f, 1.4f, 1.0f, 8, 59 }; //not sure
-	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.22f, 0.08f, 2.0f, 1.0f, 8, 59 }; //havn't tested
+	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, KDec
+	VarSet myVS1 = { 0, 1.73f, 1.35f, 0.45f, 0.05f, 0.65f, 0.4f, 8, 12 }; //left vacant for tuning
+	VarSet myVS2 = { 1700, 1.5f, 0.6f, 0.2f, 0.04f, 0.75f, 0.4f, 8, 12 }; //working fine 1.5m/s
+	VarSet myVS3 = { 1850, 1.73f, 1.35f, 0.45f, 0.05f, 0.65f, 0.4f, 8, 12 }; //not sure
+	VarSet myVS4 = { 850, 1.5f, 0.47f, 1.0f, 0.08f, 1.4f, 1.0f, 8, 12 }; //not sure
+	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.22f, 0.08f, 2.0f, 1.0f, 8, 12 }; //havn't tested
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);

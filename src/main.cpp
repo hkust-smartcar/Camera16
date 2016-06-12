@@ -59,7 +59,7 @@ int main(void) {
 	float Kd;
 	float motor_beta;
 	int8_t offset;
-	int8_t plnstart;
+	uint8_t KDec;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -186,7 +186,7 @@ int main(void) {
 	Ki = Selected.Ki;
 	Kd = Selected.Kd;
 	offset = Selected.offset;
-	plnstart = Selected.plnstart;
+	KDec = Selected.KDec;
 	int16_t last_count = ideal_encoder_count;
 
 #ifdef USE_PGRAPHER
@@ -202,6 +202,7 @@ int main(void) {
 	mvar.addSharedVar(&motor_beta, "Motor Beta");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
+	mvar.addSharedVar(&KDec, "KDec");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
@@ -238,13 +239,9 @@ int main(void) {
 				if(IsPrint) {
 					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(1,0);
-					Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
 					Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
-					Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
 					Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
-					Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
 					Kyle.printvalue(25,80,55,20,T*100,Lcd::kBlue);
-					Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
 					Kyle.printvalue(25,100,55,20,K*100,Lcd::kPurple);
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
@@ -253,10 +250,9 @@ int main(void) {
 					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop);
-				if(stop) {
-					ideal_encoder_count = 0;
-				}
-				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid,plnstart);
+				if(stop)
+				ideal_encoder_count = 0;
+				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 				dmid=10*Kyle.mid;	//store in dmid for pGrapher
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
 				Watchdog::Refresh();//LOL, feed or get bitten
@@ -265,7 +261,7 @@ int main(void) {
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,motor_beta);//when using LCD the system slows down dramatically, causing the motor to go crazy
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,motor_beta,KDec);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
@@ -274,6 +270,10 @@ int main(void) {
 
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
+	Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
+	Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
+	Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
+	Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
