@@ -8,6 +8,7 @@
  */
 
 #pragma once
+//#define Use_Dir_Encoder
 
 //put all config here
 
@@ -15,7 +16,11 @@
 #include <libsc/system.h>
 #include <libsc/led.h>
 #include <libbase/k60/mcg.h>
+#ifndef Use_Dir_Encoder
 #include <libsc/ab_encoder.h>
+#else
+#include <libsc/dir_encoder.h>
+#endif
 #include <libsc/trs_d05.h>
 #include <libsc/k60/ov7725.h>
 #include <libsc/button.h>
@@ -82,12 +87,22 @@ Led::Config GetLed4Config()
 }
 
 //encoder
+#ifndef Use_Dir_Encoder
+
 AbEncoder::Config GetAbEncoderConfig()
 {
 	AbEncoder::Config EncoderConfig;
 	EncoderConfig.id = 0;
 	return EncoderConfig;
 }
+#else
+DirEncoder::Config GetDirEncoderConfig()
+{
+	DirEncoder::Config EncoderConfig;
+	EncoderConfig.id = 0;
+	return EncoderConfig;
+}
+#endif
 
 //servo for turning
 TrsD05::Config GetServoConfig()

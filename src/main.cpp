@@ -8,8 +8,8 @@
  */
 
 #include <libbase/k60/watchdog.h>
+#include <libbase/misc_types.h>
 #include <libsc/button.h>
-#include <libsc/encoder.h>
 #include <libsc/joystick.h>
 #include <libsc/lcd.h>
 #include <libsc/st7735r.h>
@@ -18,13 +18,15 @@
 #include <libutil/looper.h>
 #include <stdint.h>
 #include <functional>
+#include <vector>
 
 #include "../inc/car.h"
 #include "../inc/ImageProcess.h"
 #include "../inc/Planner.h"
 #include "../inc/RunMode.h"
+
 #ifdef USE_PGRAPHER
-#include "../inc/pVarManager.h"
+#include <libutil/pGrapher.h>
 #endif
 
 using namespace libsc;
@@ -190,7 +192,7 @@ int main(void) {
 	int16_t last_count = ideal_encoder_count;
 
 #ifdef USE_PGRAPHER
-	pVarManager mvar; //call constructor after selecting VarSet, in case memory addresses freak out
+	pGrapher mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/
 	mvar.addWatchedVar(&Kyle.real_encodercount, "Real Encoder");
@@ -207,7 +209,7 @@ int main(void) {
 //	mvar.addSharedVar(&plnstart, "PLNStart");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
-	pVarManager::OnReceiveListener mvarlistener =
+	pGrapher::OnReceiveListener mvarlistener =
 			[&](const std::vector<Byte>& msg) {
 				switch(msg[0]) {
 					case 'w':
@@ -228,7 +230,7 @@ int main(void) {
 					break;
 				};
 			};
-	mvar.SetOnReceiveListener(mvarlistener);
+	mvar.setOnReceiveListener(mvarlistener);
 #endif
 
 	Looper::Callback m_imp =	// configure the callback function for looper
@@ -250,8 +252,8 @@ int main(void) {
 					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop);
-				if(stop)
-				ideal_encoder_count = 0;
+//				if(stop)
+//				ideal_encoder_count = 0;
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 				dmid=10*Kyle.mid;	//store in dmid for pGrapher
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);

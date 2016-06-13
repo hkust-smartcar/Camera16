@@ -49,15 +49,19 @@ void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 }
 
 void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
-		const float Ki, const float Kd, const float m_beta,const uint8_t KDec) {
-	//TODO: try ideal_encoder_count = ideal_encoder_count - K * ServoErr, to achieve acceleration and deceleration before curves.
+		const float Ki, const float Kd, const float m_beta,
+		const uint8_t KDec) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
 	real_encodercount = -encoder->GetCount(); //record raw encoder count for comparison
 	encodercount = encodercount - m_beta * (encodercount - real_encodercount); //LPF
-	//ideal encoder count = 2000 - 30*abs(servoerr)
-	MotorErr = (ideal_encoder_count - KDec * abs(ServoErr)) - encodercount;
+	if (abs(encodercount) > 5000)
+		encodercount = ideal_encoder_count;
+	MotorErr = int16_t(
+			(ideal_encoder_count
+					- (ideal_encoder_count == 0 ? 0 : KDec * abs(ServoErr)))
+					- encodercount);
 
 	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
@@ -75,9 +79,9 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, KDec
-	VarSet myVS1 = { 0, 1.73f, 1.35f, 0.45f, 0.05f, 0.65f, 0.4f, 8, 12 }; //left vacant for tuning
-	VarSet myVS2 = { 1700, 1.5f, 0.6f, 0.2f, 0.04f, 0.75f, 0.4f, 8, 12 }; //working fine 1.5m/s
-	VarSet myVS3 = { 1850, 1.73f, 1.35f, 0.45f, 0.05f, 0.65f, 0.4f, 8, 12 }; //not sure
+	VarSet myVS1 = { 0, 1.71f, 2.35f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 11 }; //left vacant for tuning
+	VarSet myVS2 = { 2000, 1.447f, 1.9f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 9 }; //working fine
+	VarSet myVS3 = { 2100, 1.5f, 2.0f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 12 }; //testing
 	VarSet myVS4 = { 850, 1.5f, 0.47f, 1.0f, 0.08f, 1.4f, 1.0f, 8, 12 }; //not sure
 	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.22f, 0.08f, 2.0f, 1.0f, 8, 12 }; //havn't tested
 	VarSet m_selected = myVS1;

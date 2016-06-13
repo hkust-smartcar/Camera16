@@ -10,11 +10,16 @@
  */
 
 #pragma once
+//#define Use_Dir_Encoder
 
 #include <array>
 #include <libsc/led.h>
 #include <libbase/k60/mcg.h>
+#ifndef Use_Dir_Encoder
 #include <libsc/ab_encoder.h>
+#else
+#include <libsc/dir_encoder.h>
+#endif
 #include <libsc/trs_d05.h>
 #include <libsc/k60/ov7725.h>
 #include <libsc/button.h>
@@ -29,6 +34,7 @@
 #include <cstring>
 #include <sstream>
 #include <functional>
+
 #define GetL(x) x
 #define GetR(x) x+60
 
@@ -111,10 +117,6 @@ public:
 		return *LCD;
 	}
 
-	libsc::AbEncoder& GetEnc(void) {
-		return *encoder;
-	}
-
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/
@@ -161,7 +163,11 @@ protected:
 	libsc::Led* Led2 = nullptr;
 	libsc::Led* Led3 = nullptr;
 	libsc::Led* Led4 = nullptr;
+#ifndef Use_Dir_Encoder
 	libsc::AbEncoder* encoder = nullptr;
+#else
+	libsc::DirEncoder* encoder = nullptr;
+#endif
 	libsc::TrsD05* servo = nullptr;
 	libsc::DirMotor* motor = nullptr;
 	libsc::St7735r* LCD = nullptr;

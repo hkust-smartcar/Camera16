@@ -14,7 +14,6 @@
 #include <libsc/system.h>
 #include <libsc/timer.h>
 #include <cstdint>
-
 #include "../inc/config.h"
 
 using namespace std;
@@ -25,7 +24,11 @@ Car::Car() :
 	Led2 = new Led(GetLed2Config());
 	Led3 = new Led(GetLed3Config());
 	Led4 = new Led(GetLed4Config());
+#ifndef Use_Dir_Encoder
 	encoder = new AbEncoder(GetAbEncoderConfig());
+#else
+	encoder = new DirEncoder(GetDirEncoderConfig());
+#endif
 	encoder->Update();
 	servo = new TrsD05(GetServoConfig());
 	servo->SetDegree(900);
