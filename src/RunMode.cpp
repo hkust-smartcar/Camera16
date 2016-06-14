@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), real_encodercount(0), encodercount(
-				0), maxServoAngle(1460), minServoAngle(430), maxMotorSpeed(400), minMotorSpeed(
+				0), maxServoAngle(1510), minServoAngle(480), maxMotorSpeed(400), minMotorSpeed(
 				0), ServoErr(0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(
 				0), MotorPrev1Err(0), MotorPrev2Err(0), ideal_motor_speed(0) {
 }
@@ -30,16 +30,21 @@ RunMode::RunMode() :
 RunMode::~RunMode() {
 }
 
-void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
+void RunMode::turningPID(const int8_t mid_line, const float Kd, float T,
+		const uint8_t thres) {
 
 //Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;
 
 	/*-----Core dynamic PD formula-----*/
 	//positional PD = T * error^2 +kd *(error-error_prev)
-	ideal_servo_degree = uint16_t(
-			900 + T * abs(ServoErr) * ServoErr
-					+ Kd * (ServoErr - ServoPrevErr));
+	if (abs(ServoErr) < thres)
+		ideal_servo_degree = uint16_t(
+				900 + T * ServoErr + Kd * (ServoErr - ServoPrevErr));
+	else
+		ideal_servo_degree = uint16_t(
+				900 + T * abs(ServoErr) * ServoErr
+						+ Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
 	servo->SetDegree(
@@ -49,8 +54,7 @@ void RunMode::turningPID(const int8_t mid_line, const float Kd, const float T) {
 }
 
 void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
-		const float Ki, const float Kd, const float m_beta,
-		const uint8_t KDec) {
+		const float Ki, const float Kd, const float m_beta, const float KDec) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
@@ -79,9 +83,9 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, KDec
-	VarSet myVS1 = { 0, 1.71f, 2.35f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 11 }; //left vacant for tuning
+	VarSet myVS1 = { 0, 1.5f, 1.5f, 0.3f, 0.03f, 0.7f, 0.4f, 8, 11 }; //left vacant for tuning
 	VarSet myVS2 = { 2000, 1.447f, 1.9f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 9 }; //working fine
-	VarSet myVS3 = { 2100, 1.5f, 2.0f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 12 }; //testing
+	VarSet myVS3 = { 2100, 1.44f, 1.87f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 11 }; //testing
 	VarSet myVS4 = { 850, 1.5f, 0.47f, 1.0f, 0.08f, 1.4f, 1.0f, 8, 12 }; //not sure
 	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.22f, 0.08f, 2.0f, 1.0f, 8, 12 }; //havn't tested
 	VarSet m_selected = myVS1;

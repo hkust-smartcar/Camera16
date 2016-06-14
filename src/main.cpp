@@ -51,6 +51,7 @@ int main(void) {
 	bool IsEditKd = false;
 	uint32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
+	uint8_t thres=0;
 
 	/*-----variables waiting to be assigned-----*/
 	int16_t ideal_encoder_count;
@@ -61,7 +62,7 @@ int main(void) {
 	float Kd;
 	float motor_beta;
 	int8_t offset;
-	uint8_t KDec;
+	float KDec;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -195,18 +196,19 @@ int main(void) {
 	pGrapher mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/
-	mvar.addWatchedVar(&Kyle.real_encodercount, "Real Encoder");
+//	mvar.addWatchedVar(&Kyle.real_encodercount, "Real Encoder");
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
 	mvar.addSharedVar(&Kp, "Kp");
 	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&Kd, "Kd");
-	mvar.addSharedVar(&motor_beta, "Motor Beta");
+//	mvar.addSharedVar(&motor_beta, "Motor Beta");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
 	mvar.addSharedVar(&KDec, "KDec");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
+	mvar.addSharedVar(&thres, "thres");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 	pGrapher::OnReceiveListener mvarlistener =
@@ -256,7 +258,7 @@ int main(void) {
 //				ideal_encoder_count = 0;
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 				dmid=10*Kyle.mid;	//store in dmid for pGrapher
-				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
+				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T,thres);
 				Watchdog::Refresh();//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
 			};
