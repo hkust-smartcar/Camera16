@@ -17,7 +17,7 @@
 #define recR(y) y+60
 
 void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
-		int8_t& m_bgstart, const int8_t thres, const int8_t offset,bool & stop) {
+		int8_t& m_bgstart, const int8_t thres, const int8_t offset,bool & stop,bool &cross) {
 
 	int8_t lastLeft = 0;
 	int8_t lastRight = 0;
@@ -25,7 +25,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 	int8_t last2Right = 0;
 	int8_t last3Left = 0;
 	int8_t last3Right = 0;
-
+	cross = false;
 	/*-----find bottom left-----*/
 
 	for (int8_t x = 0; x < CAMW; x++) {
@@ -112,12 +112,29 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 				}
 
 				stop = false;
-if(!stop){
-		/*-----if both sides goes outward, predict according to estimated slope-----*/
-		if (leftOut && rightOut) {
-			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
-			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
-		}
+
+			/*---find cross road---*/
+				bool all_white = true;
+				for(int8_t i  = 0; i < CAMW; i++)
+					if(!image[i][y]){
+						all_white = false;
+						break;
+					}
+				if(all_white){
+					bool all_white1 = true;
+					for(int8_t i  = 0; i < CAMW; i++)
+						if(!image[i][y-1] || !image[i][y-2]){
+							all_white1 = false;
+							break;
+						}
+					if(all_white1)cross = true;
+				}
+//if(!stop){
+//		/*-----if both sides goes outward, predict according to estimated slope-----*/
+//		if (leftOut && rightOut) {
+//			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
+//			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
+//		}
 
 		/*-----store variables for future processing-----*/
 		last3Left=last2Left;
@@ -143,17 +160,17 @@ if(!stop){
 		}
 
 		/*-----if not found, scan from center to left to find obstacle-----*/
-		if (!found) {
-			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
-					x > edges[recL(y)]; x--) {
-				if (!image[x][y]) {
-					edges[recL(y)] = x + offset;
-					break;
-				}
-			}
-
-		}
-	}
+//		if (!found) {
+//			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+//					x > edges[recL(y)]; x--) {
+//				if (!image[x][y]) {
+//					edges[recL(y)] = x + offset;
+//					break;
+//				}
+//			}
+//
+//		}
+//	}
  }
 		/*-----finish scanning-----*/
 	end:;

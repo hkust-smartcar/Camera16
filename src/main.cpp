@@ -91,7 +91,7 @@ int main(void) {
 	float Ki = 0.02f;
 	float Kd = 0.15f;
 	int8_t offset=5;
-
+	bool cross = true;
 	//add temporary delay second n (ms)
 	float n = 0.0f;
 
@@ -205,16 +205,14 @@ int main(void) {
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
-					if(Kyle.stop){
-						Kyle.printvalue(0,120,80,20,"end la");
-						System::DelayMs(n);
-						ideal_encoder_count = 0;
-					}
-					else Kyle.printvalue(0,120,80,20,"continue");
 
 				}
-				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,Kyle.stop);
+				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,Kyle.stop,cross);
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
+				if(cross){
+					Kyle.printvalue(0,120,80,20,"cross");
+				}
+				else if(!cross) Kyle.printvalue(0,120,80,20,"not cross");
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
 				Watchdog::Refresh();	//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
