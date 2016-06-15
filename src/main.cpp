@@ -250,8 +250,6 @@ int main(void) {
 					Kyle.printWaypoint(0,0);
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
-					Kyle.GetLCD().SetRegion(Lcd::Rect(0,125,80,25));
-					Kyle.GetLCD().FillColor(ideal_encoder_count?Lcd::kGreen:Lcd::kRed);
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop);
 //				if(stop)

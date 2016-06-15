@@ -51,22 +51,17 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 	}
 
 	/*-----scan every row from bottom up-----*/
-
 	for (int8_t y = CAMH - 2; y >= 0; y--) {
 
 		bool leftFound = false;
 		bool rightFound = false;
-		bool leftOut = false; //at crossroads, both edges should go outward.
-		bool rightOut = false;
 
 		/*-----scan from left according to estimated slope-----*/
 		for (int8_t x = std::max(0, 2 * lastLeft - last2Left - thres);
 				x < std::min(CAMW - 1, 2 * lastLeft - last2Left + thres); x++) {
 			if (image[x][y]) {
-				edges[recL(y)] = x;
+				edges[recL(y)] = (x == 0 ? lastRight - y : x);
 				leftFound = true;
-				if (x - lastLeft < 0)
-					leftOut = true;
 				break;
 			}
 //			else
@@ -77,10 +72,8 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		for (int8_t x = std::min(CAMW - 1, 2 * lastRight - last2Right + thres);
 				x > std::max(0, 2 * lastRight - last2Right - thres); x--) {
 			if (image[x][y]) {
-				edges[recR(y)] = x;
+				edges[recR(y)] = (x == 0 ? lastLeft + y : x);
 				rightFound = true;
-				if (x - lastRight > 0)
-					rightOut = true;
 				break;
 			}
 //			else
@@ -99,7 +92,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			int middle = (edges[recL(y)] + edges[recR(y)]) / 2;
 			if (image[middle][y])
 				for (int i = middle; i < edges[recR(y)]; i++)
-					if (!image[i][y]){
+					if (!image[i][y]) {
 						for (int j = i; j < edges[recR(y)]; j++)
 							if (image[j][y]) {
 								rightfulfill = true;
@@ -108,7 +101,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 					}
 			left: if (rightfulfill) {
 				for (int i = middle; i > edges[recL(y)]; i--)
-					if (!image[i][y]){
+					if (!image[i][y]) {
 						for (int j = i; j > edges[recL(y)]; j--)
 							if (image[j][y]) {
 								stop = true;
@@ -118,14 +111,6 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 			}
 		}
 		stop = false;
-
-		/*-----store variables for future processing-----*/
-		last3Left = last2Left;
-		last3Right = last2Right;
-		last2Left = lastLeft;
-		last2Right = lastRight;
-		lastLeft = edges[recL(y)];
-		lastRight = edges[recR(y)];
 
 		/*-----start finding obstacle-----*/
 		bool found = false;
@@ -149,16 +134,28 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 					break;
 				}
 			}
-
 		}
 
 		/*-----if both sides goes outward, predict according to estimated slope-----*/
-		if (leftOut && rightOut) {
-			edges[recL(y)] = std::max(0, 2 * last2Left - last3Left);
-			edges[recR(y)] = std::min(CAMW - 1, 2 * last2Right - last3Right);
+		if (edges[recL(y)] - last2Left < 0 && edges[recR(y)] - last2Right > 0) { //both sides outwards, add both sides
+			edges[recL(y)] = 2 * last2Left - last3Left;
+			edges[recR(y)] = 2 * last2Right - last3Right;
 		}
 
+		else if (last2Left - last3Left > 0 && edges[recL(y)] - last2Left < 0)
+			edges[recL(y)] = 2 * last2Left - last3Left;
+		else if (last2Right - last3Right < 0 && edges[recR(y)] - last2Right > 0)
+			edges[recR(y)] = 2 * last2Right - last3Right;
 		/*-----finish scanning-----*/
+		/*-----store variables for future processing-----*/
+		last3Left = last2Left;
+		last3Right = last2Right;
+		last2Left = lastLeft;
+		last2Right = lastRight;
+		lastLeft = edges[recL(y)];
+		lastRight = edges[recR(y)];
+
 	}
 	end: ;
+
 }
