@@ -10,7 +10,6 @@
  */
 
 #pragma once
-//#define Use_Dir_Encoder
 
 #include <array>
 #include <libsc/led.h>
@@ -146,7 +145,7 @@ public:
 	//store at which y coordinate the bg/obs starts, to utilize resources
 	int8_t bgstart;
 
-	int mid;	//stupid compiler always overflow when I reduce the size
+	int32_t mid;	//stupid compiler always overflow when I reduce the size
 
 	/*------data containers above-------*/
 

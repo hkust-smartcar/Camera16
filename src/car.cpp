@@ -14,6 +14,7 @@
 #include <libsc/system.h>
 #include <libsc/timer.h>
 #include <cstdint>
+
 #include "../inc/config.h"
 
 using namespace std;
@@ -49,10 +50,10 @@ Car::Car() :
 	LCDCConfig.lcd = LCD;
 	LCDconsole = new LcdConsole(LCDCConfig);
 
-	memset(this->data, 0, sizeof(data));
-	memset(this->image, false, sizeof(image));
-	memset(this->edges, 0, sizeof(edges));
-	memset(this->waypoints, 0, sizeof(waypoints));
+	memset(this->data, 0, 600);
+	memset(this->image, false, 4800);
+	memset(this->edges, 0, 120);
+	memset(this->waypoints, 0, 60);
 }
 // for constructor, you can temporarily understand it as :
 // initialize all variable ( & pointer)

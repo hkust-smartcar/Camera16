@@ -9,6 +9,7 @@
 
 #include "../inc/Planner.h"
 
+
 #include <sys/types.h>
 #include <cstdint>
 
@@ -23,10 +24,10 @@ Planner::Planner() {
 Planner::~Planner() {
 }
 void Planner::Calc(int8_t const edge[120], int8_t waypoints[60],
-		int8_t const bgstart, int& mid) {
+		int8_t const bgstart, int32_t& mid) {
 
-	uint m_mid_sum = 0;
-	uint m_weight_sum = 0;
+	int m_mid_sum = 0;
+	int m_weight_sum = 0;
 
 	for (int8_t y = CAMH - 1; y > bgstart; y--) {
 		waypoints[y] = (edge[GetL(y)] + edge[GetR(y)]) / 2;
