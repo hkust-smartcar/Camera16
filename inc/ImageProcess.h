@@ -22,5 +22,5 @@ public:
 	//MUST pass by reference(&), otherwise bgstart will NEVER change!
 	void FindEdge(const bool m_image[80][60], int8_t m_edges[120],
 			int8_t& m_bgstart, const int8_t thres, const int8_t offset,
-			bool& stop);
+			bool& stop,bool& Iscrossroad);
 };

@@ -52,6 +52,7 @@ int main(void) {
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
 	uint8_t thres=0;
+	bool Iscrossroad;
 
 	/*-----variables waiting to be assigned-----*/
 	int16_t ideal_encoder_count;
@@ -251,7 +252,8 @@ int main(void) {
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
 				}
-				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,3,offset,stop);
+				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop,Iscrossroad);
+				Kyle.switchLED(4,Iscrossroad);
 //				if(stop)
 //				ideal_encoder_count = 0;
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
