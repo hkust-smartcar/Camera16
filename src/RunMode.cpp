@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), real_encodercount(0), encodercount(
-				0), maxServoAngle(1210), minServoAngle(590), maxMotorSpeed(400), minMotorSpeed(
+				0), maxServoAngle(1200), minServoAngle(570), maxMotorSpeed(400), minMotorSpeed(
 				0), ServoErr(0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(
 				0), MotorPrev1Err(0), MotorPrev2Err(0), ideal_motor_speed(0) {
 }
@@ -83,8 +83,8 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, KDec
-	VarSet myVS1 = { 0, 3.0f, 1.03f, 0.3f, 0.03f, 0.7f, 0.4f, 8, 0 }; //left vacant for tuning
-	VarSet myVS2 = { 2000, 1.447f, 1.9f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 9 }; //working fine
+	VarSet myVS1 = { 0, 0.95f, 0.1f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 0 }; //left vacant for tuning
+	VarSet myVS2 = { 1700, 0.95f, 0.1f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 0 }; //working fine
 	VarSet myVS3 = { 2100, 1.44f, 1.87f, 0.36f, 0.03f, 0.7f, 0.4f, 8, 11 }; //testing
 	VarSet myVS4 = { 850, 1.5f, 0.47f, 1.0f, 0.08f, 1.4f, 1.0f, 8, 12 }; //not sure
 	VarSet myVS5 = { 1250, 2.5f, 0.2f, 0.22f, 0.08f, 2.0f, 1.0f, 8, 12 }; //havn't tested

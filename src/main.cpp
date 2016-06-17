@@ -111,6 +111,10 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
+#ifdef ADJUST_CAM
+					Kyle.m_brightness+=1;
+					Kyle.GetCam().SetBrightness(Kyle.m_brightness);
+#endif
 					ideal_encoder_count+=50;
 					Kyle.beepbuzzer(100);
 				}
@@ -127,6 +131,10 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
+#ifdef ADJUST_CAM
+					Kyle.m_brightness-=1;
+					Kyle.GetCam().SetBrightness(Kyle.m_brightness);
+#endif
 					ideal_encoder_count-=50;
 					Kyle.beepbuzzer(100);
 				}
@@ -143,6 +151,10 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
+#ifdef ADJUST_CAM
+					Kyle.m_contrast-=1;
+					Kyle.GetCam().SetContrast(Kyle.m_contrast);
+#endif
 					if(IsEditKd) T-=0.05f;
 					else K-=0.01f;
 					Kyle.beepbuzzer(100);
@@ -154,6 +166,10 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
+#ifdef ADJUST_CAM
+					Kyle.m_contrast+=1;
+					Kyle.GetCam().SetContrast(Kyle.m_contrast);
+#endif
 					if(IsEditKd) T+=0.05f;
 					else K+=0.01f;
 					Kyle.beepbuzzer(100);
@@ -198,6 +214,10 @@ int main(void) {
 
 	/*-------configure tuning parameters below-----*/
 //	mvar.addWatchedVar(&Kyle.real_encodercount, "Real Encoder");
+#ifdef ADJUST_CAM
+	mvar.addWatchedVar(&Kyle.m_brightness,"Brightness");
+	mvar.addWatchedVar(&Kyle.m_contrast,"Contrast");
+#endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
 	mvar.addSharedVar(&Kp, "Kp");
@@ -231,6 +251,11 @@ int main(void) {
 					case 'q':
 					ideal_encoder_count-=50;
 					break;
+					case 'f':
+					Kyle.beepbuzzer(100);
+					System::DelayMs(50);
+					Kyle.beepbuzzer(500);
+					break;
 				};
 			};
 	mvar.setOnReceiveListener(mvarlistener);
@@ -240,7 +265,6 @@ int main(void) {
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
-				Kyle.switchLED(1);
 				if(IsPrint) {
 					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(1,0);
@@ -252,8 +276,9 @@ int main(void) {
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
 				}
+				Kyle.switchLED(1);
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,stop,Iscrossroad);
-				Kyle.switchLED(4,Iscrossroad);
+//				Kyle.switchLED(4);
 //				if(stop)
 //				ideal_encoder_count = 0;
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);

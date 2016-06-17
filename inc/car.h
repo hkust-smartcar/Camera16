@@ -116,6 +116,10 @@ public:
 		return *LCD;
 	}
 
+	libsc::k60::Ov7725& GetCam(void){
+		return *cam;
+	}
+
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/

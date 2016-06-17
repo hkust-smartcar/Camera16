@@ -10,6 +10,7 @@
  */
 #pragma once
 #define USE_PGRAPHER
+//#define ADJUST_CAM
 //#define TESTSERVO
 
 #include <cstdint>
@@ -60,6 +61,10 @@ public:
 	bool selecting_varset;
 #ifdef TESTSERVO
 	uint16_t deg=900;
+#endif
+#ifdef ADJUST_CAM
+	uint8_t m_brightness=0x00;
+	uint8_t m_contrast=0x40;
 #endif
 	int32_t real_encodercount;
 	int32_t encodercount;
