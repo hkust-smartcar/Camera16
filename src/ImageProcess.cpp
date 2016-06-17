@@ -133,7 +133,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		}
 
 //		else { //if not straight into crossroads, add line to one side
-		if (y < CAMH - 4 && crossroad) { //first 3 rows cannot be trusted, since they are initialized following the bottom row
+		if (y < CAMH - 4) { //first 3 rows cannot be trusted, since they are initialized following the bottom row
 			if (last2Left - last3Left > 0 && edges[recL(y)] - last2Left < 0)
 				edges[recL(y)] = 2 * last2Left - last3Left;
 			if (last2Right - last3Right < 0 && edges[recR(y)] - last2Right > 0)

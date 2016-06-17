@@ -17,7 +17,7 @@
 
 Planner::Planner() {
 	for (int8_t row = CAMH - 1; row >= 0; row--) {
-		weight[row] = row; // define the weight for each item
+		weight[row] = row*row; // define the weight for each item
 	}
 }
 

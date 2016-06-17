@@ -138,9 +138,9 @@ k60::Ov7725::Config GetCamConfig(){
 	camcfg.id=0;
 	camcfg.w=80;
 	camcfg.h=60;
-	camcfg.fps=k60::Ov7725::Config::Fps::kMid;//kHigh cause the cam to behave in a strange manner
+	camcfg.fps=k60::Ov7725::Config::Fps::kHigh;//kHigh cause the cam to behave in a strange manner
 	//TODO adjust proper FPS
-	camcfg.contrast = 0x40;
+	camcfg.contrast = 0x38;
 	camcfg.brightness=0x00;
 	return camcfg;
 }
