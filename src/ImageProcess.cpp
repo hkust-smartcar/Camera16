@@ -8,6 +8,7 @@
 
 #include "../inc/ImageProcess.h"
 
+#include <libbase/misc_types.h>
 #include <algorithm>
 #include <cstring>
 
@@ -16,11 +17,11 @@
 #define recL(y) y
 #define recR(y) y+60
 
-void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
-		int8_t& m_bgstart, const int8_t thres, const int8_t offset, bool& stop,
-		bool& Iscrossroad) {
+void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
+		int8_t& m_bgstart, const int8_t thres, const int8_t offset,
+		bool& stop) {
 
-//	std::memset(edges, 39, 120);
+	std::memset(edges, 39, 120);
 	int8_t lastLeft = 0;
 	int8_t lastRight = 0;
 	int8_t last2Left = 0;
@@ -28,11 +29,10 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 	int8_t last3Left = 0;
 	int8_t last3Right = 0;
 	bool crossroad = false;
-	Iscrossroad = false;
 
 	/*-----find bottom left-----*/
 	for (int8_t x = 0; x < CAMW; x++) {
-		if (image[x][CAMH - 1]) {
+		if (GetPixel(data,x,CAMH - 1)) {
 			lastLeft = x;
 			last2Left = x;
 			last3Left = x;
@@ -43,7 +43,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 
 	/*-----find bottom right-----*/
 	for (int8_t x = CAMW - 1; x > lastLeft; x--) {
-		if (image[x][CAMH - 1]) {
+		if (GetPixel(data,x,CAMH - 1)) {
 			lastRight = x;
 			last2Right = x;
 			last3Right = x;
@@ -61,7 +61,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		/*-----scan from left according to estimated slope-----*/
 		for (int8_t x = std::max(0, 2 * lastLeft - last2Left - thres);
 				x < std::min(CAMW - 1, 2 * lastLeft - last2Left + thres); x++) {
-			if (image[x][y]) {
+			if (GetPixel(data,x,y)) {
 				edges[recL(y)] = x;
 				leftFound = true;
 				break;
@@ -73,7 +73,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		/*-----scan from right according to estimated slope-----*/
 		for (int8_t x = std::min(CAMW - 1, 2 * lastRight - last2Right + thres);
 				x > std::max(0, 2 * lastRight - last2Right - thres); x--) {
-			if (image[x][y]) {
+			if (GetPixel(data,x,y)) {
 				edges[recR(y)] = x;
 				rightFound = true;
 				break;
@@ -92,20 +92,20 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (y > CAMH - 5) {
 			bool rightfulfill = false;
 			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
-			if (image[middle][y])
+			if (GetPixel(data,middle,y))
 				for (int8_t i = middle; i < edges[recR(y)]; i++)
-					if (!image[i][y]) {
+					if (!GetPixel(data,i,y)) {
 						for (int8_t j = i; j < edges[recR(y)]; j++)
-							if (image[j][y]) {
+							if (GetPixel(data,j,y)) {
 								rightfulfill = true;
 								goto left;
 							}
 					}
 			left: if (rightfulfill) {
 				for (int8_t i = middle; i > edges[recL(y)]; i--)
-					if (!image[i][y]) {
+					if (!GetPixel(data,i,y)) {
 						for (int8_t j = i; j > edges[recL(y)]; j--)
-							if (image[j][y]) {
+							if (GetPixel(data,j,y)) {
 								stop = true;
 								goto end;
 							}
@@ -117,14 +117,14 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		/*---find cross road---*/
 		bool all_white = true;
 		for (int8_t i = 0; i < CAMW; i++)
-			if (!image[i][y]) {
+			if (!GetPixel(data,i,y)) {
 				all_white = false;
 				break;
 			}
 		if (all_white) {
 			bool all_white1 = true;
 			for (int8_t i = 0; i < CAMW; i++)
-				if (!image[i][y - 1] || !image[i][y - 2]) {
+				if (!GetPixel(data,i,y - 1) || !GetPixel(data,i,y - 2)) {
 					all_white1 = false;
 					break;
 				}
@@ -146,7 +146,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		/*-----scan from center to right to find obstacle-----*/
 		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
 				x < edges[recR(y)]; x++) {
-			if (!image[x][y]) {
+			if (!GetPixel(data,x,y)) {
 				edges[recR(y)] = x - offset;
 				found = true;
 				break;
@@ -157,7 +157,7 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		if (!found) {
 			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
 					x > edges[recL(y)]; x--) {
-				if (!image[x][y]) {
+				if (!GetPixel(data,x,y)) {
 					edges[recL(y)] = x + offset;
 					break;
 				}

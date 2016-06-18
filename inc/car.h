@@ -38,11 +38,6 @@
 #define GetR(x) x+60
 
 class Car {
-	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
-		//	const int offset = x/8 + (y * image_width / 8);
-		//	return (src[offset] << (x%8) & 0x80) ? false : true;
-		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
-	}
 public:
 	// public means anyone can access it
 	//there are even , that means really anyone can access it, even when the class object does not exist :O
@@ -106,7 +101,7 @@ public:
 	/*--------------------------------get data from component below------------------------------------*/
 
 	void capture_image(void);
-	//capture and divide image,change data AND image
+	//only capture raw image
 
 	/*--------------------------------get data from component above------------------------------------*/
 
@@ -137,9 +132,6 @@ public:
 	//containers for data to bypass fucking C pointers
 	//data container for direct camera data extraction
 	Byte data[600];
-
-	//image divided into pixels
-	bool image[80][60];
 
 	//this is pretty self-explanatory, note that first half left, second half right.*I HATE POINTERS!*
 	int8_t edges[120];

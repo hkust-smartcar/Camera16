@@ -51,7 +51,7 @@ Car::Car() :
 	LCDconsole = new LcdConsole(LCDCConfig);
 
 	memset(this->data, 0, 600);
-	memset(this->image, false, 4800);
+	//memset(this->image, false, 4800);
 	memset(this->edges, 0, 120);
 	memset(this->waypoints, 0, 60);
 }
@@ -246,10 +246,4 @@ void Car::capture_image(void) {
 	memcpy(this->data, this->cam->LockBuffer(), 600);
 	this->cam->UnlockBuffer();
 
-	// divide image
-	for (int8_t col = 0; col < 80; col++) {
-		for (int8_t row = 0; row < 60; row++) {
-			this->image[col][row] = this->GetPixel(data, col, row);
-		}
-	}
 }
