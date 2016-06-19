@@ -26,8 +26,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 	int8_t lastRight = 0;
 	int8_t last2Left = 0;
 	int8_t last2Right = 0;
-//	int8_t last3Left = 0;
-//	int8_t last3Right = 0;
 	bool crossroad = false;
 	m_bgstart = 0;
 
@@ -36,7 +34,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		if (GetPixel(data, x, CAMH - 1)) {
 			lastLeft = x;
 			last2Left = x;
-//			last3Left = x;
 			edges[recL(CAMH-1)] = x;
 			break;
 		}
@@ -47,7 +44,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		if (GetPixel(data, x, CAMH - 1)) {
 			lastRight = x;
 			last2Right = x;
-//			last3Right = x;
 			edges[recR(CAMH-1)] = x;
 			break;
 		}
@@ -134,20 +130,12 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 						}
 				if (all_white1) {
 					crossroad = true;
-//				edges[recL(y)] = (lastLeft - edges[recL(59)]) * (y - 59)
-//						/ (y - 58) + edges[recL(59)];
-//				edges[recR(y)] = (lastRight - edges[recR(59)]) * (y - 59)
-//						/ (y - 58) + edges[recR(59)];
 					m_bgstart = y;
 					break;
 				}
 			}
 		}
 
-//		if (crossroad && y < CAMH - 3) { //first 3 rows cannot be trusted, since they are initialized following the bottom row
-//			edges[recR(y)] = 2 * lastRight - last2Right;
-//			edges[recL(y)] = 2 * lastLeft - last2Left;
-//		}
 		/*-----start finding obstacle-----*/
 		bool found = false;
 
@@ -173,8 +161,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 		/*-----finish scanning-----*/
 		/*-----store variables for future processing-----*/
-//		last3Left = last2Left;
-//		last3Right = last2Right;
 		last2Left = lastLeft;
 		last2Right = lastRight;
 		lastLeft = edges[recL(y)];

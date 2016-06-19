@@ -83,11 +83,11 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, β,offset, KDec
-	VarSet myVS1 = { 0, 1.5f, 1.9f, 0.36f, 0.03f, 0.4f, 0.4f, 8, 0 }; //left vacant for tuning
-	VarSet myVS2 = { 1700, 1.5f, 1.9f, 0.36f, 0.03f, 0.4f, 0.4f, 8, 5 }; //working fine
-	VarSet myVS3 = { 1800, 1.55f, 1.85f, 0.36f, 0.03f, 0.4f, 0.4f, 8, 6 }; //working fine
-	VarSet myVS4 = { 1900, 1.45f, 2.0f, 0.36f, 0.03f, 0.4f, 0.4f, 8, 12 }; //not sure
-	VarSet myVS5 = { 1800, 1.6f, 1.85f, 0.22f, 0.08f, 0.4f, 0.4f, 8, 6 }; //havn't tested
+	VarSet myVS1 = { 0, 1.5f, 1.9f, 0.36f, 0.03f, 0.65f, 0.4f, 8, 0 }; //left vacant for tuning
+	VarSet myVS2 = { 1700, 1.5f, 1.9f, 0.36f, 0.03f, 0.65f, 0.4f, 8, 5 }; //not for this camera angle
+	VarSet myVS3 = { 1800, 1.6f, 1.85f, 0.36f, 0.03f, 0.65f, 0.4f, 8, 6 }; //confirmed
+	VarSet myVS4 = { 1900, 1.63f, 1.85f, 0.36f, 0.03f, 0.65f, 0.4f, 8, 7 }; //confirmed
+	VarSet myVS5 = { 2000, 1.8f, 2.0f, 0.36f, 0.03f, 0.65f, 0.4f, 8, 8.5 }; //working fine
 	VarSet m_selected = myVS1;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);

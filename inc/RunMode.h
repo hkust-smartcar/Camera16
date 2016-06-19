@@ -9,7 +9,7 @@
  *  Handle PID controllers for motor and servo, keeps the history encoder data
  */
 #pragma once
-#define USE_PGRAPHER
+//#define USE_PGRAPHER
 //#define ADJUST_CAM
 //#define TESTSERVO
 

@@ -154,7 +154,7 @@ int main(void) {
 			Kyle.m_contrast-=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKd) T-=0.05f;
+			if(IsEditKd) T-=0.01f;
 			else K-=0.01f;
 			Kyle.beepbuzzer(100);
 		}
@@ -169,7 +169,7 @@ int main(void) {
 			Kyle.m_contrast+=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKd) T+=0.05f;
+			if(IsEditKd) T+=0.01f;
 			else K+=0.01f;
 			Kyle.beepbuzzer(100);
 		}
