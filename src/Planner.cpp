@@ -36,5 +36,6 @@ void Planner::Calc(const int8_t waypoints[60],
 	}
 
 	mid = m_mid_sum / (m_weight_sum == 0 ? 1 : m_weight_sum);
+	if(mid==0) mid=39;
 }
 
