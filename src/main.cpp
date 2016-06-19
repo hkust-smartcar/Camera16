@@ -8,7 +8,6 @@
  */
 
 #include <libbase/k60/watchdog.h>
-#include <libbase/misc_types.h>
 #include <libsc/button.h>
 #include <libsc/joystick.h>
 #include <libsc/lcd.h>
@@ -51,7 +50,7 @@ int main(void) {
 	bool IsEditKd = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
-	uint8_t thres=0;
+	uint8_t thres = 0;
 	//bool Iscrossroad;
 
 	/*-----variables waiting to be assigned-----*/
@@ -112,14 +111,14 @@ int main(void) {
 			{
 				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
-					Kyle.m_brightness+=1;
-					Kyle.GetCam().SetBrightness(Kyle.m_brightness);
+			Kyle.m_brightness+=1;
+			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-					ideal_encoder_count+=50;
-					Kyle.beepbuzzer(100);
-				}
-				else {
-					Kyle.varset_index--;
+			ideal_encoder_count+=50;
+			Kyle.beepbuzzer(100);
+		}
+		else {
+			Kyle.varset_index--;
 #ifdef TESTSERVO
 			Kyle.deg+=10;
 #endif
@@ -132,14 +131,14 @@ int main(void) {
 			{
 				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
-					Kyle.m_brightness-=1;
-					Kyle.GetCam().SetBrightness(Kyle.m_brightness);
+			Kyle.m_brightness-=1;
+			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-					ideal_encoder_count-=50;
-					Kyle.beepbuzzer(100);
-				}
-				else {
-					Kyle.varset_index++;
+			ideal_encoder_count-=50;
+			Kyle.beepbuzzer(100);
+		}
+		else {
+			Kyle.varset_index++;
 #ifdef TESTSERVO
 			Kyle.deg-=10;
 #endif
@@ -152,30 +151,30 @@ int main(void) {
 			{
 				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
-					Kyle.m_contrast-=1;
-					Kyle.GetCam().SetContrast(Kyle.m_contrast);
+			Kyle.m_contrast-=1;
+			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-					if(IsEditKd) T-=0.05f;
-					else K-=0.01f;
-					Kyle.beepbuzzer(100);
-				}
+			if(IsEditKd) T-=0.05f;
+			else K-=0.01f;
+			Kyle.beepbuzzer(100);
+		}
 
-			};
+	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
-					Kyle.m_contrast+=1;
-					Kyle.GetCam().SetContrast(Kyle.m_contrast);
+			Kyle.m_contrast+=1;
+			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-					if(IsEditKd) T+=0.05f;
-					else K+=0.01f;
-					Kyle.beepbuzzer(100);
-				}
+			if(IsEditKd) T+=0.05f;
+			else K+=0.01f;
+			Kyle.beepbuzzer(100);
+		}
 
-			};
+	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
@@ -264,7 +263,9 @@ int main(void) {
 	Looper::Callback m_imp =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
+				Kyle.switchLED(4);
 				Kyle.capture_image();
+				Kyle.switchLED(4);
 				if(IsPrint) {
 					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
 					Kyle.printEdge(1,0);
@@ -276,12 +277,13 @@ int main(void) {
 					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 					Kyle.GetLCD().FillColor(Lcd::kCyan);
 				}
-				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.bgstart,2,offset,stop);
+				Kyle.switchLED(1);
+				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,offset,stop);
 				Kyle.switchLED(1);
 //				if(stop)
 //				ideal_encoder_count = 0;
-				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
-				dmid=10*Kyle.mid;	//store in dmid for pGrapher
+				pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
+				dmid=10*Kyle.mid;//store in dmid for pGrapher
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T,thres);
 				Watchdog::Refresh();//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
@@ -296,12 +298,14 @@ int main(void) {
 			looper.RunAfter(request,m_motorPID);
 		};
 
+	Kyle.switchLED(1,true);
+	Kyle.switchLED(4,true);
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
-	Kyle.printvalue(0,60,30,20,"Mid=",Lcd::kCyan);
-	Kyle.printvalue(60,60,30,20,"PWR=",Lcd::kRed);
-	Kyle.printvalue(0,80,25,20,"Kp=",Lcd::kBlue);
-	Kyle.printvalue(0,100,25,20,"Kd=",Lcd::kPurple);
+	Kyle.printvalue(0, 60, 30, 20, "Mid=", Lcd::kCyan);
+	Kyle.printvalue(60, 60, 30, 20, "PWR=", Lcd::kRed);
+	Kyle.printvalue(0, 80, 25, 20, "Kp=", Lcd::kBlue);
+	Kyle.printvalue(0, 100, 25, 20, "Kd=", Lcd::kPurple);
 	looper.RunAfter(20, m_imp);
 	looper.RunAfter(20, m_motorPID);
 	looper.Loop();
