@@ -206,9 +206,9 @@ int main(void) {
 	Kd = Selected.Kd;
 	offset = Selected.offset;
 	KDec = Selected.KDec;
-	int16_t last_count = ideal_encoder_count;
 
 #ifdef USE_PGRAPHER
+	int16_t last_count = ideal_encoder_count;
 	pGrapher mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/

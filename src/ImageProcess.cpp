@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstring>
 
+#define CONTINUOUS 7
 #define CAMW 80
 #define CAMH 60
 #define recL(y) y
@@ -113,7 +114,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		stop = false;
 
 		/*---find cross road---*/
-		if (!crossroad && y >= 7&&y<=40) {
+		if (!crossroad && y >= CONTINUOUS&&y<=40) {
 			bool all_white = true;
 			for (int8_t i = 0; i < CAMW; i++)
 				if (!GetPixel(data, i, y)) {
@@ -123,7 +124,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			if (all_white) {
 				bool all_white1 = true;
 				for (int8_t i = 0; i < CAMW; i++)
-					for (int8_t j = 1; j < 7; j++)
+					for (int8_t j = 1; j < CONTINUOUS; j++)
 						if (!GetPixel(data, i, y - j)) {
 							all_white1 = false;
 							break;

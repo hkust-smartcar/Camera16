@@ -10,7 +10,7 @@
  */
 #pragma once
 #define USE_LCD
-#define USE_PGRAPHER
+//#define USE_PGRAPHER
 //#define ADJUST_CAM
 //#define TESTSERVO
 
