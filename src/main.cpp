@@ -263,31 +263,30 @@ int main(void) {
 	Looper::Callback m_imp =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				Kyle.switchLED(4);
 				Kyle.capture_image();
-				Kyle.switchLED(4);
-				if(IsPrint) {
-					Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
-					Kyle.printEdge(1,0);
-					Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
-					Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
-					Kyle.printvalue(25,80,55,20,T*100,Lcd::kBlue);
-					Kyle.printvalue(25,100,55,20,K*100,Lcd::kPurple);
-					Kyle.printWaypoint(0,0);
-					Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
-					Kyle.GetLCD().FillColor(Lcd::kCyan);
-				}
-				Kyle.switchLED(1);
-				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,offset,stop);
-				Kyle.switchLED(1);
+#ifdef USE_LCD
+			if(IsPrint) {
+				Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
+				Kyle.printEdge(1,0);
+				Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
+				Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
+				Kyle.printvalue(25,80,55,20,T*100,Lcd::kBlue);
+				Kyle.printvalue(25,100,55,20,K*100,Lcd::kPurple);
+				Kyle.printWaypoint(0,0);
+				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
+				Kyle.GetLCD().FillColor(Lcd::kCyan);
+			}
+#endif
+			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,offset,stop);
+			Kyle.switchLED(1);
 //				if(stop)
 //				ideal_encoder_count = 0;
-				pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
-				dmid=10*Kyle.mid;//store in dmid for pGrapher
-				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T,thres);
-				Watchdog::Refresh();//LOL, feed or get bitten
-				looper.RunAfter(request, m_imp);
-			};
+			pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
+			dmid=10*Kyle.mid;//store in dmid for pGrapher
+			if(IsProcess) Kyle.turningPID(Kyle.mid,K,T,thres);
+			Watchdog::Refresh();//LOL, feed or get bitten
+			looper.RunAfter(request, m_imp);
+		};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
@@ -297,9 +296,6 @@ int main(void) {
 #endif
 			looper.RunAfter(request,m_motorPID);
 		};
-
-	Kyle.switchLED(1,true);
-	Kyle.switchLED(4,true);
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
 	Kyle.printvalue(0, 60, 30, 20, "Mid=", Lcd::kCyan);
