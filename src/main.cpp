@@ -41,7 +41,6 @@ int main(void) {
 	RunMode Kyle;
 	Looper looper;
 	ImageProcess imp;
-	Planner pln;
 	//MUST initialize for using LCD and anything that contain function inside "System"
 	//use tick
 	//...
@@ -60,9 +59,10 @@ int main(void) {
 	float Kp;
 	float Ki;
 	float Kd;
-	float motor_beta;
 	int8_t offset;
 	float KDec;
+	float straight_Kp=1.5;
+	float straight_Kd=2.0;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -194,13 +194,13 @@ int main(void) {
 
 	Kyle.beepbuzzer(200);
 	VarSet Selected = Kyle.SelectVarSet();
+	Planner pln(Selected.mode);
 	Kyle.GetLCD().Clear();
 
 	/*------assign VarSet variables-----*/
 	ideal_encoder_count = Selected.ideal_encoder_count;
 	K = Selected.K;
 	T = Selected.T;
-	motor_beta = Selected.motor_beta;
 	Kp = Selected.Kp;
 	Ki = Selected.Ki;
 	Kd = Selected.Kd;
@@ -219,12 +219,13 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
-	mvar.addSharedVar(&Kp, "Kp");
-	mvar.addSharedVar(&Ki, "Ki");
-	mvar.addSharedVar(&Kd, "Kd");
-//	mvar.addSharedVar(&motor_beta, "Motor Beta");
+//	mvar.addSharedVar(&Kp, "Kp");
+//	mvar.addSharedVar(&Ki, "Ki");
+//	mvar.addSharedVar(&Kd, "Kd");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
+	mvar.addSharedVar(&straight_Kp, "straK");
+	mvar.addSharedVar(&straight_Kd, "straKd");
 	mvar.addSharedVar(&KDec, "KDec");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
@@ -283,14 +284,14 @@ int main(void) {
 //				ideal_encoder_count = 0;
 			pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
-			if(IsProcess) Kyle.turningPID(Kyle.mid,K,T,thres);
+			if(IsProcess) Kyle.turningPID(Kyle.mid,T,K,thres,straight_Kp,straight_Kd);
 			Watchdog::Refresh();//LOL, feed or get bitten
 			looper.RunAfter(request, m_imp);
 		};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,motor_beta,KDec);//when using LCD the system slows down dramatically, causing the motor to go crazy
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,KDec);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif

@@ -111,7 +111,7 @@ public:
 		return *LCD;
 	}
 
-	libsc::k60::Ov7725& GetCam(void){
+	libsc::k60::Ov7725& GetCam(void) {
 		return *cam;
 	}
 
@@ -120,11 +120,12 @@ public:
 	/*--------------------------------implement in inherited class------------------------------------*/
 	//virtual simply means you can have different implementation of that function in the inherited class
 	// dont understand? NVM, just skip this part
-	virtual void turningPID(int8_t const mid_line, const float, const float,const uint8_t)=0;
+	virtual void turningPID(int8_t const mid_line, const float, const float,
+			const uint8_t, const float, const float)=0;
 	//positional PID = kp *error +kd *(error_prev - error), try change Kp according to error magnitude
 
-	virtual void motorPID(const int16_t ideal_encoder_count, const float,
-			const float, const float, const float,const float)=0;
+	virtual void motorPID(const int16_t ideal_encoder_count,
+			const float, const float, const float, const float)=0;
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
 

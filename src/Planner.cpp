@@ -9,23 +9,36 @@
 
 #include "../inc/Planner.h"
 
-
 #include <sys/types.h>
 #include <cstdint>
 #include <cmath>
 
 #define CAMH 60
 
-Planner::Planner() {
-	for (int8_t row = CAMH - 1; row >= 0; row--) {
-		weight[row] = sqrt(row); // define the weight for each item
+Planner::Planner(VarSet::PlannerMode m_mode) {
+	switch (m_mode) {
+	case VarSet::PlannerMode::kProportional:
+		for (int8_t row = CAMH - 1; row >= 0; row--) {
+			weight[row] = row; // define the weight for each item
+		};
+		break;
+	case VarSet::PlannerMode::kRoot:
+		for (int8_t row = CAMH - 1; row >= 0; row--) {
+			weight[row] = sqrt(row); // define the weight for each item
+		};
+		break;
+	case VarSet::PlannerMode::kSquared:
+		for (int8_t row = CAMH - 1; row >= 0; row--) {
+			weight[row] = row * row; // define the weight for each item
+		};
+		break;
 	}
 }
 
 Planner::~Planner() {
 }
-void Planner::Calc(const int8_t waypoints[60],
-		int8_t const bgstart, int32_t& mid) {
+void Planner::Calc(const int8_t waypoints[60], int8_t const bgstart,
+		int32_t& mid) {
 
 	int m_mid_sum = 0;
 	int m_weight_sum = 0;
@@ -36,6 +49,7 @@ void Planner::Calc(const int8_t waypoints[60],
 	}
 
 	mid = m_mid_sum / (m_weight_sum == 0 ? 1 : m_weight_sum);
-	if(mid==0) mid=39;
+	if (mid == 0)
+		mid = 39;
 }
 

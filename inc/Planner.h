@@ -8,11 +8,11 @@
  *   Outputs ideal motor speed and servo error, based on weighed average of the road info.
  */
 #pragma once
-#include "car.h"
+#include "RunMode.h"
 
 class Planner{
 public:
-	Planner(void);
+	Planner(VarSet::PlannerMode);
 	~Planner(void);
 
 	//simply calculate average of edges, and put into waypoints[60]
