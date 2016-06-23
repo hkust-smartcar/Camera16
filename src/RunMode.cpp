@@ -49,7 +49,7 @@ void RunMode::turningPID(const int8_t mid_line, const float Kp, const float Kd,
 
 	//set servo accordingly
 	servo->SetDegree(
-			libutil::Clamp(minServoAngle, ideal_servo_degree, maxServoAngle));
+			libutil::Clamp(minServoAngle, int16_t(ideal_servo_degree), maxServoAngle));
 
 	ServoPrevErr = ServoErr;
 }
@@ -75,7 +75,7 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 	motor->SetClockwise(ideal_motor_speed > 0 ? false : true);
 
 	motor->SetPower(
-			libutil::Clamp(minMotorSpeed, (uint16_t) abs(ideal_motor_speed),
+			libutil::Clamp(minMotorSpeed, uint16_t( abs(ideal_motor_speed)),
 					maxMotorSpeed));
 
 	MotorPrev2Err = MotorPrev1Err;
@@ -84,11 +84,11 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, offset, KDec
-	VarSet myVS1_p = { 0, 1.5f, 1.9f, 0.2f, 0.0205f, 0, 8, 0,
-			VarSet::PlannerMode::kProportional }; //left vacant for tuning
-	VarSet myVS1_r = { 0, 1.5f, 1.9f, 0.2f, 0.0205f, 0, 8, 0,
-			VarSet::PlannerMode::kRoot };
-	VarSet myVS1_s = { 0, 1.5f, 1.9f, 0.2f, 0.0205f, 0, 8, 0,
+	VarSet myVS1_p = { 0, 1.35f, 21.0f, 0.2f, 0.0205f, 0, 8, 0,
+			VarSet::PlannerMode::kRoot }; //left vacant for tuning
+	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 0, 8, 0,
+			VarSet::PlannerMode::kProportional };
+	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 0, 8, 0,
 			VarSet::PlannerMode::kSquared };
 	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.36f, 0.03f, 0.65f, 8, 0,
 			VarSet::PlannerMode::kProportional }; //strongly confirmed

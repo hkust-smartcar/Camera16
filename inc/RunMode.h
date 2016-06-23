@@ -81,13 +81,10 @@ private:
 	const int16_t maxServoAngle, minServoAngle;	// give a maximun& minimun angle for servo to turn
 	const uint16_t maxMotorSpeed, minMotorSpeed; // give a maximun& minimun PWM for motor to run
 
-	int16_t ServoErr;
-	int16_t ServoPrevErr;
-	int16_t ideal_servo_degree;
+	int16_t ServoErr, ServoPrevErr;
+	int ideal_servo_degree;
 
-	int16_t MotorErr;
-	int16_t MotorPrev1Err;
-	int16_t MotorPrev2Err;
-	int16_t ideal_motor_speed;
+	int16_t MotorErr, MotorPrev1Err, MotorPrev2Err;
+	int ideal_motor_speed;
 
 };
