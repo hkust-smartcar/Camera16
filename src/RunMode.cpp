@@ -24,7 +24,7 @@ RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
 				1200), minServoAngle(570), maxMotorSpeed(400), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(0), MotorPrev1Err(
-				0), MotorPrev2Err(0), ideal_motor_speed(0) {
+				0), ideal_motor_speed(0) {
 }
 
 RunMode::~RunMode() {
@@ -49,13 +49,14 @@ void RunMode::turningPID(const int8_t mid_line, const float Kp, const float Kd,
 
 	//set servo accordingly
 	servo->SetDegree(
-			libutil::Clamp(minServoAngle, int16_t(ideal_servo_degree), maxServoAngle));
+			libutil::Clamp(minServoAngle, int16_t(ideal_servo_degree),
+					maxServoAngle));
 
 	ServoPrevErr = ServoErr;
 }
 
 void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
-		const float Ki, const float Kd, const float KDec) {
+		const float Ki, const float KDec) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
@@ -70,33 +71,31 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 
 	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
-	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr
-			+ Kd * (MotorErr - 2 * MotorPrev1Err + MotorPrev2Err);
+	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr;
 	motor->SetClockwise(ideal_motor_speed > 0 ? false : true);
 
 	motor->SetPower(
-			libutil::Clamp(minMotorSpeed, uint16_t( abs(ideal_motor_speed)),
+			libutil::Clamp(minMotorSpeed, uint16_t(abs(ideal_motor_speed)),
 					maxMotorSpeed));
 
-	MotorPrev2Err = MotorPrev1Err;
 	MotorPrev1Err = MotorErr;
 }
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo Kp, Kd, motor Kp, Ki, Kd, offset, KDec
-	VarSet myVS1_p = { 0, 1.35f, 21.0f, 0.2f, 0.0205f, 0, 8, 0,
+	VarSet myVS1_p = { 0, 1.34f, 26.0f, 0.2f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kRoot }; //left vacant for tuning
-	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 0, 8, 0,
+	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kProportional };
-	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 0, 8, 0,
+	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kSquared };
-	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.36f, 0.03f, 0.65f, 8, 0,
+	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.36f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kProportional }; //strongly confirmed
-	VarSet myVS3 = { 1900, 1.65f, 1.85f, 0.36f, 0.03f, 0.65f, 8, 8,
+	VarSet myVS3 = { 1900, 1.355f, 25.0f, 0.36f, 0.03f, 8, 5,
 			VarSet::PlannerMode::kProportional }; //confirmed
-	VarSet myVS4 = { 2000, 1.8f, 2.0f, 0.36f, 0.03f, 0.65f, 8, 8.5,
+	VarSet myVS4 = { 2000, 1.8f, 2.0f, 0.36f, 0.03f, 8, 8.5,
 			VarSet::PlannerMode::kProportional }; //basically confirmed
-	VarSet myVS5 = { 2000, 1.77f, 5.0f, 0.36f, 0.03f, 0.65f, 8, 9,
+	VarSet myVS5 = { 2000, 1.77f, 5.0f, 0.36f, 0.03f, 8, 9,
 			VarSet::PlannerMode::kProportional }; //not for this camera angle
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages

@@ -8,6 +8,7 @@
  */
 
 #include <libbase/k60/watchdog.h>
+#include <libbase/misc_types.h>
 #include <libsc/button.h>
 #include <libsc/joystick.h>
 #include <libsc/lcd.h>
@@ -15,9 +16,6 @@
 #include <libsc/system.h>
 #include <libsc/timer.h>
 #include <libutil/looper.h>
-#include <stdint.h>
-#include <functional>
-#include <vector>
 
 #include "../inc/car.h"
 #include "../inc/ImageProcess.h"
@@ -41,9 +39,7 @@ int main(void) {
 	RunMode Kyle;
 	Looper looper;
 	ImageProcess imp;
-	//MUST initialize for using LCD and anything that contain function inside "System"
-	//use tick
-	//...
+
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKd = false;
@@ -58,11 +54,10 @@ int main(void) {
 	float T;
 	float Kp;
 	float Ki;
-	float Kd;
 	int8_t offset;
 	float KDec;
-	float straight_Kp=1.5;
-	float straight_Kd=2.0;
+	float straight_Kp = 1.5;
+	float straight_Kd = 2.0;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -109,7 +104,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset) {
+				if(!Kyle.selecting_varset&&IsPrint) {
 #ifdef ADJUST_CAM
 			Kyle.m_brightness+=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
@@ -129,7 +124,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset) {
+				if(!Kyle.selecting_varset&&IsPrint) {
 #ifdef ADJUST_CAM
 			Kyle.m_brightness-=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
@@ -149,13 +144,13 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset) {
+				if(!Kyle.selecting_varset&&IsPrint) {
 #ifdef ADJUST_CAM
 			Kyle.m_contrast-=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKd) T-=0.01f;
-			else K-=0.01f;
+			else K-=0.5f;
 			Kyle.beepbuzzer(100);
 		}
 
@@ -164,13 +159,13 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset) {
+				if(!Kyle.selecting_varset&&IsPrint) {
 #ifdef ADJUST_CAM
 			Kyle.m_contrast+=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKd) T+=0.01f;
-			else K+=0.01f;
+			else K+=0.5f;
 			Kyle.beepbuzzer(100);
 		}
 
@@ -179,7 +174,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset) {
+				if(!Kyle.selecting_varset&&IsPrint) {
 					IsEditKd=!IsEditKd;
 					Kyle.switchLED(4,IsEditKd);
 					Kyle.beepbuzzer(100);
@@ -203,7 +198,6 @@ int main(void) {
 	T = Selected.T;
 	Kp = Selected.Kp;
 	Ki = Selected.Ki;
-	Kd = Selected.Kd;
 	offset = Selected.offset;
 	KDec = Selected.KDec;
 
@@ -219,17 +213,16 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
-//	mvar.addSharedVar(&Kp, "Kp");
-//	mvar.addSharedVar(&Ki, "Ki");
-//	mvar.addSharedVar(&Kd, "Kd");
+	mvar.addSharedVar(&Kp, "Kp");
+	mvar.addSharedVar(&Ki, "Ki");
 	mvar.addSharedVar(&T, "servoK");
 	mvar.addSharedVar(&K, "servoKd");
-	mvar.addSharedVar(&straight_Kp, "straK");
-	mvar.addSharedVar(&straight_Kd, "straKd");
+//	mvar.addSharedVar(&straight_Kp, "straK");
+//	mvar.addSharedVar(&straight_Kd, "straKd");
 	mvar.addSharedVar(&KDec, "KDec");
 //	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
-	mvar.addSharedVar(&thres, "thres");
+//	mvar.addSharedVar(&thres, "thres");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 	pGrapher::OnReceiveListener mvarlistener =
@@ -286,16 +279,16 @@ int main(void) {
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,T,K,thres,straight_Kp,straight_Kd);
 			Watchdog::Refresh();//LOL, feed or get bitten
-			looper.RunAfter(request, m_imp);
+//			looper.RunAfter(request, m_imp);
 		};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,Kd,KDec);//when using LCD the system slows down dramatically, causing the motor to go crazy
+				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,KDec);	//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
-			looper.RunAfter(request,m_motorPID);
+//			looper.RunAfter(request,m_motorPID);
 		};
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
@@ -303,10 +296,9 @@ int main(void) {
 	Kyle.printvalue(60, 60, 30, 20, "PWR=", Lcd::kRed);
 	Kyle.printvalue(0, 80, 25, 20, "Kp=", Lcd::kBlue);
 	Kyle.printvalue(0, 100, 25, 20, "Kd=", Lcd::kPurple);
-	looper.RunAfter(20, m_imp);
-	looper.RunAfter(20, m_motorPID);
+	looper.Repeat(20,m_imp,Looper::RepeatMode::kPrecise);
+	looper.Repeat(20,m_motorPID,Looper::RepeatMode::kPrecise);
 	looper.Loop();
-	for (;;) {
-	}
+	for (;;) {}
 	return 0;
 }
