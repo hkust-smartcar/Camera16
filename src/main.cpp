@@ -220,7 +220,7 @@ int main(void) {
 //	mvar.addSharedVar(&straight_Kp, "straK");
 //	mvar.addSharedVar(&straight_Kd, "straKd");
 	mvar.addSharedVar(&KDec, "KDec");
-//	mvar.addSharedVar(&offset, "Offset");
+	mvar.addSharedVar(&offset, "Offset");
 //	mvar.addSharedVar(&plnstart, "PLNStart");
 //	mvar.addSharedVar(&thres, "thres");
 	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");

@@ -82,20 +82,20 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	//speed, servo Kp, Kd, motor Kp, Ki, Kd, offset, KDec
-	VarSet myVS1_p = { 0, 1.34f, 26.0f, 0.2f, 0.0205f, 8, 0,
+	//speed, servo Kp, Kd, motor Kp, Ki, offset, KDec, Planner Mode
+	VarSet myVS1_p = { 0, 1.34f, 26.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kRoot }; //left vacant for tuning
-	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 8, 0,
+	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.45f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kProportional };
-	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.2f, 0.0205f, 8, 0,
+	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.45f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kSquared };
-	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.36f, 0.03f, 8, 0,
+	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kProportional }; //strongly confirmed
-	VarSet myVS3 = { 1900, 1.355f, 25.0f, 0.36f, 0.03f, 8, 5,
-			VarSet::PlannerMode::kProportional }; //confirmed
-	VarSet myVS4 = { 2000, 1.8f, 2.0f, 0.36f, 0.03f, 8, 8.5,
-			VarSet::PlannerMode::kProportional }; //basically confirmed
-	VarSet myVS5 = { 2000, 1.77f, 5.0f, 0.36f, 0.03f, 8, 9,
+	VarSet myVS3 = { 1900, 1.355f, 25.0f, 0.45f, 0.03f, 8, 5,
+			VarSet::PlannerMode::kRoot }; //confirmed
+	VarSet myVS4 = { 2000, 1.36f, 38.0f, 0.45f, 0.03f, 8, 3,
+			VarSet::PlannerMode::kRoot }; //basically confirmed
+	VarSet myVS5 = { 2000, 1.77f, 5.0f, 0.45f, 0.03f, 8, 9,
 			VarSet::PlannerMode::kProportional }; //not for this camera angle
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
