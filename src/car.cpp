@@ -241,7 +241,6 @@ void Car::switchLED(int8_t id, bool isEnable) {
 }
 
 void Car::capture_image(void) {
-
 	// capture raw image
 	memcpy(this->data, this->cam->LockBuffer(), 600);
 	this->cam->UnlockBuffer();

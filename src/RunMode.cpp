@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
-				1200), minServoAngle(570), maxMotorSpeed(400), minMotorSpeed(0), ServoErr(
+				1392), minServoAngle(632), maxMotorSpeed(400), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(900), MotorErr(0), MotorPrev1Err(
 				0), ideal_motor_speed(0) {
 }
@@ -30,22 +30,21 @@ RunMode::RunMode() :
 RunMode::~RunMode() {
 }
 
-void RunMode::turningPID(const int8_t mid_line, const float Kp, const float Kd,
-		const uint8_t thres, const float straight_Kp, const float straight_Kd) { //TODO: different PID for different intervals
+void RunMode::turningPID(const int8_t mid_line, const VarSet& m_varset) { //TODO: different PID for different intervals
 
 //Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;
 
 	/*-----Core dynamic PD formula-----*/
 	//positional PD = T * error^2 +kd *(error-error_prev)
-	if (abs(ServoErr) < thres)
+	if (ServoErr < 0)
 		ideal_servo_degree = uint16_t(
-				900 + straight_Kp * ServoErr
-						+ straight_Kd * (ServoErr - ServoPrevErr));
+				1032 + m_varset.l_Kp * abs(ServoErr) * ServoErr
+						+ m_varset.l_Kd * (ServoErr - ServoPrevErr));
 	else
 		ideal_servo_degree = uint16_t(
-				900 + Kp * abs(ServoErr) * ServoErr
-						+ Kd * (ServoErr - ServoPrevErr));
+				1032 + m_varset.r_Kp * abs(ServoErr) * ServoErr
+						+ m_varset.r_Kd * (ServoErr - ServoPrevErr));
 
 	//set servo accordingly
 	servo->SetDegree(
@@ -55,23 +54,23 @@ void RunMode::turningPID(const int8_t mid_line, const float Kp, const float Kd,
 	ServoPrevErr = ServoErr;
 }
 
-void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
-		const float Ki, const float KDec) {
+void RunMode::motorPID(const VarSet& m_varset) {
 
 	encoder->Update();
 	//Error=SetPoint-ProcessVariable
 	encodercount = -encoder->GetCount(); //record raw encoder count for comparison
 //	encodercount = encodercount - m_beta * (encodercount - real_encodercount); //LPF
 	if (abs(encodercount) > 5000)
-		encodercount = ideal_encoder_count;
+		encodercount = m_varset.ideal_encoder_count;
 	MotorErr = int16_t(
-			(ideal_encoder_count
-					- (ideal_encoder_count == 0 ? 0 : KDec * abs(ServoErr)))
-					- encodercount);
+			(m_varset.ideal_encoder_count
+					- (m_varset.ideal_encoder_count == 0 ?
+							0 : m_varset.KDec * abs(ServoErr))) - encodercount);
 
 	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
-	ideal_motor_speed += Kp * (MotorErr - MotorPrev1Err) + Ki * MotorErr;
+	ideal_motor_speed += m_varset.Kp * (MotorErr - MotorPrev1Err)
+			+ m_varset.Ki * MotorErr;
 	motor->SetClockwise(ideal_motor_speed > 0 ? false : true);
 
 	motor->SetPower(
@@ -82,21 +81,21 @@ void RunMode::motorPID(const int16_t ideal_encoder_count, const float Kp,
 }
 
 VarSet RunMode::SelectVarSet(void) {
-	//speed, servo Kp, Kd, motor Kp, Ki, offset, KDec, Planner Mode
-	VarSet myVS1_p = { 0, 1.34f, 26.0f, 0.45f, 0.03f, 8, 0,
+	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Planner Mode
+	const VarSet myVS1_p = { 0, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kRoot }; //left vacant for tuning
-	VarSet myVS1_r = { 0, 1.6f, 2.6f, 0.45f, 0.0205f, 8, 0,
+	const VarSet myVS1_r = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kProportional };
-	VarSet myVS1_s = { 0, 1.6f, 2.6f, 0.45f, 0.0205f, 8, 0,
+	const VarSet myVS1_s = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.0205f, 8, 0,
 			VarSet::PlannerMode::kSquared };
-	VarSet myVS2 = { 1800, 1.6f, 1.85f, 0.45f, 0.03f, 8, 0,
-			VarSet::PlannerMode::kProportional }; //strongly confirmed
-	VarSet myVS3 = { 1900, 1.355f, 25.0f, 0.45f, 0.03f, 8, 5,
-			VarSet::PlannerMode::kRoot }; //confirmed
-	VarSet myVS4 = { 2000, 1.36f, 38.0f, 0.45f, 0.03f, 8, 3,
+	const VarSet myVS2 = { 1800, 1.6f, 1.85f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
+			VarSet::PlannerMode::kRoot }; //too slow
+	const VarSet myVS3 = { 1900, 1.355f, 25.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8,
+			0, VarSet::PlannerMode::kRoot }; //confirmed
+	const VarSet myVS4 = { 2000, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 3,
 			VarSet::PlannerMode::kRoot }; //basically confirmed
-	VarSet myVS5 = { 2000, 1.77f, 5.0f, 0.45f, 0.03f, 8, 9,
-			VarSet::PlannerMode::kProportional }; //not for this camera angle
+	const VarSet myVS5 = { 2100, 1.41f, 48.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 5,
+			VarSet::PlannerMode::kRoot }; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
@@ -115,37 +114,37 @@ VarSet RunMode::SelectVarSet(void) {
 		case 0:
 			m_selected = myVS1_p;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kGreen);
+					libsc::Lcd::kWhite);
 			break;
 		case 1:
 			m_selected = myVS1_r;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kGreen);
+					libsc::Lcd::kWhite);
 			break;
 		case 2:
 			m_selected = myVS1_s;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kYellow);
+					libsc::Lcd::kWhite);
 			break;
 		case 3:
 			m_selected = myVS2;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kRed);
+					libsc::Lcd::kCyan);
 			break;
 		case 4:
 			m_selected = myVS3;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kPurple);
+					libsc::Lcd::kGreen);
 			break;
 		case 5:
 			m_selected = myVS4;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kPurple);
+					libsc::Lcd::kYellow);
 			break;
 		case 6:
 			m_selected = myVS5;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kPurple);
+					libsc::Lcd::kRed);
 			break;
 		}
 #else

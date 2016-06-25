@@ -42,22 +42,12 @@ int main(void) {
 
 	bool IsPrint = false;
 	bool IsProcess = false;
-	bool IsEditKd = false;
+	bool IsEditKp = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
-	uint8_t thres = 0;
 	//bool Iscrossroad;
 
-	/*-----variables waiting to be assigned-----*/
-	int16_t ideal_encoder_count;
-	float K;
-	float T;
-	float Kp;
-	float Ki;
-	int8_t offset;
-	float KDec;
-	float straight_Kp = 1.5;
-	float straight_Kd = 2.0;
+	VarSet Selected;
 
 	Button::Config btncfg;
 	btncfg.is_active_low = true;
@@ -109,7 +99,7 @@ int main(void) {
 			Kyle.m_brightness+=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-			ideal_encoder_count+=50;
+			Selected.ideal_encoder_count+=50;
 			Kyle.beepbuzzer(100);
 		}
 		else {
@@ -129,7 +119,7 @@ int main(void) {
 			Kyle.m_brightness-=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-			ideal_encoder_count-=50;
+			Selected.ideal_encoder_count-=50;
 			Kyle.beepbuzzer(100);
 		}
 		else {
@@ -149,8 +139,8 @@ int main(void) {
 			Kyle.m_contrast-=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKd) T-=0.01f;
-			else K-=0.5f;
+			if(IsEditKp) Selected.r_Kp-=0.01f;
+			else Selected.r_Kd-=0.5f;
 			Kyle.beepbuzzer(100);
 		}
 
@@ -164,8 +154,8 @@ int main(void) {
 			Kyle.m_contrast+=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKd) T+=0.01f;
-			else K+=0.5f;
+			if(IsEditKp) Selected.r_Kp+=0.01f;
+			else Selected.r_Kd+=0.5f;
 			Kyle.beepbuzzer(100);
 		}
 
@@ -175,8 +165,8 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset&&IsPrint) {
-					IsEditKd=!IsEditKd;
-					Kyle.switchLED(4,IsEditKd);
+					IsEditKp=!IsEditKp;
+					Kyle.switchLED(4,IsEditKp);
 					Kyle.beepbuzzer(100);
 				}
 				else {
@@ -188,21 +178,12 @@ int main(void) {
 	Joystick joy(fwaycfg);
 
 	Kyle.beepbuzzer(200);
-	VarSet Selected = Kyle.SelectVarSet();
+	Selected = Kyle.SelectVarSet();
 	Planner pln(Selected.mode);
 	Kyle.GetLCD().Clear();
 
-	/*------assign VarSet variables-----*/
-	ideal_encoder_count = Selected.ideal_encoder_count;
-	K = Selected.K;
-	T = Selected.T;
-	Kp = Selected.Kp;
-	Ki = Selected.Ki;
-	offset = Selected.offset;
-	KDec = Selected.KDec;
-
 #ifdef USE_PGRAPHER
-	int16_t last_count = ideal_encoder_count;
+	int16_t last_count = Selected.ideal_encoder_count;
 	pGrapher mvar; //call constructor after selecting VarSet, in case memory addresses freak out
 
 	/*-------configure tuning parameters below-----*/
@@ -213,36 +194,34 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
-	mvar.addSharedVar(&Kp, "Kp");
-	mvar.addSharedVar(&Ki, "Ki");
-	mvar.addSharedVar(&T, "servoK");
-	mvar.addSharedVar(&K, "servoKd");
-//	mvar.addSharedVar(&straight_Kp, "straK");
-//	mvar.addSharedVar(&straight_Kd, "straKd");
-	mvar.addSharedVar(&KDec, "KDec");
-	mvar.addSharedVar(&offset, "Offset");
-//	mvar.addSharedVar(&plnstart, "PLNStart");
-//	mvar.addSharedVar(&thres, "thres");
-	mvar.addSharedVar(&ideal_encoder_count, "Ideal Encoder");
+	mvar.addSharedVar(&Selected.Kp, "Kp");
+	mvar.addSharedVar(&Selected.Ki, "Ki");
+	mvar.addSharedVar(&Selected.l_Kp, "left Kp");
+	mvar.addSharedVar(&Selected.l_Kd, "left Kd");
+	mvar.addSharedVar(&Selected.r_Kp, "right Kp");
+	mvar.addSharedVar(&Selected.r_Kd, "right Kd");
+	mvar.addSharedVar(&Selected.KDec, "KDec");
+	mvar.addSharedVar(&Selected.offset, "Offset");
+	mvar.addSharedVar(&Selected.ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 	pGrapher::OnReceiveListener mvarlistener =
 			[&](const std::vector<Byte>& msg) {
 				switch(msg[0]) {
 					case 'w':
-					ideal_encoder_count=last_count;
+						Selected.ideal_encoder_count=last_count;
 					break;
 					case 's':
-					last_count=ideal_encoder_count==0?last_count:ideal_encoder_count;
-					ideal_encoder_count=0;
+						last_count=Selected.ideal_encoder_count==0?last_count:Selected.ideal_encoder_count;
+						Selected.ideal_encoder_count=0;
 					break;
 					case 'x':
-					ideal_encoder_count=-last_count;
+						Selected.ideal_encoder_count=-last_count;
 					break;
 					case 'e':
-					ideal_encoder_count+=50;
+						Selected.ideal_encoder_count+=50;
 					break;
 					case 'q':
-					ideal_encoder_count-=50;
+						Selected.ideal_encoder_count-=50;
 					break;
 					case 'f':
 					Kyle.beepbuzzer(100);
@@ -263,32 +242,30 @@ int main(void) {
 				Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
 				Kyle.printEdge(1,0);
 				Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
-				Kyle.printvalue(100,60,40,20,ideal_encoder_count,Lcd::kRed);
-				Kyle.printvalue(25,80,55,20,T*100,Lcd::kBlue);
-				Kyle.printvalue(25,100,55,20,K*100,Lcd::kPurple);
+				Kyle.printvalue(100,60,40,20,Selected.ideal_encoder_count,Lcd::kRed);
+				Kyle.printvalue(25,80,55,20,Selected.l_Kp*100,Lcd::kBlue);
+				Kyle.printvalue(25,100,55,20,Selected.l_Kd*100,Lcd::kPurple);
 				Kyle.printWaypoint(0,0);
 				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
 			}
 #endif
-			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,offset,stop);
+			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,Selected.offset,stop);
 			Kyle.switchLED(1);
-//				if(stop)
-//				ideal_encoder_count = 0;
+			if(stop)
+				Selected.ideal_encoder_count = 0;
 			pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
-			if(IsProcess) Kyle.turningPID(Kyle.mid,T,K,thres,straight_Kp,straight_Kd);
+			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
 			Watchdog::Refresh();//LOL, feed or get bitten
-//			looper.RunAfter(request, m_imp);
 		};
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(ideal_encoder_count,Kp,Ki,KDec);	//when using LCD the system slows down dramatically, causing the motor to go crazy
+				if(!IsPrint) Kyle.motorPID(Selected);	//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
-//			looper.RunAfter(request,m_motorPID);
 		};
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);

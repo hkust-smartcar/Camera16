@@ -25,8 +25,11 @@ struct VarSet {
 
 	int16_t ideal_encoder_count;
 	/*-----servo-----*/
-	float T; //kp
-	float K; //kd
+	float l_Kp;
+	float l_Kd;
+
+	float r_Kp;
+	float r_Kd;
 
 	/*-----motor-----*/
 	float Kp;
@@ -49,13 +52,11 @@ public:
 	~RunMode();
 
 	//positional PID = kp *error +kd *(error_prev - error), try to let Kp be proportional to error squared
-	void turningPID(int8_t const real_mid_line, const float Kp, const float Kd, uint8_t thres,
-			const float straight_Kp, const float straight_Kd) override;
+	void turningPID(const int8_t real_mid_line, const VarSet&) override;
 
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
 	// which means previous PID, two of the previous errors should be cached
-	void motorPID(const int16_t ideal_encoder_count, const float, const float,
-			const float) override;
+	void motorPID(const VarSet&) override;
 
 	VarSet SelectVarSet(void);
 
@@ -64,7 +65,7 @@ public:
 	uint8_t varset_index;
 	bool selecting_varset;
 #ifdef TESTSERVO
-	uint16_t deg=900;
+	uint16_t deg=1032;
 #endif
 #ifdef ADJUST_CAM
 	uint8_t m_brightness=0x00;
