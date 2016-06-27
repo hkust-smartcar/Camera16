@@ -32,7 +32,7 @@ Car::Car() :
 #endif
 	encoder->Update();
 	servo = new TrsD05(GetServoConfig());
-	servo->SetDegree(900);
+	servo->SetDegree(SERVO_MID);
 	motor = new DirMotor(GetDirmotorConfig());
 	LCD = new St7735r(GetLcdConfig());
 	buzzer = new SimpleBuzzer(GetBuzzerConfig());

@@ -65,7 +65,7 @@ public:
 	uint8_t varset_index;
 	bool selecting_varset;
 #ifdef TESTSERVO
-	uint16_t deg=1032;
+	uint16_t deg=SERVO_MID;
 #endif
 #ifdef ADJUST_CAM
 	uint8_t m_brightness=0x00;

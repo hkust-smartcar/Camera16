@@ -194,8 +194,8 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
-	mvar.addSharedVar(&Selected.Kp, "Kp");
-	mvar.addSharedVar(&Selected.Ki, "Ki");
+//	mvar.addSharedVar(&Selected.Kp, "Kp");
+//	mvar.addSharedVar(&Selected.Ki, "Ki");
 	mvar.addSharedVar(&Selected.l_Kp, "left Kp");
 	mvar.addSharedVar(&Selected.l_Kd, "left Kd");
 	mvar.addSharedVar(&Selected.r_Kp, "right Kp");
@@ -250,10 +250,10 @@ int main(void) {
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
 			}
 #endif
-			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,4,Selected.offset,stop);
+			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop);
 			Kyle.switchLED(1);
-			if(stop)
-				Selected.ideal_encoder_count = 0;
+//			if(stop)
+//				Selected.ideal_encoder_count = 0;
 			pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
