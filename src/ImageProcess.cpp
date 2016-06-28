@@ -49,6 +49,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			break;
 		}
 	}
+	waypoints[CAMH-1] = (edges[recL(CAMH-1)] + edges[recR(CAMH-1)]) / 2;
 
 	/*-----scan every row from bottom up-----*/
 	for (int8_t y = CAMH - 2; y >= 0; y--) {
@@ -117,7 +118,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		//TODO: when found cross, loop back each row, until lower-upper < 0, then put bgstart that row
 		if (!crossroad && y >= CONTINUOUS && y <= 50) {
 			bool all_white = true;
-			for (int8_t i = 10; i < CAMW - 10; i++)
+			for (int8_t i = 20; i < CAMW - 10; i++)
 				if (!GetPixel(data, i, y)) {
 					all_white = false;
 					break;
@@ -132,7 +133,16 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 						}
 				if (all_white1) {
 					crossroad = true;
-					m_bgstart = y;
+					bool tilted=false;
+					for (int8_t i = y + 1; i < CAMH - 1; i++) {
+						if (edges[recL(i)] < edges[recL(i - 1)]
+								|| edges[recR(i)] > edges[recR(i - 1)]) {
+							tilted=true;
+							m_bgstart=i-1;
+							break;
+						}
+					}
+					if(!tilted) m_bgstart=y;
 					break;
 				}
 			}
@@ -140,9 +150,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 
 		/*-----start finding obstacle-----*/
 		bool found = false;
-
 		int8_t mid = (edges[recL(y)] + edges[recR(y)]) / 2;
-		waypoints[y] = mid;
 		/*-----scan from center to right to find obstacle-----*/
 		for (int8_t x = mid; x < edges[recR(y)]; x++) {
 			if (!GetPixel(data, x, y)) {
@@ -161,6 +169,10 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 				}
 			}
 		}
+
+
+		waypoints[y] = (edges[recL(y)] + edges[recR(y)]) / 2;
+
 		/*-----finish scanning-----*/
 		/*-----store variables for future processing-----*/
 		last2Left = lastLeft;

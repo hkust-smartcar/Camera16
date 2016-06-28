@@ -237,6 +237,7 @@ int main(void) {
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
+				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,3,Selected.offset,stop);
 #ifdef USE_LCD
 			if(IsPrint) {
 				Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
@@ -250,7 +251,6 @@ int main(void) {
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
 			}
 #endif
-			imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop);
 			Kyle.switchLED(1);
 //			if(stop)
 //				Selected.ideal_encoder_count = 0;
