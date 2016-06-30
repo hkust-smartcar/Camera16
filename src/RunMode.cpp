@@ -83,7 +83,7 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Planner Mode
-	const VarSet myVS1_p = { 0, 1.03f, 38.0f, 1.06f, 48.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_p = { 0, 1.13f, 40.0f, 1.16f, 48.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kRoot }; //left vacant for tuning
 	const VarSet myVS1_r = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kProportional };
