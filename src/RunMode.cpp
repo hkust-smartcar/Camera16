@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
-				1432), minServoAngle(652), maxMotorSpeed(400), minMotorSpeed(0), ServoErr(
+				1432), minServoAngle(652), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(SERVO_MID), MotorErr(0), MotorPrev1Err(
 				0), ideal_motor_speed(0) {
 }
@@ -30,7 +30,7 @@ RunMode::RunMode() :
 RunMode::~RunMode() {
 }
 
-void RunMode::turningPID(const int8_t mid_line, const VarSet& m_varset) { //TODO: different PID for different intervals
+void RunMode::turningPID(const int8_t mid_line, const VarSet& m_varset) {
 
 //Error=SetPoint-ProcessVariable
 	ServoErr = mid_line - 39;
@@ -65,7 +65,8 @@ void RunMode::motorPID(const VarSet& m_varset) {
 	MotorErr = int16_t(
 			(m_varset.ideal_encoder_count
 					- (m_varset.ideal_encoder_count == 0 ?
-							0 : m_varset.KDec * abs(ServoErr))) - encodercount);
+							0 : m_varset.KDec * ServoErr * ServoErr))
+					- encodercount);
 
 	/*-----Core PID formula-----*/
 	// Incremental PID(n) = PID(n-1) + kp * (e(n)-e(n-1)) +kd *(e(n)-2e(n-1)+e(n-2)) + ki * e(n)
@@ -82,7 +83,7 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Planner Mode
-	const VarSet myVS1_p = { 0, 1.35f, 60.0f, 1.38f, 63.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_p = { 0, 1.03f, 38.0f, 1.06f, 48.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kRoot }; //left vacant for tuning
 	const VarSet myVS1_r = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::PlannerMode::kProportional };

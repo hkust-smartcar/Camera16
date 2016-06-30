@@ -15,8 +15,8 @@
 
 #define CAMH 60
 
-Planner::Planner(VarSet::PlannerMode m_mode) {
-	switch (m_mode) {
+Planner::Planner(VarSet& m_VarSet) {
+	switch (m_VarSet.mode) {
 	case VarSet::PlannerMode::kProportional:
 		for (int8_t row = CAMH - 1; row >= 0; row--) {
 			weight[row] = row; // define the weight for each item

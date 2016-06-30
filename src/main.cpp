@@ -179,7 +179,7 @@ int main(void) {
 
 	Kyle.beepbuzzer(200);
 	Selected = Kyle.SelectVarSet();
-	Planner pln(Selected.mode);
+	Planner pln(Selected);
 	Kyle.GetLCD().Clear();
 
 #ifdef USE_PGRAPHER
@@ -237,7 +237,8 @@ int main(void) {
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
-				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,3,Selected.offset,stop);
+				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop);
+				pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 #ifdef USE_LCD
 			if(IsPrint) {
 				Kyle.printRawCamGraph(1,0,Kyle.data);//print raw for better performance
@@ -254,7 +255,6 @@ int main(void) {
 			Kyle.switchLED(1);
 //			if(stop)
 //				Selected.ideal_encoder_count = 0;
-			pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
 			Watchdog::Refresh();//LOL, feed or get bitten

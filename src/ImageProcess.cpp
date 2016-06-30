@@ -27,7 +27,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 	int8_t lastRight = 0;
 	int8_t last2Left = 0;
 	int8_t last2Right = 0;
-	bool crossroad = false;
+//	bool crossroad = false;
 	m_bgstart = 0;
 
 	/*-----find bottom left-----*/
@@ -49,7 +49,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			break;
 		}
 	}
-	waypoints[CAMH-1] = (edges[recL(CAMH-1)] + edges[recR(CAMH-1)]) / 2;
+	waypoints[CAMH - 1] = (edges[recL(CAMH-1)] + edges[recR(CAMH-1)]) / 2;
 
 	/*-----scan every row from bottom up-----*/
 	for (int8_t y = CAMH - 2; y >= 0; y--) {
@@ -114,37 +114,22 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 		stop = false;
 
-		/*---find cross road---*/
-		//TODO: when found cross, loop back each row, until lower-upper < 0, then put bgstart that row
-		if (!crossroad && y >= CONTINUOUS && y <= 50) {
-			bool all_white = true;
-			for (int8_t i = 20; i < CAMW - 10; i++)
-				if (!GetPixel(data, i, y)) {
-					all_white = false;
-					break;
-				}
-			if (all_white) {
-				bool all_white1 = true;
-				for (int8_t i = 10; i < CAMW - 10; i++)
-					for (int8_t j = 1; j < CONTINUOUS; j++)
-						if (!GetPixel(data, i, y - j)) {
-							all_white1 = false;
-							break;
-						}
-				if (all_white1) {
-					crossroad = true;
-					bool tilted=false;
-					for (int8_t i = y + 1; i < CAMH - 1; i++) {
-						if (edges[recL(i)] < edges[recL(i - 1)]
-								|| edges[recR(i)] > edges[recR(i - 1)]) {
-							tilted=true;
-							m_bgstart=i-1;
-							break;
-						}
-					}
-					if(!tilted) m_bgstart=y;
-					break;
-				}
+		/*---cross road processing---*/
+		if (y < CAMH - 5) {
+			if (edges[recL(y)] - edges[recL(y + 3)] < 0
+					&& edges[recR(y)] - edges[recR(y + 3)] > 0) { //both sides outwards, add both sides
+				edges[recL(y)] = 2 * edges[recL(y + 2)] - edges[recL(y + 3)];
+				edges[recR(y)] = 2 * edges[recR(y + 2)] - edges[recR(y + 3)];
+			} else {
+
+				if (edges[recL(y + 2)] > edges[recL(y + 3)]
+						&& edges[recL(y)] < edges[recL(y + 2)])
+					edges[recL(y)] = 2 * edges[recL(y + 2)]
+							- edges[recL(y + 3)];
+				if (edges[recR(y + 2)] < edges[recR(y + 3)]
+						&& edges[recR(y)] > edges[recR(y + 2)])
+					edges[recR(y)] = 2 * edges[recR(y + 2)]
+							- edges[recR(y + 3)];
 			}
 		}
 
@@ -169,7 +154,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 				}
 			}
 		}
-
 
 		waypoints[y] = (edges[recL(y)] + edges[recR(y)]) / 2;
 
