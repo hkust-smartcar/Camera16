@@ -19,7 +19,9 @@
 #include "car.h"
 
 struct VarSet {
-
+	enum CrossroadMode{
+		kLazy=0, kAllWhite,kOutwards
+	};
 	int16_t ideal_encoder_count;
 	/*-----servo-----*/
 	float l_Kp;
@@ -35,7 +37,7 @@ struct VarSet {
 	/*-----other processing variables-----*/
 	int8_t offset;
 	float KDec; //deceleration constant
-	bool Add_Line;
+	CrossroadMode xMode;
 };
 
 class RunMode: public Car {

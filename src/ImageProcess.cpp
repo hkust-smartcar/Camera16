@@ -11,10 +11,7 @@
 #include <algorithm>
 #include <cstring>
 
-//#define ADD_LINE_KYLE
-#define ADD_LINE_JUDY
-
-#define CONTINUOUS 7
+#define CONTINUOUS 5
 #define THRES 10
 #define CAMW 80
 #define CAMH 60
@@ -58,6 +55,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 	/*-----scan every row from bottom up-----*/
 	for (int8_t y = CAMH - 2; y >= 0; y--) {
 
+		rowstart: ;
 		bool leftFound = false;
 		bool rightFound = false;
 
@@ -93,7 +91,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 
 		/*------stop condition by Judy------*/
-		if (y > CAMH - 10) {
+		if (y > CAMH - 15) {
 			bool rightfulfill = false;
 			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
 			if (GetPixel(data, middle, y))
@@ -119,8 +117,8 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		stop = false;
 
 		/*---cross road processing---*/
-		if (is_add_line) {
-#ifdef ADD_LINE_JUDY
+		switch (m_xMode) {
+		case VarSet::CrossroadMode::kAllWhite: {
 			if (!crossroad && y >= CONTINUOUS && y <= 50) {
 				/*-----all white rows-----*/
 				bool all_white = true;
@@ -169,39 +167,47 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 						int8_t mid = (edges[recL(i)] + edges[recR(i)]) / 2;
 						waypoints[i] = mid;
 					}
-					break;
+					goto end;
 				}
 			}
-#endif
-#ifdef ADD_LINE_KYLE
-			if (edges[recL(y)] - edges[recL(y + 2)] < 0
-					&& edges[recR(y)] - edges[recR(y + 2)] > 0) { //both sides outwards, add both sides
-				edges[recL(y)] = 2 * edges[recL(y + 2)] - edges[recL(y + 3)];
-				edges[recR(y)] = 2 * edges[recR(y + 2)] - edges[recR(y + 3)];
-			}
-			else {
-				if (edges[recL(y + 2)] > edges[recL(y + 3)]
-						&& edges[recL(y)] < edges[recL(y + 2)])
-				edges[recL(y)] = 2 * edges[recL(y + 2)]
-				- edges[recL(y + 3)];
-				if (edges[recR(y + 2)] < edges[recR(y + 3)]
-						&& edges[recR(y)] > edges[recR(y + 2)])
-				edges[recR(y)] = 2 * edges[recR(y + 2)]
-				- edges[recR(y + 3)];
-			}
 		}
-#endif
-		} else {
+		break;
+
+		case VarSet::CrossroadMode::kOutwards: {
+			if (y < CAMH - 4) {
+				if (edges[recL(y)] - edges[recL(y + 2)] < 0
+						&& edges[recR(y)] - edges[recR(y + 2)] > 0) { //both sides outwards, add both sides
+					edges[recL(y)] = 2 * edges[recL(y + 2)]
+							- edges[recL(y + 3)];
+					edges[recR(y)] = 2 * edges[recR(y + 2)]
+							- edges[recR(y + 3)];
+				} else {
+					if (edges[recL(y + 2)] > edges[recL(y + 3)]
+							&& edges[recL(y)] < edges[recL(y + 2)])
+						edges[recL(y)] = 2 * edges[recL(y + 2)]
+								- edges[recL(y + 3)];
+					if (edges[recR(y + 2)] < edges[recR(y + 3)]
+							&& edges[recR(y)] > edges[recR(y + 2)])
+						edges[recR(y)] = 2 * edges[recR(y + 2)]
+								- edges[recR(y + 3)];
+				}
+			}
+			if (--y >= 0)
+				goto rowstart;
+		}
+		break;
+
+		case VarSet::CrossroadMode::kLazy: {
 			if (!crossroad && y >= CONTINUOUS && y <= 50) {
 				bool all_white = true;
-				for (int8_t i = 20; i < CAMW - 10; i++)
+				for (int8_t i = THRES; i < CAMW - THRES; i++)
 					if (!GetPixel(data, i, y)) {
 						all_white = false;
 						break;
 					}
 				if (all_white) {
 					bool all_white1 = true;
-					for (int8_t i = 10; i < CAMW - 10; i++)
+					for (int8_t i = THRES; i < CAMW - THRES; i++)
 						for (int8_t j = 1; j < CONTINUOUS; j++)
 							if (!GetPixel(data, i, y - j)) {
 								all_white1 = false;
@@ -215,15 +221,16 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 									|| edges[recR(i)] > edges[recR(i - 1)]) {
 								tilted = true;
 								m_bgstart = i - 1;
-								break;
+								goto end;
 							}
 						}
 						if (!tilted)
 							m_bgstart = y;
-						break;
+						goto end;
 					}
 				}
 			}
+		}
 		}
 
 		/*-----start finding obstacle-----*/
@@ -256,7 +263,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		last2Right = lastRight;
 		lastLeft = edges[recL(y)];
 		lastRight = edges[recR(y)];
-
 	} //every row
 	end: ; //finish scanning full frame
 

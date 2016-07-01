@@ -9,7 +9,8 @@
  */
 #pragma once
 #include <stdint.h>
-#include <libbase/misc_types.h>
+#include <RunMode.h>
+struct VarSet;
 
 class ImageProcess {
 	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
@@ -18,8 +19,8 @@ class ImageProcess {
 		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
 	}
 public:
-	ImageProcess(bool Add_Line){
-		is_add_line=Add_Line;
+	ImageProcess(VarSet& m_VarSet){
+		m_xMode=m_VarSet.xMode;
 	}
 	~ImageProcess() {};
 
@@ -31,5 +32,5 @@ public:
 			int8_t& m_bgstart, const int8_t thres, const int8_t offset,
 			bool& stop);
 private:
-	bool is_add_line;
+	VarSet::CrossroadMode m_xMode;
 };
