@@ -2,7 +2,7 @@
  * ImageProcess.cpp
  *
  *  Created on: 1 Apr 2016
- *      Author: Kyle
+ *      Author: Kyle, Judy
  *  Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  */
 
@@ -12,10 +12,10 @@
 #include <cstring>
 
 //#define ADD_LINE_KYLE
-//#define ADD_LINE_JUDY
-#define LAZY
+#define ADD_LINE_JUDY
 
-#define CONTINUOUS 3
+#define CONTINUOUS 7
+#define THRES 10
 #define CAMW 80
 #define CAMH 60
 #define recL(y) y
@@ -119,60 +119,57 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		stop = false;
 
 		/*---cross road processing---*/
+		if (is_add_line) {
 #ifdef ADD_LINE_JUDY
-		if (y < CAMH - 5) {
-			/*----find all white rows----*/
 			if (!crossroad && y >= CONTINUOUS && y <= 50) {
+				/*-----all white rows-----*/
 				bool all_white = true;
-				for (int8_t i = 5; i < CAMW - 5; i++)
+				for (int8_t i = THRES; i < CAMW - THRES; i++)
 					if (!GetPixel(data, i, y)) {
 						all_white = false;
 						break;
 					}
 				if (all_white) {
 					bool all_white1 = true;
-					for (int8_t i = 5; i < CAMW - 5; i++)
+					for (int8_t i = THRES; i < CAMW - THRES; i++)
 						for (int8_t j = 1; j < CONTINUOUS; j++)
 							if (!GetPixel(data, i, y - j)) {
 								all_white1 = false;
 								break;
 							}
-					if (all_white1) {
+					if (all_white1)
 						crossroad = true;
-						/*-----add imaginary lines to the end-----*/
-						for (int8_t i = y; i >= 0; i--) {
-							if (edges[recL(CAMH-1)] != 0) {
-								if (edges[recL(CAMH-1)] < edges[recL(y + 7)])
-									edges[recL(i)] = (edges[recL(y + 7)]
-											- edges[recL(CAMH-1)]) * (y + 7 - i)
-											/ (CAMH - y - 8)
-											+ edges[recL(y + 7)];
-								else
-									edges[recL(i)] = (edges[recL(CAMH-5)]
-											- edges[recL(CAMH-1)]) * (y + 7 - i)
-											/ 4 + edges[recL(y + 7)];
-							}
-							if (edges[recR(CAMH-1)] != CAMW) {
-								if (edges[recR(CAMH-1)] > edges[recR(y + 7)])
-									edges[recR(i)] = (edges[recR(y + 7)]
-											- edges[recR(CAMH-1)]) * (y + 7 - i)
-											/ (CAMH - y - 8)
-											+ edges[recR(y + 7)];
-								else
-									edges[recR(i)] = (edges[recR(CAMH-5)]
-											- edges[recR(CAMH-1)]) * (y + 7 - i)
-											/ 4 + edges[recR(y + 7)];
-
-							}
-							edges[recL(i)] =
-									edges[recL(i)] < 0 ? 0 : edges[recL(i)];
-							edges[recR(i)] =
-									edges[recR(i)] > 79 ? 79 : edges[recR(i)];
-							int8_t mid = (edges[recL(i)] + edges[recR(i)]) / 2;
-							waypoints[i] = mid;
+				}
+				/*-----add imaginary lines when crossroad detected-----*/
+				if (crossroad) {
+					for (int i = CAMH - 5; i >= 0; i--) {
+						if (edges[recL(CAMH-1)] != 0) {
+							if (edges[recL(CAMH-1)] < edges[CAMH - 5])
+								edges[recL(i)] = (edges[recL(CAMH-5)]
+										- edges[recL(CAMH-1)]) * (CAMH - 5 - i)
+										/ 4 + edges[recL(CAMH-5)];
+							else
+								edges[recL(i)] = (CAMH - 1 - i) / 3
+										+ edges[recL(CAMH-1)];
 						}
-						break;
+						if (edges[recR(CAMH-1)] != CAMW - 1) {
+							if (edges[recR(CAMH-1)] > edges[CAMH - 5])
+								edges[recR(i)] = (edges[recR(CAMH-5)]
+										- edges[recR(CAMH-1)]) * (CAMH - 5 - i)
+										/ 4 + edges[recR(CAMH-5)];
+							else
+								edges[recR(i)] = (CAMH - 1 - i) / 3
+										+ edges[recR(CAMH-1)];
+
+						}
+						edges[recL(i)] =
+								edges[recL(i)] < 0 ? 0 : edges[recL(i)];
+						edges[recR(i)] =
+								edges[recR(i)] > 79 ? 79 : edges[recR(i)];
+						int8_t mid = (edges[recL(i)] + edges[recR(i)]) / 2;
+						waypoints[i] = mid;
 					}
+					break;
 				}
 			}
 #endif
@@ -185,48 +182,49 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			else {
 				if (edges[recL(y + 2)] > edges[recL(y + 3)]
 						&& edges[recL(y)] < edges[recL(y + 2)])
-					edges[recL(y)] = 2 * edges[recL(y + 2)]
-							- edges[recL(y + 3)];
+				edges[recL(y)] = 2 * edges[recL(y + 2)]
+				- edges[recL(y + 3)];
 				if (edges[recR(y + 2)] < edges[recR(y + 3)]
 						&& edges[recR(y)] > edges[recR(y + 2)])
-					edges[recR(y)] = 2 * edges[recR(y + 2)]
-							- edges[recR(y + 3)];
+				edges[recR(y)] = 2 * edges[recR(y + 2)]
+				- edges[recR(y + 3)];
 			}
 		}
 #endif
-#ifdef LAZY
-		if (!crossroad && y >= CONTINUOUS && y <= 50) {
-					bool all_white = true;
-					for (int8_t i = 20; i < CAMW - 10; i++)
-						if (!GetPixel(data, i, y)) {
-							all_white = false;
-							break;
-						}
-					if (all_white) {
-						bool all_white1 = true;
-						for (int8_t i = 10; i < CAMW - 10; i++)
-							for (int8_t j = 1; j < CONTINUOUS; j++)
-								if (!GetPixel(data, i, y - j)) {
-									all_white1 = false;
-									break;
-								}
-						if (all_white1) {
-							crossroad = true;
-							bool tilted=false;
-							for (int8_t i = y + 1; i < CAMH - 1; i++) {
-								if (edges[recL(i)] < edges[recL(i - 1)]
-										|| edges[recR(i)] > edges[recR(i - 1)]) {
-									tilted=true;
-									m_bgstart=i-1;
-									break;
-								}
+		} else {
+			if (!crossroad && y >= CONTINUOUS && y <= 50) {
+				bool all_white = true;
+				for (int8_t i = 20; i < CAMW - 10; i++)
+					if (!GetPixel(data, i, y)) {
+						all_white = false;
+						break;
+					}
+				if (all_white) {
+					bool all_white1 = true;
+					for (int8_t i = 10; i < CAMW - 10; i++)
+						for (int8_t j = 1; j < CONTINUOUS; j++)
+							if (!GetPixel(data, i, y - j)) {
+								all_white1 = false;
+								break;
 							}
-							if(!tilted) m_bgstart=y;
-							break;
+					if (all_white1) {
+						crossroad = true;
+						bool tilted = false;
+						for (int8_t i = y + 1; i < CAMH - 1; i++) {
+							if (edges[recL(i)] < edges[recL(i - 1)]
+									|| edges[recR(i)] > edges[recR(i - 1)]) {
+								tilted = true;
+								m_bgstart = i - 1;
+								break;
+							}
 						}
+						if (!tilted)
+							m_bgstart = y;
+						break;
 					}
 				}
-#endif
+			}
+		}
 
 		/*-----start finding obstacle-----*/
 		bool found = false;

@@ -12,7 +12,7 @@
 
 class Planner{
 public:
-	Planner(VarSet&);
+	Planner();
 	~Planner(void);
 
 	//simply calculate average of edges, and put into waypoints[60]

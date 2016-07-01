@@ -83,20 +83,20 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Planner Mode
-	const VarSet myVS1_p = { 0, 1.13f, 40.0f, 1.16f, 48.0f, 0.45f, 0.03f, 8, 0,
-			VarSet::PlannerMode::kRoot }; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
-			VarSet::PlannerMode::kProportional };
+	const VarSet myVS1_p = { 0, 1.13f, 40.0f, 1.3f, 48.0f, 0.45f, 0.03f, 8, 0,
+			true }; //left vacant for tuning
+	const VarSet myVS1_r = { 0, 1.13f, 40.0f, 1.3f, 48.0f, 0.45f, 0.03f, 8, 0,
+			false };
 	const VarSet myVS1_s = { 0, 1.6f, 2.6f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0,
-			VarSet::PlannerMode::kSquared };
+			false };
 	const VarSet myVS2 = { 2000, 1.41f, 48.0f, 1.45f, 55.0f, 0.45f, 0.03f, 8, 0,
-			VarSet::PlannerMode::kRoot }; //confirmed
+			false }; //confirmed
 	const VarSet myVS3 = { 1900, 1.355f, 25.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8,
-			0, VarSet::PlannerMode::kRoot }; //confirmed
+			0, false }; //confirmed
 	const VarSet myVS4 = { 2000, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 3,
-			VarSet::PlannerMode::kRoot }; //basically confirmed
+			false }; //basically confirmed
 	const VarSet myVS5 = { 2100, 1.41f, 48.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 5,
-			VarSet::PlannerMode::kRoot }; //almost confirmed
+			false }; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);

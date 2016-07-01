@@ -18,7 +18,9 @@ class ImageProcess {
 		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
 	}
 public:
-	ImageProcess() {};
+	ImageProcess(bool Add_Line){
+		is_add_line=Add_Line;
+	}
 	~ImageProcess() {};
 
 	//Slope-Oriented Edge Detecting Algorithm
@@ -28,4 +30,6 @@ public:
 	void FindEdge(const Byte* data, int8_t m_edges[120],int8_t waypoints[60],
 			int8_t& m_bgstart, const int8_t thres, const int8_t offset,
 			bool& stop);
+private:
+	bool is_add_line;
 };

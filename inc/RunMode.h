@@ -19,9 +19,6 @@
 #include "car.h"
 
 struct VarSet {
-	enum struct PlannerMode {
-		kRoot = 0, kProportional, kSquared
-	};
 
 	int16_t ideal_encoder_count;
 	/*-----servo-----*/
@@ -38,7 +35,7 @@ struct VarSet {
 	/*-----other processing variables-----*/
 	int8_t offset;
 	float KDec; //deceleration constant
-	PlannerMode mode;
+	bool Add_Line;
 };
 
 class RunMode: public Car {

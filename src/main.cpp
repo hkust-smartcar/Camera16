@@ -18,9 +18,9 @@
 #include <libutil/looper.h>
 
 #include "../inc/car.h"
-#include "../inc/ImageProcess.h"
 #include "../inc/Planner.h"
 #include "../inc/RunMode.h"
+#include "../inc/ImageProcess.h"
 
 #ifdef USE_PGRAPHER
 #include <libutil/pGrapher.h>
@@ -38,14 +38,13 @@ int main(void) {
 
 	RunMode Kyle;
 	Looper looper;
-	ImageProcess imp;
 
 	bool IsPrint = false;
 	bool IsProcess = false;
 	bool IsEditKp = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
-	//bool Iscrossroad;
+	uint8_t stop_count=0;
 
 	VarSet Selected;
 
@@ -179,7 +178,8 @@ int main(void) {
 
 	Kyle.beepbuzzer(200);
 	Selected = Kyle.SelectVarSet();
-	Planner pln(Selected);
+	Planner pln;
+	ImageProcess imp(Selected.Add_Line);
 	Kyle.GetLCD().Clear();
 
 #ifdef USE_PGRAPHER
@@ -253,8 +253,10 @@ int main(void) {
 			}
 #endif
 			Kyle.switchLED(1);
-//			if(stop)
-//				Selected.ideal_encoder_count = 0;
+			if(stop)stop_count++;
+			else stop_count=0;
+			if(stop_count > 3)Selected.ideal_encoder_count = 0;
+//			if(stop) Selected.ideal_encoder_count=0;
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
 			Watchdog::Refresh();//LOL, feed or get bitten

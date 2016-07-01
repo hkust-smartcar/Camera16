@@ -15,24 +15,10 @@
 
 #define CAMH 60
 
-Planner::Planner(VarSet& m_VarSet) {
-	switch (m_VarSet.mode) {
-	case VarSet::PlannerMode::kProportional:
-		for (int8_t row = CAMH - 1; row >= 0; row--) {
-			weight[row] = row; // define the weight for each item
-		};
-		break;
-	case VarSet::PlannerMode::kRoot:
-		for (int8_t row = CAMH - 1; row >= 0; row--) {
-			weight[row] = sqrt(row); // define the weight for each item
-		};
-		break;
-	case VarSet::PlannerMode::kSquared:
-		for (int8_t row = CAMH - 1; row >= 0; row--) {
-			weight[row] = row * row; // define the weight for each item
-		};
-		break;
-	}
+Planner::Planner() {
+	for (int8_t row = CAMH - 1; row >= 0; row--) {
+		weight[row] = sqrt(row); // define the weight for each item
+	};
 }
 
 Planner::~Planner() {
