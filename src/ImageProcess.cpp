@@ -91,7 +91,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 
 		/*------stop condition by Judy------*/
-		if (y > CAMH - 15) {
+		if (y > CAMH - 5) {
 			bool rightfulfill = false;
 			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
 			if (GetPixel(data, middle, y))

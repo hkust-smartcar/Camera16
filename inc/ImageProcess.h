@@ -10,7 +10,6 @@
 #pragma once
 #include <stdint.h>
 #include <RunMode.h>
-struct VarSet;
 
 class ImageProcess {
 	inline bool GetPixel(const Byte* src, const int8_t x, const int8_t y) {
