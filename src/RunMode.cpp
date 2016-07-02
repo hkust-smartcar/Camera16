@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
-				1422), minServoAngle(642), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
+				1420), minServoAngle(770), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(SERVO_MID), MotorErr(0), MotorPrev1Err(
 				0), ideal_motor_speed(0) {
 }
@@ -83,11 +83,11 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode
-	const VarSet myVS1_p = { 0, 1.08f, 40.0f, 1.15f, 48.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_p = { 0, 1.08f, 40.0f, 1.1f, 45.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::CrossroadMode::kLazy }; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.08f, 40.0f, 1.15f, 48.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_r = { 0, 1.08f, 40.0f, 1.1f, 45.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::CrossroadMode::kAllWhite };
-	const VarSet myVS1_s = { 0, 1.08f, 40.0f, 1.15f, 48.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_s = { 0, 1.08f, 40.0f, 1.1f, 45.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::CrossroadMode::kOutwards };
 	const VarSet myVS2 = { 2000, 1.41f, 48.0f, 1.45f, 55.0f, 0.45f, 0.03f, 8, 0,
 			VarSet::CrossroadMode::kLazy }; //confirmed

@@ -52,7 +52,8 @@ Car::Car() :
 
 	memset(this->data, 0, 600);
 	//memset(this->image, false, 4800);
-	memset(this->edges, 0, 120);
+	std::memset(edges, 0, 60);
+	std::memset(edges + 60, 79, 60);
 	memset(this->waypoints, 39, 60);
 }
 // for constructor, you can temporarily understand it as :

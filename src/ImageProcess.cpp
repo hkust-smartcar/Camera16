@@ -12,7 +12,7 @@
 #include <cstring>
 
 #define CONTINUOUS 5
-#define THRES 10
+#define THRES 5
 #define CAMW 80
 #define CAMH 60
 #define recL(y) y
@@ -22,8 +22,8 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		int8_t waypoints[60], int8_t& m_bgstart, const int8_t thres,
 		const int8_t offset, bool& stop) {
 
-	std::memset(edges, 0, 60);
-	std::memset(edges + 60, 79, 60);
+//	std::memset(edges, 0, 60);
+//	std::memset(edges + 60, 79, 60);
 	int8_t lastLeft = 0;
 	int8_t lastRight = 0;
 	int8_t last2Left = 0;
@@ -97,20 +97,24 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			if (GetPixel(data, middle, y))
 				for (int8_t i = middle; i < edges[recR(y)]; i++)
 					if (!GetPixel(data, i, y)) {
-						for (int8_t j = i; j < edges[recR(y)]; j++)
-							if (GetPixel(data, j, y)) {
-								rightfulfill = true;
-								goto left;
-							}
+						if (!IsNoise(data, i, y)) {
+							for (int8_t j = i; j < edges[recR(y)]; j++)
+								if (GetPixel(data, j, y)) {
+									rightfulfill = true;
+									goto left;
+								}
+						}
 					}
 			left: if (rightfulfill) {
 				for (int8_t i = middle; i > edges[recL(y)]; i--)
 					if (!GetPixel(data, i, y)) {
-						for (int8_t j = i; j > edges[recL(y)]; j--)
-							if (GetPixel(data, j, y)) {
-								stop = true;
-								goto end;
-							}
+						if (!IsNoise(data, i, y)) {
+							for (int8_t j = i; j > edges[recL(y)]; j--)
+								if (GetPixel(data, j, y)) {
+									stop = true;
+									goto end;
+								}
+						}
 					}
 			}
 		}
@@ -171,7 +175,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 				}
 			}
 		}
-		break;
+			break;
 
 		case VarSet::CrossroadMode::kOutwards: {
 			if (y < CAMH - 4) {
@@ -195,7 +199,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			if (--y >= 0)
 				goto rowstart;
 		}
-		break;
+			break;
 
 		case VarSet::CrossroadMode::kLazy: {
 			if (!crossroad && y >= CONTINUOUS && y <= 50) {
@@ -233,24 +237,35 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 		}
 
+		/*-----store variables for future processing-----*/
+		last2Left = lastLeft;
+		last2Right = lastRight;
+		lastLeft = edges[recL(y)];
+		lastRight = edges[recR(y)];
+
 		/*-----start finding obstacle-----*/
 		bool found = false;
-		int8_t mid = (edges[recL(y)] + edges[recR(y)]) / 2;
 		/*-----scan from center to right to find obstacle-----*/
-		for (int8_t x = mid; x < edges[recR(y)]; x++) {
+		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+				x < (edges[recL(y)] + 3 * edges[recR(y)]) / 4; x++) {
 			if (!GetPixel(data, x, y)) {
-				edges[recR(y)] = x - offset;
-				found = true;
-				break;
+				if (!IsNoise(data, x, y)) {
+					edges[recR(y)] = x - offset;
+					found = true;
+					break;
+				}
 			}
 		}
 
 		/*-----if not found, scan from center to left to find obstacle-----*/
 		if (!found) {
-			for (int8_t x = mid; x > edges[recL(y)]; x--) {
+			for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+					x > (3 * edges[recL(y)] + edges[recR(y)]) / 4; x--) {
 				if (!GetPixel(data, x, y)) {
-					edges[recL(y)] = x + offset;
-					break;
+					if (!IsNoise(data, x, y)) {
+						edges[recL(y)] = x + offset;
+						break;
+					}
 				}
 			}
 		}
@@ -258,12 +273,20 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		waypoints[y] = (edges[recL(y)] + edges[recR(y)]) / 2;
 
 		/*-----finish scanning-----*/
-		/*-----store variables for future processing-----*/
-		last2Left = lastLeft;
-		last2Right = lastRight;
-		lastLeft = edges[recL(y)];
-		lastRight = edges[recR(y)];
 	} //every row
 	end: ; //finish scanning full frame
 
+}
+
+inline bool ImageProcess::IsNoise(const Byte* data, const int8_t m_x,
+		const int8_t m_y) {
+	if (m_x >= 1 && m_x <= CAMW - 2 && m_y >= 1 && m_y <= CAMH - 2) {
+		if (GetPixel(data, m_x - 1, m_y) && GetPixel(data, m_x + 1, m_y)
+				&& GetPixel(data, m_x, m_y - 1)
+				&& GetPixel(data, m_x, m_y + 1)) {
+			return true;
+		} else
+			return false;
+	} else
+		return false;
 }

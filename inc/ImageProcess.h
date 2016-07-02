@@ -32,4 +32,7 @@ public:
 			bool& stop);
 private:
 	VarSet::CrossroadMode m_xMode;
+
+	//check if a black pixel is surrounded by white ones, to filter out noisy pixels
+	inline bool IsNoise(const Byte* data, const int8_t x, const int8_t y);
 };
