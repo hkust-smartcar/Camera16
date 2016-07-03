@@ -90,36 +90,6 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			break;
 		}
 
-		/*------stop condition by Judy------*/
-		if (y > CAMH - 5) {
-			bool rightfulfill = false;
-			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
-			if (GetPixel(data, middle, y))
-				for (int8_t i = middle; i < edges[recR(y)]; i++)
-					if (!GetPixel(data, i, y)) {
-						if (!IsNoise(data, i, y)) {
-							for (int8_t j = i; j < edges[recR(y)]; j++)
-								if (GetPixel(data, j, y)) {
-									rightfulfill = true;
-									goto left;
-								}
-						}
-					}
-			left: if (rightfulfill) {
-				for (int8_t i = middle; i > edges[recL(y)]; i--)
-					if (!GetPixel(data, i, y)) {
-						if (!IsNoise(data, i, y)) {
-							for (int8_t j = i; j > edges[recL(y)]; j--)
-								if (GetPixel(data, j, y)) {
-									stop = true;
-									goto end;
-								}
-						}
-					}
-			}
-		}
-		stop = false;
-
 		/*---cross road processing---*/
 		switch (m_xMode) {
 		case VarSet::CrossroadMode::kAllWhite: {
@@ -236,6 +206,62 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			}
 		}
 		}
+
+		/*------stop condition------*/
+		if (y > CAMH - 15) {
+			int8_t countsr = 0, countsl = 0;
+			bool rightblack1 = false;
+			bool leftblack1 = false;
+			bool leftwhite = false;
+			bool rightwhite = false;
+			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
+			if (GetPixel(data, middle, y)) {
+				for (int8_t i = middle; i < edges[recR(y)]; i++) {
+					if (!GetPixel(data, i, y))
+						countsr++;
+					if (countsr > 3) {
+						rightblack1 = true;
+						break;
+					}
+				}
+			}
+			if (rightblack1) {
+				for (int8_t i = middle; i > edges[recL(y)]; i--) {
+					if (!GetPixel(data, i, y))
+						countsl++;
+					if (countsl > 3 && !crossroad) {
+						leftblack1 = true;
+						break;
+					}
+				}
+			}
+			if (leftblack1) {
+				for (int8_t i = edges[recL(y)] + 1; i < edges[recL(y)] + 4; i++)
+					if (GetPixel(data, i, y)) {
+						leftwhite = true;
+						break;
+					}
+			}
+			if (leftwhite) {
+				for (int8_t i = edges[recR(y)] - 1; i > edges[recL(y)] - 4; i--)
+					if (GetPixel(data, i, y)) {
+						rightwhite = true;
+						break;
+					}
+			}
+			if (rightwhite) {
+				for (int8_t i = y; i < CAMH -10 ; i++) {
+					if (GetPixel(data, 0, i) || GetPixel(data, 79, i))
+						break;
+					if (i == CAMH - 11) {
+						stop = true;
+						goto end;
+					}
+				}
+			}
+
+		}
+		stop = false;
 
 		/*-----store variables for future processing-----*/
 		last2Left = lastLeft;

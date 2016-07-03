@@ -1,7 +1,7 @@
 /*
  * main.cpp
  *
- * Author: Kyle
+ * Author: Kyle, Judy, Bling Bling
  * Adapted from code written by Peter
  * Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  * Refer to LICENSE for details
@@ -255,10 +255,10 @@ int main(void) {
 			}
 #endif
 			Kyle.switchLED(1);
-			if(stop)stop_count++;
-			else stop_count=0;
-			if(stop_count > 5)Selected.ideal_encoder_count = 0;
-//			if(stop) Selected.ideal_encoder_count=0;
+//			if(stop)stop_count++;
+//			else stop_count=0;
+//			if(stop_count > 1)Selected.ideal_encoder_count = 0;
+			if(stop) Selected.ideal_encoder_count=0;
 			dmid=10*Kyle.mid;//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
 			Watchdog::Refresh();//LOL, feed or get bitten

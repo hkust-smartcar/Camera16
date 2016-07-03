@@ -10,7 +10,7 @@
  */
 
 #pragma once
-#define SERVO_MID 1020
+#define SERVO_MID 1040
 
 #include <array>
 #include <libsc/led.h>
