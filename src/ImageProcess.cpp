@@ -12,7 +12,7 @@
 #include <cstring>
 
 #define CONTINUOUS 5
-#define THRES 5
+#define THRES 10
 #define CAMW 80
 #define CAMH 60
 #define recL(y) y

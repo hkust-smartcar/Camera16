@@ -44,7 +44,7 @@ int main(void) {
 	bool IsEditKp = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
-	uint8_t stop_count=0;
+	uint8_t stop_count = 0;
 
 	VarSet Selected;
 
@@ -208,20 +208,20 @@ int main(void) {
 			[&](const std::vector<Byte>& msg) {
 				switch(msg[0]) {
 					case 'w':
-						Selected.ideal_encoder_count=last_count;
+					Selected.ideal_encoder_count=last_count;
 					break;
 					case 's':
-						last_count=Selected.ideal_encoder_count==0?last_count:Selected.ideal_encoder_count;
-						Selected.ideal_encoder_count=0;
+					last_count=Selected.ideal_encoder_count==0?last_count:Selected.ideal_encoder_count;
+					Selected.ideal_encoder_count=0;
 					break;
 					case 'x':
-						Selected.ideal_encoder_count=-last_count;
+					Selected.ideal_encoder_count=-last_count;
 					break;
 					case 'e':
-						Selected.ideal_encoder_count+=50;
+					Selected.ideal_encoder_count+=50;
 					break;
 					case 'q':
-						Selected.ideal_encoder_count-=50;
+					Selected.ideal_encoder_count-=50;
 					break;
 					case 'f':
 					Kyle.beepbuzzer(100);
@@ -245,8 +245,10 @@ int main(void) {
 				Kyle.printEdge(1,0);
 				Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
 				Kyle.printvalue(100,60,40,20,Selected.ideal_encoder_count,Lcd::kRed);
-				Kyle.printvalue(25,80,55,20,Selected.l_Kp*100,Lcd::kBlue);
-				Kyle.printvalue(25,100,55,20,Selected.l_Kd*100,Lcd::kPurple);
+				Kyle.printvalue(40,80,55,20,Selected.l_Kp*100,Lcd::kBlue);
+				Kyle.printvalue(40,100,55,20,Selected.l_Kd*100,Lcd::kPurple);
+				Kyle.printvalue(40,120,55,20,Selected.r_Kp*100,Lcd::kGreen);
+				Kyle.printvalue(40,140,55,20,Selected.r_Kd*100,Lcd::kWhite);
 				Kyle.printWaypoint(0,0);
 				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
@@ -264,7 +266,7 @@ int main(void) {
 	Looper::Callback m_motorPID =// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
-				if(!IsPrint) Kyle.motorPID(Selected);	//when using LCD the system slows down dramatically, causing the motor to go crazy
+				if(!IsPrint) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
@@ -273,11 +275,14 @@ int main(void) {
 	Kyle.switchLED(3, IsPrint);
 	Kyle.printvalue(0, 60, 30, 20, "Mid=", Lcd::kCyan);
 	Kyle.printvalue(60, 60, 30, 20, "PWR=", Lcd::kRed);
-	Kyle.printvalue(0, 80, 25, 20, "Kp=", Lcd::kBlue);
-	Kyle.printvalue(0, 100, 25, 20, "Kd=", Lcd::kPurple);
-	looper.Repeat(20,m_imp,Looper::RepeatMode::kPrecise);
-	looper.Repeat(20,m_motorPID,Looper::RepeatMode::kPrecise);
+	Kyle.printvalue(0, 80, 30, 20, "LKp=", Lcd::kBlue);
+	Kyle.printvalue(0, 100, 30, 20, "LKd=", Lcd::kPurple);
+	Kyle.printvalue(0, 120, 30, 20, "RKp=", Lcd::kGreen);
+	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
+	looper.Repeat(20, m_imp, Looper::RepeatMode::kPrecise);
+	looper.Repeat(20, m_motorPID, Looper::RepeatMode::kPrecise);
 	looper.Loop();
-	for (;;) {}
+	for (;;) {
+	}
 	return 0;
 }
