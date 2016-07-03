@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
-				1420), minServoAngle(770), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
+				1360), minServoAngle(730), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(SERVO_MID), MotorErr(0), MotorPrev1Err(
 				0), ideal_motor_speed(0) {
 }
@@ -83,19 +83,19 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode
-	const VarSet myVS1_p = { 0, 1.08f, 40.0f, 1.15f, 45.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_p = { 0, 1.08f, 40.0f, 1.17f, 45.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy }; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.08f, 40.0f, 1.15f, 45.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_r = { 0, 1.08f, 40.0f, 1.17f, 45.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kAllWhite };
-	const VarSet myVS1_s = { 0, 1.08f, 40.0f, 1.15f, 45.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS1_s = { 0, 1.08f, 40.0f, 1.17f, 45.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kOutwards };
-	const VarSet myVS2 = { 2000, 1.41f, 48.0f, 1.45f, 55.0f, 0.45f, 0.03f, 8, 0,
+	const VarSet myVS2 = { 2000, 1.41f, 48.0f, 1.45f, 55.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy }; //confirmed
 	const VarSet myVS3 = { 1900, 1.355f, 25.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8,
-			0, VarSet::CrossroadMode::kLazy }; //confirmed
-	const VarSet myVS4 = { 2000, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 3,
-			VarSet::CrossroadMode::kLazy}; //basically confirmed
-	const VarSet myVS5 = { 2100, 1.41f, 48.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 5,
+			0.9, VarSet::CrossroadMode::kLazy }; //confirmed
+	const VarSet myVS4 = { 2000, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0.9,
+			VarSet::CrossroadMode::kLazy }; //basically confirmed
+	const VarSet myVS5 = { 2100, 1.41f, 48.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy }; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
@@ -116,36 +116,43 @@ VarSet RunMode::SelectVarSet(void) {
 			m_selected = myVS1_p;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
+			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kWhite);
 			break;
 		case 1:
 			m_selected = myVS1_r;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
+			printvalue(0, 80, 128, 20, "~~AllWhite~~", libsc::Lcd::kWhite);
 			break;
 		case 2:
 			m_selected = myVS1_s;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
+			printvalue(0, 80, 128, 20, "~~Outwards~~", libsc::Lcd::kWhite);
 			break;
 		case 3:
 			m_selected = myVS2;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kCyan);
+			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kCyan);
 			break;
 		case 4:
 			m_selected = myVS3;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kGreen);
+			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kGreen);
 			break;
 		case 5:
 			m_selected = myVS4;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kYellow);
+			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kYellow);
 			break;
 		case 6:
 			m_selected = myVS5;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kRed);
+			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kRed);
 			break;
 		}
 #else
