@@ -214,6 +214,8 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			bool leftblack1 = false;
 			bool leftwhite = false;
 			bool rightwhite = false;
+			int8_t countwhitel = 0;
+			int8_t countwhiter = 0;
 			int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
 			if (GetPixel(data, middle, y)) {
 				for (int8_t i = middle; i < edges[recR(y)]; i++) {
@@ -236,28 +238,33 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 				}
 			}
 			if (leftblack1) {
-				for (int8_t i = edges[recL(y)] + 1; i < edges[recL(y)] + 4; i++)
-					if (GetPixel(data, i, y)) {
+				for (int8_t i = edges[recL(y)] + 1;GetPixel(data, i, y); i++){
+					countwhitel++;
+					if(countwhitel > 3){
 						leftwhite = true;
 						break;
 					}
+				}
 			}
 			if (leftwhite) {
-				for (int8_t i = edges[recR(y)] - 1; i > edges[recL(y)] - 4; i--)
-					if (GetPixel(data, i, y)) {
+				for (int8_t i = edges[recR(y)] - 1;GetPixel(data, i, y); i--){
+					countwhiter++;
+					if(countwhiter > 3) {
 						rightwhite = true;
 						break;
 					}
+				}
 			}
 			if (rightwhite) {
-				for (int8_t i = y; i < CAMH -10 ; i++) {
-					if (GetPixel(data, 0, i) || GetPixel(data, 79, i))
+				for (int8_t i = y; i < CAMH -5 ; i++) {
+					if (GetPixel(data, 0, i) && GetPixel(data, 79, i))
 						break;
-					if (i == CAMH - 11) {
+					if (i == CAMH - 6) {
 						stop = true;
 						goto end;
 					}
 				}
+
 			}
 
 		}
@@ -301,6 +308,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		/*-----finish scanning-----*/
 	} //every row
 	end: ; //finish scanning full frame
+
 
 }
 
