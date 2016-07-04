@@ -94,23 +94,57 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 		}
 
 		/*------stop condition------*/
-				if(y > CAMH-5){
-				bool rightfulfill = false;
-				int middle = (edges[recL(y)] + edges[recR(y)]) / 2;
-				if(image[middle][y])
-					for(int i = middle; i < edges[recR(y)];i++ )
-						if(!image[i][y])
-							for(int j = i; j < edges[recR(y)]; j++)
-								if(image[j][y]){ rightfulfill = true;goto left;}
-				left:
-					if(rightfulfill){
-						for(int i = middle; i > edges[recL(y)];i-- )
-										if(!image[i][y])
-											for(int j = i; j > edges[recL(y)]; j--)
-												if(image[j][y]){ stop = true;goto end;}
-					}
-				}
+		if (y < CAMH - 5) {
+						int8_t countsr = 0, countsl = 0;
+						bool rightblack1 = false;
+						bool leftblack1 = false;
+						bool leftwhite = false;
+						bool rightwhite = false;
+						int8_t middle = (edges[recL(y)] + edges[recR(y)]) / 2;
+						if (image[middle][y]){
+							for (int8_t i = middle; i < edges[recR(y)]; i++){
+								if (!image[i][y]) countsr++;
+								if(countsr > 5){
+									rightblack1 = true;
+									break;
+								}
+							}
+						}
+						if (rightblack1){
+							for (int8_t i = middle; i > edges[recL(y)]; i--){
+								if (!image[i][y])countsl++;
+								if(countsl > 5 && !cross){
+									leftblack1 = true;
+									break;
+								}
+							}
+						}
+						if(leftblack1){
+							for(int8_t i = edges[recL(y)]+1; i < edges[recL(y)]+4; i++)
+							if(image[i][y]){
+								leftwhite = true;
+								break;
+							}
+						}
+						if(leftwhite){
+							for(int8_t i  = edges[recR(y)]-1; i > edges[recL(y)]-4; i--)
+							if(image[i][y]){
+								rightwhite = true;
+								break;
+							}
+						}
+						if(rightwhite){
+							for(int8_t i = y; i < CAMH; i++){
+								if(image[0][i] || image[79][i])break;
+								if(i == CAMH-1){
+									stop = true;
+									goto end;
+								}
+							}
+						}
 
+
+		}
 				stop = false;
 
 			/*---find cross road---*/
@@ -147,17 +181,17 @@ void ImageProcess::FindEdge(const bool image[80][60], int8_t edges[120],
 
 
 
-		/*-----start finding obstacle-----*/
-		bool found = false;
-		/*-----scan from center to right to find obstacle-----*/
-		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
-				x < edges[recR(y)]; x++) {
-			if (!image[x][y]) {
-				edges[recR(y)] = x - offset;
-				found = true;
-				break;
-			}
-		}
+//		/*-----start finding obstacle-----*/
+//		bool found = false;
+//		/*-----scan from center to right to find obstacle-----*/
+//		for (int8_t x = (edges[recL(y)] + edges[recR(y)]) / 2;
+//				x < edges[recR(y)]; x++) {
+//			if (!image[x][y]) {
+//				edges[recR(y)] = x - offset;
+//				found = true;
+//				break;
+//			}
+//		}
 
 		/*-----if not found, scan from center to left to find obstacle-----*/
 //		if (!found) {

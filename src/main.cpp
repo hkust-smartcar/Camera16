@@ -209,10 +209,10 @@ int main(void) {
 				}
 				imp.FindEdge(Kyle.image,Kyle.edges,Kyle.bgstart,2,offset,Kyle.stop,cross);
 				pln.Calc(Kyle.edges,Kyle.waypoints,Kyle.bgstart,Kyle.mid);
-				if(cross){
-					Kyle.printvalue(0,120,80,20,"cross");
+				if(Kyle.stop){
+					Kyle.printvalue(0,120,80,20,"s");
 				}
-				else if(!cross) Kyle.printvalue(0,120,80,20,"not cross");
+				else if(!Kyle.stop) Kyle.printvalue(0,120,80,20,"not stop");
 				if(IsProcess) Kyle.turningPID(Kyle.mid,K,T);
 				Watchdog::Refresh();	//LOL, feed or get bitten
 				looper.RunAfter(request, m_imp);
