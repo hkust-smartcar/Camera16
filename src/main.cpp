@@ -104,7 +104,7 @@ int main(void) {
 		else {
 			Kyle.varset_index--;
 #ifdef TESTSERVO
-			Kyle.deg+=10;
+			Kyle.deg+=5;
 #endif
 			Kyle.beepbuzzer(100);
 		}
@@ -124,7 +124,7 @@ int main(void) {
 		else {
 			Kyle.varset_index++;
 #ifdef TESTSERVO
-			Kyle.deg-=10;
+			Kyle.deg-=5;
 #endif
 			Kyle.beepbuzzer(100);
 		}
