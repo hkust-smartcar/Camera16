@@ -14,6 +14,7 @@
 //#define ADJUST_CAM
 //#define TESTSERVO
 
+
 #include <cstdint>
 
 #include "car.h"
@@ -22,7 +23,7 @@ struct VarSet {
 	enum CrossroadMode{
 		kLazy=0, kAllWhite,kOutwards
 	};
-	int16_t ideal_encoder_count;
+	int32_t ideal_encoder_count;
 	/*-----servo-----*/
 	float l_Kp;
 	float l_Kd;
@@ -38,6 +39,7 @@ struct VarSet {
 	int8_t offset;
 	float KDec; //deceleration constant
 	CrossroadMode xMode;
+	bool allow_stop;
 };
 
 class RunMode: public Car {

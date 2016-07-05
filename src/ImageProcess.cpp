@@ -172,7 +172,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			break;
 
 		case VarSet::CrossroadMode::kLazy: {
-			if (!crossroad && y >= CONTINUOUS && y <= 50) {
+			if (!crossroad && y >= CONTINUOUS && y <= 45) {
 				bool all_white = true;
 				for (int8_t i = THRES; i < CAMW - THRES; i++)
 					if (!GetPixel(data, i, y)) {

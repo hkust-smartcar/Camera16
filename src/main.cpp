@@ -44,7 +44,6 @@ int main(void) {
 	bool IsEditKp = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
 	bool stop = false;
-	uint8_t stop_count = 0;
 
 	VarSet Selected;
 
@@ -194,14 +193,14 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
-//	mvar.addSharedVar(&Selected.Kp, "Kp");
-//	mvar.addSharedVar(&Selected.Ki, "Ki");
+	mvar.addSharedVar(&Selected.Kp, "Kp");
+	mvar.addSharedVar(&Selected.Ki, "Ki");
 	mvar.addSharedVar(&Selected.l_Kp, "left Kp");
 	mvar.addSharedVar(&Selected.l_Kd, "left Kd");
 	mvar.addSharedVar(&Selected.r_Kp, "right Kp");
 	mvar.addSharedVar(&Selected.r_Kd, "right Kd");
 	mvar.addSharedVar(&Selected.KDec, "KDec");
-	mvar.addSharedVar(&Selected.offset, "Offset");
+//	mvar.addSharedVar(&Selected.offset, "Offset");
 	mvar.addSharedVar(&Selected.ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
 	pGrapher::OnReceiveListener mvarlistener =
@@ -255,11 +254,8 @@ int main(void) {
 			}
 #endif
 			Kyle.switchLED(1);
-//			if(stop)stop_count++;
-//			else stop_count=0;
-//			if(stop_count > 1)Selected.ideal_encoder_count = 0;
-			if(stop) Selected.ideal_encoder_count=0;
-			dmid=10*Kyle.mid;//store in dmid for pGrapher
+			if(Selected.allow_stop&&stop) Selected.ideal_encoder_count=0;
+			dmid=10*Kyle.mid;	//store in dmid for pGrapher
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
 			Watchdog::Refresh();//LOL, feed or get bitten
 		};
