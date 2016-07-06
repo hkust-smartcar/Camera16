@@ -83,7 +83,7 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.17f, 37.0f, 1.2f, 35.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS1_p = { 0, 1.17f, 45.0f, 1.2f, 45.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy ,true}; //left vacant for tuning
 	const VarSet myVS1_r = { 0, 1.15f, 43.0f, 1.18f, 40.0f, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kAllWhite,true };

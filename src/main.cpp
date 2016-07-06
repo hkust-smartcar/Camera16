@@ -74,6 +74,9 @@ int main(void) {
 	};
 	Button btn1(btncfg);
 
+	btncfg.id = 2;
+	Button btn2(btncfg);
+
 	Joystick::Config fwaycfg;
 	fwaycfg.is_active_low = true;
 	fwaycfg.id = 0;
@@ -112,7 +115,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kDown)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset&&IsPrint) {
+				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
 			Kyle.m_brightness-=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
@@ -132,13 +135,19 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset&&IsPrint) {
+				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
 			Kyle.m_contrast-=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKp) Selected.r_Kp-=0.01f;
-			else Selected.r_Kd-=0.5f;
+			if(IsEditKp) {
+				if(btn2.IsDown()) Selected.r_Kp-=0.01f;
+				else Selected.l_Kp-=0.01f;
+			}
+			else {
+				if(btn2.IsDown()) Selected.r_Kd-=0.5f;
+				else Selected.l_Kd-=0.5f;
+			}
 			Kyle.beepbuzzer(100);
 		}
 
@@ -147,13 +156,19 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset&&IsPrint) {
+				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
 			Kyle.m_contrast+=1;
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
-			if(IsEditKp) Selected.r_Kp+=0.01f;
-			else Selected.r_Kd+=0.5f;
+			if(IsEditKp) {
+				if(btn2.IsDown()) Selected.r_Kp+=0.01f;
+				else Selected.l_Kp+=0.01f;
+			}
+			else {
+				if(btn2.IsDown()) Selected.r_Kd+=0.5f;
+				else Selected.l_Kd+=0.5f;
+			}
 			Kyle.beepbuzzer(100);
 		}
 
@@ -162,7 +177,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset&&IsPrint) {
+				if(!Kyle.selecting_varset) {
 					IsEditKp=!IsEditKp;
 					Kyle.switchLED(4,IsEditKp);
 					Kyle.beepbuzzer(100);
