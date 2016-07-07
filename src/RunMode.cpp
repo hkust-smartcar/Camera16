@@ -22,7 +22,7 @@
 
 RunMode::RunMode() :
 		varset_index(0), selecting_varset(true), encodercount(0), maxServoAngle(
-				1360), minServoAngle(730), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
+				1375), minServoAngle(780), maxMotorSpeed(600), minMotorSpeed(0), ServoErr(
 				0), ServoPrevErr(0), ideal_servo_degree(SERVO_MID), MotorErr(0), MotorPrev1Err(
 				0), ideal_motor_speed(0) {
 }
@@ -83,19 +83,19 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.17f, 45.0f, 1.2f, 45.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS1_p = { 0, 1.8f, 60, 1.8f, 60, 0.65f, 0.02f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy ,true}; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.15f, 43.0f, 1.18f, 40.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS1_r = { 0, 1.1f, 45, 1.1f, 45, 0.65f, 0.02f, 8, 0.9,
 			VarSet::CrossroadMode::kAllWhite,true };
-	const VarSet myVS1_s = { 0, 1.15f, 55.0f, 1.15f, 50.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS1_s = { 0, 1.15f, 50, 1.15f, 50, 0.65f, 0.02f, 8, 0.9,
 			VarSet::CrossroadMode::kOutwards,true };
-	const VarSet myVS2 = { 2000, 1.41f, 48.0f, 1.45f, 55.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS2 = { 2000, 1.41f, 48, 1.45f, 55, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy,true }; //confirmed
-	const VarSet myVS3 = { 1900, 1.355f, 25.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8,
+	const VarSet myVS3 = { 1900, 1.355f, 25, 1.36f, 38, 0.45f, 0.03f, 8,
 			0.9, VarSet::CrossroadMode::kLazy,true }; //confirmed
-	const VarSet myVS4 = { 2000, 1.36f, 38.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS4 = { 2000, 1.36f, 38, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy,true }; //basically confirmed
-	const VarSet myVS5 = { 2100, 1.41f, 48.0f, 1.36f, 38.0f, 0.45f, 0.03f, 8, 0.9,
+	const VarSet myVS5 = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy,true }; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages

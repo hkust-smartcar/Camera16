@@ -26,10 +26,10 @@ struct VarSet {
 	int32_t ideal_encoder_count;
 	/*-----servo-----*/
 	float l_Kp;
-	float l_Kd;
+	uint8_t l_Kd;
 
 	float r_Kp;
-	float r_Kd;
+	uint8_t r_Kd;
 
 	/*-----motor-----*/
 	float Kp;
@@ -73,6 +73,7 @@ public:
 	uint8_t m_contrast=0x40;
 #endif
 	int32_t encodercount;
+	int32_t ideal_servo_degree;
 
 private:
 	//yes, I add these variable as private, because they are not important
@@ -82,7 +83,6 @@ private:
 	const uint16_t maxMotorSpeed, minMotorSpeed; // give a maximun& minimun PWM for motor to run
 
 	int16_t ServoErr, ServoPrevErr;
-	int ideal_servo_degree;
 
 	int16_t MotorErr, MotorPrev1Err;
 	int ideal_motor_speed;

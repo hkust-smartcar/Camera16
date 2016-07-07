@@ -75,6 +75,7 @@ int main(void) {
 	Button btn1(btncfg);
 
 	btncfg.id = 2;
+	btncfg.listener = NULL;
 	Button btn2(btncfg);
 
 	Joystick::Config fwaycfg;
@@ -95,12 +96,13 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kUp)] =
 			[&](const uint8_t,const Joystick::State)
 			{
-				if(!Kyle.selecting_varset&&IsPrint) {
+				if(!Kyle.selecting_varset) {
 #ifdef ADJUST_CAM
 			Kyle.m_brightness+=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-			Selected.ideal_encoder_count+=50;
+			if(btn2.IsDown()) Selected.KDec-=0.1f;
+			else Selected.ideal_encoder_count-=50;
 			Kyle.beepbuzzer(100);
 		}
 		else {
@@ -120,7 +122,8 @@ int main(void) {
 			Kyle.m_brightness-=1;
 			Kyle.GetCam().SetBrightness(Kyle.m_brightness);
 #endif
-			Selected.ideal_encoder_count-=50;
+			if(btn2.IsDown()) Selected.KDec+=0.1f;
+			else Selected.ideal_encoder_count+=50;
 			Kyle.beepbuzzer(100);
 		}
 		else {
@@ -177,6 +180,7 @@ int main(void) {
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
 			[&](const uint8_t,const Joystick::State)
 			{
+#ifndef TESTSERVO
 				if(!Kyle.selecting_varset) {
 					IsEditKp=!IsEditKp;
 					Kyle.switchLED(4,IsEditKp);
@@ -186,6 +190,7 @@ int main(void) {
 					Kyle.selecting_varset = false;
 					Kyle.beepbuzzer(100);
 				}
+#endif
 
 			};
 	Joystick joy(fwaycfg);
@@ -208,6 +213,7 @@ int main(void) {
 #endif
 	mvar.addWatchedVar(&Kyle.encodercount, "Smoothed Encoder");
 	mvar.addWatchedVar(&dmid, "Mid-line");
+	mvar.addWatchedVar(&Kyle.ideal_servo_degree, "deg");
 	mvar.addSharedVar(&Selected.Kp, "Kp");
 	mvar.addSharedVar(&Selected.Ki, "Ki");
 	mvar.addSharedVar(&Selected.l_Kp, "left Kp");
@@ -259,10 +265,11 @@ int main(void) {
 				Kyle.printEdge(1,0);
 				Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
 				Kyle.printvalue(100,60,40,20,Selected.ideal_encoder_count,Lcd::kRed);
-				Kyle.printvalue(40,80,55,20,Selected.l_Kp*100,Lcd::kBlue);
+				Kyle.printvalue(40,80,30,20,Selected.l_Kp*100,Lcd::kBlue);
 				Kyle.printvalue(40,100,55,20,Selected.l_Kd*100,Lcd::kPurple);
 				Kyle.printvalue(40,120,55,20,Selected.r_Kp*100,Lcd::kGreen);
 				Kyle.printvalue(40,140,55,20,Selected.r_Kd*100,Lcd::kWhite);
+				Kyle.printvalue(100,100,28,20,Selected.KDec*10, Lcd::kYellow);
 				Kyle.printWaypoint(0,0);
 				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
@@ -290,6 +297,7 @@ int main(void) {
 	Kyle.printvalue(0, 100, 30, 20, "LKd=", Lcd::kPurple);
 	Kyle.printvalue(0, 120, 30, 20, "RKp=", Lcd::kGreen);
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
+	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
 	looper.Repeat(20, m_imp, Looper::RepeatMode::kPrecise);
 	looper.Repeat(20, m_motorPID, Looper::RepeatMode::kPrecise);
 	looper.Loop();
