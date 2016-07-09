@@ -153,7 +153,6 @@ int main(void) {
 			}
 			Kyle.beepbuzzer(100);
 		}
-
 	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
@@ -174,7 +173,6 @@ int main(void) {
 			}
 			Kyle.beepbuzzer(100);
 		}
-
 	};
 
 	fwaycfg.handlers[static_cast<int>(Joystick::State::kSelect)] =
@@ -257,7 +255,7 @@ int main(void) {
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
-				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop);
+				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop,Kyle.IsCross);
 				pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 #ifdef USE_LCD
 			if(IsPrint) {
@@ -278,7 +276,7 @@ int main(void) {
 			Kyle.switchLED(1);
 			if(Selected.allow_stop&&stop) Selected.ideal_encoder_count=0;
 			dmid=10*Kyle.mid;	//store in dmid for pGrapher
-			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected);
+			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
 			Watchdog::Refresh();//LOL, feed or get bitten
 		};
 	Looper::Callback m_motorPID =// configure the callback function for looper

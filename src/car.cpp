@@ -20,7 +20,7 @@
 using namespace std;
 
 Car::Car() :
-		bgstart(0), mid(39) {
+		bgstart(0), mid(39),IsCross(false) {
 	Led1 = new Led(GetLed1Config());
 	Led2 = new Led(GetLed2Config());
 	Led3 = new Led(GetLed3Config());

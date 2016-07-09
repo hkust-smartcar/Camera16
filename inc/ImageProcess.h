@@ -18,9 +18,7 @@ class ImageProcess {
 		return !(src[x / 8 + (y * 80 / 8)] << (x % 8) & 0x80);
 	}
 public:
-	ImageProcess(VarSet& m_VarSet){
-		m_xMode=m_VarSet.xMode;
-	}
+	ImageProcess(VarSet& m_VarSet):m_xMode(m_VarSet.xMode){};
 	~ImageProcess() {};
 
 	//Slope-Oriented Edge Detecting Algorithm
@@ -29,10 +27,9 @@ public:
 	//MUST pass by reference(&), otherwise bgstart will NEVER change!
 	void FindEdge(const Byte* data, int8_t m_edges[120],int8_t waypoints[60],
 			int8_t& m_bgstart, const int8_t thres, const int8_t offset,
-			bool& stop);
+			bool& stop,bool& IsCross);
 private:
 	VarSet::CrossroadMode m_xMode;
-
 	//check if a black pixel is surrounded by white ones, to filter out noisy pixels
 	inline bool IsNoise(const Byte* data, const int8_t x, const int8_t y);
 };

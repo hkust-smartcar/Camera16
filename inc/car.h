@@ -10,7 +10,7 @@
  */
 
 #pragma once
-#define SERVO_MID 1090
+#define SERVO_MID 935
 
 #include <array>
 #include <libsc/led.h>
@@ -122,7 +122,7 @@ public:
 	/*--------------------------------implement in inherited class------------------------------------*/
 	//virtual simply means you can have different implementation of that function in the inherited class
 	// dont understand? NVM, just skip this part
-	virtual void turningPID(const int8_t, const VarSet&)=0;
+	virtual void turningPID(const int8_t, const VarSet&,const bool)=0;
 	//positional PID = kp *error +kd *(error_prev - error), try change Kp according to error magnitude
 
 	virtual void motorPID(const VarSet&)=0;
@@ -143,6 +143,8 @@ public:
 	int8_t bgstart;
 
 	int32_t mid;	//stupid compiler always overflow when I reduce the size
+
+	bool IsCross;
 
 	/*------data containers above-------*/
 
