@@ -30,21 +30,21 @@ RunMode::RunMode() :
 RunMode::~RunMode() {
 }
 
-void RunMode::turningPID(int8_t mid_line, const VarSet& m_varset,const bool IsCross) {
+void RunMode::turningPID(int8_t mid_line, const VarSet& m_varset,
+		const bool IsCross) {
 
 //Error=SetPoint-ProcessVariable
-	if(IsCross)
-		mid_line=1.4*mid_line-15.6;
+	if (IsCross)
+		mid_line = 1.4 * mid_line - 15.6;
 	ServoErr = mid_line - 39;
 
 	/*-----Core dynamic PD formula-----*/
 	//positional PD = T * error^2 +kd *(error-error_prev)
-	if (ServoErr < 0){
+	if (ServoErr < 0) {
 		ideal_servo_degree = uint16_t(
 				SERVO_MID + m_varset.l_Kp * abs(ServoErr) * ServoErr
 						+ m_varset.l_Kd * (ServoErr - ServoPrevErr));
-	}
-	else{
+	} else {
 		ideal_servo_degree = uint16_t(
 				SERVO_MID + m_varset.r_Kp * abs(ServoErr) * ServoErr
 						+ m_varset.r_Kd * (ServoErr - ServoPrevErr));
@@ -87,20 +87,20 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy ,true}; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
-			VarSet::CrossroadMode::kAllWhite,true };
-	const VarSet myVS1_s = { 0, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
-			VarSet::CrossroadMode::kAllWhite,true };
+	const VarSet myVS1_p = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
+			VarSet::CrossroadMode::kLazy, true }; //left vacant for tuning
+	const VarSet myVS1_r = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
+			VarSet::CrossroadMode::kAllWhite, true };
+	const VarSet myVS1_s = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
+			VarSet::CrossroadMode::kAllWhite, true };
 	const VarSet myVS2 = { 2000, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
-			VarSet::CrossroadMode::kOutwards,true }; //confirmed
-	const VarSet myVS3 = { 1900, 1.355f, 25, 1.36f, 38, 0.45f, 0.03f, 8,
-			0.9, VarSet::CrossroadMode::kLazy,true }; //confirmed
+			VarSet::CrossroadMode::kOutwards, true }; //confirmed
+	const VarSet myVS3 = { 1900, 1.355f, 25, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
+			VarSet::CrossroadMode::kLazy, true }; //confirmed
 	const VarSet myVS4 = { 2000, 1.36f, 38, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy,true }; //basically confirmed
+			VarSet::CrossroadMode::kLazy, true }; //basically confirmed
 	const VarSet myVS5 = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy,true }; //almost confirmed
+			VarSet::CrossroadMode::kLazy, true }; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
@@ -121,51 +121,86 @@ VarSet RunMode::SelectVarSet(void) {
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
 			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kWhite);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
+			}
 			break;
 		case 1:
 			m_selected = myVS1_r;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
 			printvalue(0, 80, 128, 20, "~~AllWhite~~", libsc::Lcd::kWhite);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
+			}
 			break;
 		case 2:
 			m_selected = myVS1_s;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kWhite);
 			printvalue(0, 80, 128, 20, "~~AllWhite~~", libsc::Lcd::kWhite);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
+			}
 			break;
 		case 3:
 			m_selected = myVS2;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kCyan);
 			printvalue(0, 80, 128, 20, "~~Outwards~~", libsc::Lcd::kCyan);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kCyan);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kCyan);
+			}
 			break;
 		case 4:
 			m_selected = myVS3;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kGreen);
 			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kGreen);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kGreen);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kGreen);
+			}
 			break;
 		case 5:
 			m_selected = myVS4;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kYellow);
 			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kYellow);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kYellow);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kYellow);
+			}
 			break;
 		case 6:
 			m_selected = myVS5;
 			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
 					libsc::Lcd::kRed);
 			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kRed);
+			if (m_selected.allow_stop) {
+				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kRed);
+			} else {
+				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kRed);
+			}
 			break;
-		}
-#else
-		printvalue(deg,libsc::Lcd::kWhite);
-		servo->SetDegree(deg);
-#endif
-		printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
-				libsc::Lcd::kWhite);
-		libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin
 	}
-	return m_selected;
+#else
+	printvalue(deg,libsc::Lcd::kWhite);
+	servo->SetDegree(deg);
+#endif
+	printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
+			libsc::Lcd::kWhite);
+	libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin
+}
+return m_selected;
 }

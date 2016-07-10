@@ -144,12 +144,12 @@ int main(void) {
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKp) {
-				if(btn2.IsDown()) Selected.r_Kp-=0.01f;
-				else Selected.l_Kp-=0.01f;
+				if(btn2.IsDown()) Selected.r_Kp-=0.05f;
+				else Selected.l_Kp-=0.05f;
 			}
 			else {
-				if(btn2.IsDown()) Selected.r_Kd-=0.5f;
-				else Selected.l_Kd-=0.5f;
+				if(btn2.IsDown()) Selected.r_Kd-=1;
+				else Selected.l_Kd-=1;
 			}
 			Kyle.beepbuzzer(100);
 		}
@@ -164,12 +164,12 @@ int main(void) {
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKp) {
-				if(btn2.IsDown()) Selected.r_Kp+=0.01f;
-				else Selected.l_Kp+=0.01f;
+				if(btn2.IsDown()) Selected.r_Kp+=0.05f;
+				else Selected.l_Kp+=0.05f;
 			}
 			else {
-				if(btn2.IsDown()) Selected.r_Kd+=0.5f;
-				else Selected.l_Kd+=0.5f;
+				if(btn2.IsDown()) Selected.r_Kd+=1;
+				else Selected.l_Kd+=1;
 			}
 			Kyle.beepbuzzer(100);
 		}
@@ -264,9 +264,9 @@ int main(void) {
 				Kyle.printvalue(30,60,20,20,Kyle.mid,Lcd::kCyan);
 				Kyle.printvalue(100,60,40,20,Selected.ideal_encoder_count,Lcd::kRed);
 				Kyle.printvalue(40,80,30,20,Selected.l_Kp*100,Lcd::kBlue);
-				Kyle.printvalue(40,100,55,20,Selected.l_Kd*100,Lcd::kPurple);
+				Kyle.printvalue(40,100,55,20,Selected.l_Kd,Lcd::kPurple);
 				Kyle.printvalue(40,120,55,20,Selected.r_Kp*100,Lcd::kGreen);
-				Kyle.printvalue(40,140,55,20,Selected.r_Kd*100,Lcd::kWhite);
+				Kyle.printvalue(40,140,55,20,Selected.r_Kd,Lcd::kWhite);
 				Kyle.printvalue(100,100,28,20,Selected.KDec*10, Lcd::kYellow);
 				Kyle.printWaypoint(0,0);
 				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
@@ -276,17 +276,17 @@ int main(void) {
 			Kyle.switchLED(1);
 			if(Selected.allow_stop&&stop) Selected.ideal_encoder_count=0;
 			dmid=10*Kyle.mid;	//store in dmid for pGrapher
-			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
-			Watchdog::Refresh();//LOL, feed or get bitten
-		};
-	Looper::Callback m_motorPID =// configure the callback function for looper
-			[&](const Timer::TimerInt request, const Timer::TimerInt)
-			{
-				if(!IsPrint) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
+			if(!IsPrint) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
+			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
+			Watchdog::Refresh();//LOL, feed or get bitten
 		};
+//	Looper::Callback m_motorPID =// configure the callback function for looper
+//			[&](const Timer::TimerInt request, const Timer::TimerInt)
+//			{
+//		};
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
 	Kyle.printvalue(0, 60, 30, 20, "Mid=", Lcd::kCyan);
@@ -297,7 +297,7 @@ int main(void) {
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
 	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
 	looper.Repeat(20, m_imp, Looper::RepeatMode::kPrecise);
-	looper.Repeat(20, m_motorPID, Looper::RepeatMode::kPrecise);
+//	looper.Repeat(20, m_motorPID, Looper::RepeatMode::kPrecise);
 	looper.Loop();
 	for (;;) {
 	}
