@@ -60,6 +60,7 @@ int main(void) {
 				Kyle.switchLED(3,IsPrint);
 				Kyle.beepbuzzer(100);
 			}
+		return;
 		};
 	Button btn0(btncfg);
 
@@ -283,10 +284,7 @@ int main(void) {
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
 			Watchdog::Refresh();//LOL, feed or get bitten
 		};
-//	Looper::Callback m_motorPID =// configure the callback function for looper
-//			[&](const Timer::TimerInt request, const Timer::TimerInt)
-//			{
-//		};
+
 	Kyle.switchLED(2, IsProcess);
 	Kyle.switchLED(3, IsPrint);
 	Kyle.printvalue(0, 60, 30, 20, "Mid=", Lcd::kCyan);
@@ -297,7 +295,6 @@ int main(void) {
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
 	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
 	looper.Repeat(20, m_imp, Looper::RepeatMode::kPrecise);
-//	looper.Repeat(20, m_motorPID, Looper::RepeatMode::kPrecise);
 	looper.Loop();
 	for (;;) {
 	}

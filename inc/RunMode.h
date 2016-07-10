@@ -21,7 +21,7 @@
 
 struct VarSet {
 	enum CrossroadMode{
-		kLazy=0, kAllWhite,kOutwards,kHUST
+		kLazy=0, kAllWhite,kOutwards
 	};
 	int32_t ideal_encoder_count;
 	/*-----servo-----*/
@@ -78,6 +78,8 @@ public:
 private:
 	//yes, I add these variable as private, because they are not important
 	// Moreover, variable can be declare in header(.h), and define in either header(.h) or source(.cpp)
+
+	inline void PrintVarSet(const VarSet,const uint16_t);
 
 	const int16_t maxServoAngle, minServoAngle;	// give a maximun& minimun angle for servo to turn
 	const uint16_t maxMotorSpeed, minMotorSpeed; // give a maximun& minimun PWM for motor to run

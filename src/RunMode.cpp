@@ -87,10 +87,10 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
+	const VarSet myVS1_p = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.018f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy, true }; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
-			VarSet::CrossroadMode::kAllWhite, true };
+	const VarSet myVS1_r = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.018f, 8, 0.9,
+			VarSet::CrossroadMode::kLazy, false };
 	const VarSet myVS1_s = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
 			VarSet::CrossroadMode::kAllWhite, true };
 	const VarSet myVS2 = { 2000, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
@@ -118,89 +118,63 @@ VarSet RunMode::SelectVarSet(void) {
 		switch (varset_index) { //print speed according to corresponding VarSet
 		case 0:
 			m_selected = myVS1_p;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kWhite);
-			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kWhite);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kWhite);
 			break;
 		case 1:
 			m_selected = myVS1_r;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kWhite);
-			printvalue(0, 80, 128, 20, "~~AllWhite~~", libsc::Lcd::kWhite);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kWhite);
 			break;
 		case 2:
 			m_selected = myVS1_s;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kWhite);
-			printvalue(0, 80, 128, 20, "~~AllWhite~~", libsc::Lcd::kWhite);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kWhite);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kWhite);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kWhite);
 			break;
 		case 3:
 			m_selected = myVS2;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kCyan);
-			printvalue(0, 80, 128, 20, "~~Outwards~~", libsc::Lcd::kCyan);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kCyan);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kCyan);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kCyan);
 			break;
 		case 4:
 			m_selected = myVS3;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kGreen);
-			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kGreen);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kGreen);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kGreen);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kGreen);
 			break;
 		case 5:
 			m_selected = myVS4;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kYellow);
-			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kYellow);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kYellow);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kYellow);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kYellow);
 			break;
 		case 6:
 			m_selected = myVS5;
-			printvalue(0, 60, 40, 20, m_selected.ideal_encoder_count,
-					libsc::Lcd::kRed);
-			printvalue(0, 80, 128, 20, "~~Lazy~~", libsc::Lcd::kRed);
-			if (m_selected.allow_stop) {
-				printvalue(0, 100, 128, 20, "~True!~", libsc::Lcd::kRed);
-			} else {
-				printvalue(0, 100, 128, 20, "~False~", libsc::Lcd::kRed);
-			}
+			PrintVarSet(m_selected,libsc::Lcd::kRed);
 			break;
-	}
+		}
 #else
-	printvalue(deg,libsc::Lcd::kWhite);
-	servo->SetDegree(deg);
+		printvalue(deg,libsc::Lcd::kWhite);
+		servo->SetDegree(deg);
 #endif
-	printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
-			libsc::Lcd::kWhite);
-	libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin
+		printvalue(0, 20, 30, 20, int16_t(batt->GetVoltage() * 100),
+				libsc::Lcd::kWhite);
+		libsc::System::DelayMs(20); //don't overload the mcu before image processing even begin
+	}
+	return m_selected;
 }
-return m_selected;
+
+inline void RunMode::PrintVarSet(const VarSet m_varset,const uint16_t m_color) {
+
+	printvalue(0, 60, 40, 20, m_varset.ideal_encoder_count, m_color);
+
+	switch(m_varset.xMode){
+	case VarSet::CrossroadMode::kLazy:
+		printvalue(0, 80, 128, 20, "~~Lazy~~", m_color);
+		break;
+	case VarSet::CrossroadMode::kAllWhite:
+		printvalue(0, 80, 128, 20, "~~AllWhite~~", m_color);
+		break;
+	case VarSet::CrossroadMode::kOutwards:
+		printvalue(0, 80, 128, 20, "~~Outwards~~", m_color);
+	}
+
+	if (m_varset.allow_stop) {
+		printvalue(0, 100, 128, 20, "~True!~", m_color);
+	} else {
+		printvalue(0, 100, 128, 20, "~False~", m_color);
+	}
 }
+
