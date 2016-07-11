@@ -196,7 +196,8 @@ int main(void) {
 
 	Kyle.beepbuzzer(200);
 	Selected = Kyle.SelectVarSet();
-	Planner pln;
+	Planner pln(Selected.starting_row);
+	int8_t prev_starting_row=Selected.starting_row;
 	ImageProcess imp(Selected);
 	Kyle.GetLCD().Clear();
 
@@ -214,12 +215,13 @@ int main(void) {
 	mvar.addWatchedVar(&dmid, "Mid-line");
 	mvar.addWatchedVar(&Kyle.ideal_servo_degree, "deg");
 	mvar.addSharedVar(&Selected.Kp, "Kp");
-	mvar.addSharedVar(&Selected.Ki, "Ki");
+//	mvar.addSharedVar(&Selected.Ki, "Ki");
 	mvar.addSharedVar(&Selected.l_Kp, "left Kp");
 	mvar.addSharedVar(&Selected.l_Kd, "left Kd");
 	mvar.addSharedVar(&Selected.r_Kp, "right Kp");
 	mvar.addSharedVar(&Selected.r_Kd, "right Kd");
 	mvar.addSharedVar(&Selected.KDec, "KDec");
+	mvar.addSharedVar(&Selected.starting_row,"Start Row");
 //	mvar.addSharedVar(&Selected.offset, "Offset");
 	mvar.addSharedVar(&Selected.ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
@@ -252,11 +254,15 @@ int main(void) {
 	mvar.setOnReceiveListener(mvarlistener);
 #endif
 
-	Looper::Callback m_imp =	// configure the callback function for looper
+	Looper::Callback m_loop =	// configure the callback function for looper
 			[&](const Timer::TimerInt request, const Timer::TimerInt)
 			{
 				Kyle.capture_image();
 				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop,Kyle.IsCross);
+				if(Selected.starting_row!=prev_starting_row){
+					prev_starting_row=Selected.starting_row;
+					pln.ChangeWeight(Selected.starting_row);
+				}
 				pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
 #ifdef USE_LCD
 			if(IsPrint) {
@@ -294,7 +300,7 @@ int main(void) {
 	Kyle.printvalue(0, 120, 30, 20, "RKp=", Lcd::kGreen);
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
 	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
-	looper.Repeat(20, m_imp, Looper::RepeatMode::kPrecise);
+	looper.Repeat(20, m_loop, Looper::RepeatMode::kPrecise);
 	looper.Loop();
 	for (;;) {
 	}

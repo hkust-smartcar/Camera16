@@ -87,20 +87,20 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.018f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true }; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.018f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, false };
-	const VarSet myVS1_s = { 0, 1.5f, 75, 1.5f, 75, 0.9f, 0.01f, 8, 0.9,
-			VarSet::CrossroadMode::kAllWhite, true };
-	const VarSet myVS2 = { 2000, 1.4f, 65, 1.4f, 65, 0.8f, 0.015f, 8, 0.9,
-			VarSet::CrossroadMode::kOutwards, true }; //confirmed
-	const VarSet myVS3 = { 1900, 1.355f, 25, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true }; //confirmed
+	const VarSet myVS1_p = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true ,53}; //left vacant for tuning
+	const VarSet myVS1_r = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, false,49 };
+	const VarSet myVS1_s = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, true ,49};
+	const VarSet myVS2 = { 2500, 1.4f,75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true ,53}; //confirmed
+	const VarSet myVS3 = { 2600, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true ,52}; //confirmed
 	const VarSet myVS4 = { 2000, 1.36f, 38, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true }; //basically confirmed
+			VarSet::CrossroadMode::kLazy, true ,49}; //basically confirmed
 	const VarSet myVS5 = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true }; //almost confirmed
+			VarSet::CrossroadMode::kLazy, true ,49}; //almost confirmed
 	VarSet m_selected = myVS1_p;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);

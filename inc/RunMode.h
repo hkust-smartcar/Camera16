@@ -40,6 +40,7 @@ struct VarSet {
 	float KDec; //deceleration constant
 	CrossroadMode xMode;
 	bool allow_stop;
+	int8_t starting_row;
 };
 
 class RunMode: public Car {

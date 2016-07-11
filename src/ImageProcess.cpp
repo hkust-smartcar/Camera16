@@ -214,7 +214,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 		}
 
 		/*------stop condition------*/
-		if (y > CAMH - 10) {
+		if (y > CAMH - 15) {
 			int8_t countsr = 0, countsl = 0;
 			bool rightblack1 = false;
 			bool leftblack1 = false;
