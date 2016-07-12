@@ -94,9 +94,9 @@ VarSet RunMode::SelectVarSet(void) {
 	const VarSet myVS1_s = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
 			VarSet::CrossroadMode::kLazy, true ,49};
 	const VarSet myVS2 = { 2500, 1.4f,75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, true ,53}; //confirmed
+			VarSet::CrossroadMode::kLazy, true ,55}; //confirmed
 	const VarSet myVS3 = { 2600, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, true ,52}; //confirmed
+			VarSet::CrossroadMode::kLazy, true ,53}; //confirmed
 	const VarSet myVS4 = { 2000, 1.36f, 38, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
 			VarSet::CrossroadMode::kLazy, true ,49}; //basically confirmed
 	const VarSet myVS5 = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,

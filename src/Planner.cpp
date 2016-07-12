@@ -16,8 +16,6 @@
 #define CAMH 60
 
 Planner::Planner(const int8_t starting_row) {
-	if (starting_row > CAMH-1)
-		return;
 	for (int8_t row = CAMH - 1; row >= 0; row--) {
 		if (row > starting_row)
 			weight[row] = sqrt(CAMH - 1 - row);
@@ -45,8 +43,6 @@ void Planner::Calc(const int8_t waypoints[60], int8_t const bgstart,
 }
 
 void Planner::ChangeWeight(const int8_t starting_row) {
-	if (starting_row > CAMH-1)
-		return;
 	for (int8_t row = CAMH - 1; row >= 0; row--) {
 		if (row > starting_row)
 			weight[row] = sqrt(CAMH - 1 - row);

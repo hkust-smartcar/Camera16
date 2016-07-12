@@ -60,7 +60,7 @@ int main(void) {
 				Kyle.switchLED(3,IsPrint);
 				Kyle.beepbuzzer(100);
 			}
-		return;
+			return;
 		};
 	Button btn0(btncfg);
 
@@ -68,9 +68,25 @@ int main(void) {
 	btncfg.listener = [&](const uint8_t)
 	{
 		if(!Kyle.selecting_varset) {
+			Kyle.beepbuzzer(100);
+#ifndef USE_PGRAPHER
+			uint32_t t0=System::Time();
+			uint32_t t=t0;
+			int8_t counter=0;
+			for(;;) {
+				if(t!=System::Time()) {
+					t=System::Time();
+					if((t-t0)%500==0) {
+						Watchdog::GoodDoggie();
+						counter++;
+						Kyle.beepbuzzer(100);
+					}
+					if(counter>=10) break;
+				}
+			}
+#endif
 			IsProcess = !IsProcess;
 			Kyle.switchLED(2,IsProcess);
-			Kyle.beepbuzzer(100);
 		}
 	};
 	Button btn1(btncfg);
@@ -180,24 +196,24 @@ int main(void) {
 			[&](const uint8_t,const Joystick::State)
 			{
 #ifndef TESTSERVO
-				if(!Kyle.selecting_varset) {
-					IsEditKp=!IsEditKp;
-					Kyle.switchLED(4,IsEditKp);
-					Kyle.beepbuzzer(100);
-				}
-				else {
-					Kyle.selecting_varset = false;
-					Kyle.beepbuzzer(100);
-				}
+			if(!Kyle.selecting_varset) {
+				IsEditKp=!IsEditKp;
+				Kyle.switchLED(4,IsEditKp);
+				Kyle.beepbuzzer(100);
+			}
+			else {
+				Kyle.selecting_varset = false;
+				Kyle.beepbuzzer(100);
+			}
 #endif
 
-			};
+		};
 	Joystick joy(fwaycfg);
 
 	Kyle.beepbuzzer(200);
 	Selected = Kyle.SelectVarSet();
 	Planner pln(Selected.starting_row);
-	int8_t prev_starting_row=Selected.starting_row;
+	int8_t prev_starting_row = Selected.starting_row;
 	ImageProcess imp(Selected);
 	Kyle.GetLCD().Clear();
 
@@ -221,7 +237,7 @@ int main(void) {
 	mvar.addSharedVar(&Selected.r_Kp, "right Kp");
 	mvar.addSharedVar(&Selected.r_Kd, "right Kd");
 	mvar.addSharedVar(&Selected.KDec, "KDec");
-	mvar.addSharedVar(&Selected.starting_row,"Start Row");
+	mvar.addSharedVar(&Selected.starting_row, "Start Row");
 //	mvar.addSharedVar(&Selected.offset, "Offset");
 	mvar.addSharedVar(&Selected.ideal_encoder_count, "Ideal Encoder");
 	/*------configure tuning parameters above------*/
@@ -259,7 +275,7 @@ int main(void) {
 			{
 				Kyle.capture_image();
 				imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop,Kyle.IsCross);
-				if(Selected.starting_row!=prev_starting_row){
+				if(Selected.starting_row!=prev_starting_row) {
 					prev_starting_row=Selected.starting_row;
 					pln.ChangeWeight(Selected.starting_row);
 				}
@@ -283,12 +299,12 @@ int main(void) {
 			Kyle.switchLED(1);
 			if(Selected.allow_stop&&stop) Selected.ideal_encoder_count=0;
 			dmid=10*Kyle.mid;	//store in dmid for pGrapher
-			if(!IsPrint) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
+			if(!IsPrint&&IsProcess) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER
 			mvar.sendWatchData();
 #endif
 			if(IsProcess) Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
-			Watchdog::Refresh();//LOL, feed or get bitten
+			Watchdog::Refresh();	//LOL, feed or get bitten
 		};
 
 	Kyle.switchLED(2, IsProcess);
@@ -300,7 +316,7 @@ int main(void) {
 	Kyle.printvalue(0, 120, 30, 20, "RKp=", Lcd::kGreen);
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
 	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
-	looper.Repeat(20, m_loop, Looper::RepeatMode::kPrecise);
+	looper.Repeat(20, m_loop, Looper::RepeatMode::kLoose);
 	looper.Loop();
 	for (;;) {
 	}
