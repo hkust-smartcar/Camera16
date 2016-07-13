@@ -81,7 +81,7 @@ int main(void) {
 						counter++;
 						Kyle.beepbuzzer(100);
 					}
-					if(counter>=10) break;
+					if(counter>=5) break;
 				}
 			}
 #endif
@@ -152,7 +152,7 @@ int main(void) {
 		}
 	};
 
-	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
@@ -161,18 +161,24 @@ int main(void) {
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKp) {
-				if(btn2.IsDown()) Selected.r_Kp-=0.05f;
-				else Selected.l_Kp-=0.05f;
+				if(btn2.IsDown()) Selected.starting_row-=1;
+				else {
+					Selected.r_Kp-=0.01f;
+					Selected.l_Kp-=0.01f;
+				}
 			}
 			else {
-				if(btn2.IsDown()) Selected.r_Kd-=1;
-				else Selected.l_Kd-=1;
+				if(btn2.IsDown())Selected.starting_row-=1;
+				else {
+					Selected.r_Kd-=1;
+					Selected.l_Kd-=1;
+				}
 			}
 			Kyle.beepbuzzer(100);
 		}
 	};
 
-	fwaycfg.handlers[static_cast<int>(Joystick::State::kRight)] =
+	fwaycfg.handlers[static_cast<int>(Joystick::State::kLeft)] =
 			[&](const uint8_t,const Joystick::State)
 			{
 				if(!Kyle.selecting_varset) {
@@ -181,12 +187,18 @@ int main(void) {
 			Kyle.GetCam().SetContrast(Kyle.m_contrast);
 #endif
 			if(IsEditKp) {
-				if(btn2.IsDown()) Selected.r_Kp+=0.05f;
-				else Selected.l_Kp+=0.05f;
+				if(btn2.IsDown()) Selected.starting_row+=1;
+				else {
+					Selected.r_Kp+=0.01f;
+					Selected.l_Kp+=0.01f;
+				}
 			}
 			else {
-				if(btn2.IsDown()) Selected.r_Kd+=1;
-				else Selected.l_Kd+=1;
+				if(btn2.IsDown()) Selected.starting_row+=1;
+				else {
+					Selected.r_Kd+=1;
+					Selected.l_Kd+=1;
+				}
 			}
 			Kyle.beepbuzzer(100);
 		}
@@ -288,9 +300,10 @@ int main(void) {
 				Kyle.printvalue(100,60,40,20,Selected.ideal_encoder_count,Lcd::kRed);
 				Kyle.printvalue(40,80,30,20,Selected.l_Kp*100,Lcd::kBlue);
 				Kyle.printvalue(40,100,55,20,Selected.l_Kd,Lcd::kPurple);
-				Kyle.printvalue(40,120,55,20,Selected.r_Kp*100,Lcd::kGreen);
+				Kyle.printvalue(40,120,30,20,Selected.r_Kp*100,Lcd::kGreen);
 				Kyle.printvalue(40,140,55,20,Selected.r_Kd,Lcd::kWhite);
 				Kyle.printvalue(100,100,28,20,Selected.KDec*10, Lcd::kYellow);
+				Kyle.printvalue(100,140,28,20,Selected.starting_row, Lcd::kYellow);
 				Kyle.printWaypoint(0,0);
 				Kyle.GetLCD().SetRegion(Lcd::Rect(Kyle.mid+1,0,1,60));
 				Kyle.GetLCD().FillColor(Lcd::kCyan);
@@ -316,6 +329,7 @@ int main(void) {
 	Kyle.printvalue(0, 120, 30, 20, "RKp=", Lcd::kGreen);
 	Kyle.printvalue(0, 140, 30, 20, "RKd=", Lcd::kWhite);
 	Kyle.printvalue(70, 80, 50, 20, "KDec=", Lcd::kYellow);
+	Kyle.printvalue(70, 120, 50, 20, "SRow=", Lcd::kYellow);
 	looper.Repeat(20, m_loop, Looper::RepeatMode::kLoose);
 	looper.Loop();
 	for (;;) {

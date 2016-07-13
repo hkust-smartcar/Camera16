@@ -35,7 +35,7 @@ void RunMode::turningPID(int8_t mid_line, const VarSet& m_varset,
 
 //Error=SetPoint-ProcessVariable
 	if (IsCross)
-		mid_line = 1.4 * mid_line - 15.6;
+		mid_line = 1.35 * mid_line - 13.65;
 	ServoErr = mid_line - 39;
 
 	/*-----Core dynamic PD formula-----*/
@@ -87,62 +87,104 @@ void RunMode::motorPID(const VarSet& m_varset) {
 
 VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
-	const VarSet myVS1_p = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, true ,53}; //left vacant for tuning
-	const VarSet myVS1_r = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, false,49 };
-	const VarSet myVS1_s = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, true ,49};
-	const VarSet myVS2 = { 2500, 1.4f,75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, true ,55}; //confirmed
-	const VarSet myVS3 = { 2600, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, true ,53}; //confirmed
-	const VarSet myVS4 = { 2000, 1.36f, 38, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true ,49}; //basically confirmed
-	const VarSet myVS5 = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8, 0.9,
-			VarSet::CrossroadMode::kLazy, true ,49}; //almost confirmed
-	VarSet m_selected = myVS1_p;
+	const VarSet myVS1_true = { 0, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true, 45 }; //left vacant for tuning
+	const VarSet myVS1_false = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS2_false = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS2_true = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, true, 49 };
+	const VarSet myVS3_true = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, true, 49 };
+	const VarSet myVS3_false = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS4_true = { 2500, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, true, 56 }; //confirmed
+	const VarSet myVS4_false = { 2500, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, false, 55 };
+	const VarSet myVS5_true = { 2600, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true, 45 }; //confirmed
+	const VarSet myVS5_false = { 2600, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, false, 45 };
+	const VarSet myVS6_true = { 2700, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8,
+			1.1f, VarSet::CrossroadMode::kLazy, true, 49 }; //basically confirmed
+	const VarSet myVS6_false = { 2700, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8,
+			1.1f, VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS7_true = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8,
+			0.9, VarSet::CrossroadMode::kLazy, true, 49 }; //almost confirmed
+	const VarSet myVS7_false = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8,
+			0.9, VarSet::CrossroadMode::kLazy, false, 49 };
+	VarSet m_selected = myVS1_true;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
 	printvalue(30, 20, 60, 20, "cV", libsc::Lcd::kWhite);
 	for (;;) { //loop infinitely until VarSet selected
 		libbase::k60::Watchdog::Refresh(); //remember to treat your doggy well
 #ifndef TESTSERVO
-		if (varset_index > 7)
-			varset_index = 6; //if uint8_t overflowed, causing index==100+, set it right
-		if (varset_index == 7)
+		if (varset_index > 14)
+			varset_index = 13; //if uint8_t overflowed, causing index==100+, set it right
+		if (varset_index == 14)
 			varset_index = 0; //if reaches the end, loop back to 0
 		if (!selecting_varset)
 			break; //if selected by pressing select on joystick, break the pathetic infinite loop
 
 		switch (varset_index) { //print speed according to corresponding VarSet
 		case 0:
-			m_selected = myVS1_p;
-			PrintVarSet(m_selected,libsc::Lcd::kWhite);
+			m_selected = myVS1_true;
+			PrintVarSet(m_selected, libsc::Lcd::kWhite);
 			break;
 		case 1:
-			m_selected = myVS1_r;
-			PrintVarSet(m_selected,libsc::Lcd::kWhite);
+			m_selected = myVS1_false;
+			PrintVarSet(m_selected, libsc::Lcd::kWhite);
 			break;
 		case 2:
-			m_selected = myVS1_s;
-			PrintVarSet(m_selected,libsc::Lcd::kWhite);
+			m_selected = myVS2_true;
+			PrintVarSet(m_selected, libsc::Lcd::kWhite);
 			break;
 		case 3:
-			m_selected = myVS2;
-			PrintVarSet(m_selected,libsc::Lcd::kCyan);
+			m_selected = myVS2_false;
+			PrintVarSet(m_selected, libsc::Lcd::kWhite);
 			break;
 		case 4:
-			m_selected = myVS3;
-			PrintVarSet(m_selected,libsc::Lcd::kGreen);
+			m_selected = myVS3_true;
+			PrintVarSet(m_selected, libsc::Lcd::kGreen);
 			break;
 		case 5:
-			m_selected = myVS4;
-			PrintVarSet(m_selected,libsc::Lcd::kYellow);
+			m_selected = myVS3_false;
+			PrintVarSet(m_selected, libsc::Lcd::kGreen);
 			break;
 		case 6:
-			m_selected = myVS5;
-			PrintVarSet(m_selected,libsc::Lcd::kRed);
+			m_selected = myVS4_true;
+			PrintVarSet(m_selected, libsc::Lcd::kCyan);
+			break;
+		case 7:
+			m_selected = myVS4_false;
+			PrintVarSet(m_selected, libsc::Lcd::kCyan);
+			break;
+		case 8:
+			m_selected = myVS5_true;
+			PrintVarSet(m_selected, libsc::Lcd::kCyan);
+			break;
+		case 9:
+			m_selected = myVS5_false;
+			PrintVarSet(m_selected, libsc::Lcd::kCyan);
+			break;
+		case 10:
+			m_selected = myVS6_true;
+			PrintVarSet(m_selected, libsc::Lcd::kRed);
+			break;
+		case 11:
+			m_selected = myVS6_false;
+			PrintVarSet(m_selected, libsc::Lcd::kRed);
+			break;
+		case 12:
+			m_selected = myVS7_true;
+			PrintVarSet(m_selected, libsc::Lcd::kBlue);
+			break;
+		case 13:
+			m_selected = myVS7_false;
+			PrintVarSet(m_selected, libsc::Lcd::kBlue);
 			break;
 		}
 #else
@@ -156,11 +198,12 @@ VarSet RunMode::SelectVarSet(void) {
 	return m_selected;
 }
 
-inline void RunMode::PrintVarSet(const VarSet m_varset,const uint16_t m_color) {
+inline void RunMode::PrintVarSet(const VarSet m_varset,
+		const uint16_t m_color) {
 
 	printvalue(0, 60, 40, 20, m_varset.ideal_encoder_count, m_color);
 
-	switch(m_varset.xMode){
+	switch (m_varset.xMode) {
 	case VarSet::CrossroadMode::kLazy:
 		printvalue(0, 80, 128, 20, "~~Lazy~~", m_color);
 		break;
