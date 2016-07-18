@@ -2,6 +2,8 @@
  * main.cpp
  *
  * Author: Kyle, Judy, Bling Bling
+ * Time: 20.476s
+ * Speed: 2.1m/s
  * Adapted from code written by Peter
  * Copyright © 2015-2016 HKUST SmartCar Team. All rights reserved.
  * Refer to LICENSE for details
