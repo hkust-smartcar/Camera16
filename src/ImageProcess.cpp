@@ -14,7 +14,7 @@
 #define STOPPIXELS 2
 #define OUTWARDROWS 2
 #define CONTINUOUS 3
-#define THRES 0
+#define THRES 5
 #define CAMW 80
 #define CAMH 60
 #define recL(y) y
@@ -178,7 +178,7 @@ void ImageProcess::FindEdge(const Byte* data, int8_t edges[120],
 			break;
 
 		case VarSet::CrossroadMode::kLazy: {
-			if (!IsCross && y >= CONTINUOUS && y <= 50) {
+			if (!IsCross && y >= CONTINUOUS && y <= 40) {
 				bool all_white = true;
 				for (int8_t i = THRES; i < CAMW - THRES; i++)
 					if (!GetPixel(data, i, y)) {

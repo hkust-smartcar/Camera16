@@ -117,6 +117,10 @@ public:
 //		return *cam;
 //	}
 
+	libsc::DirMotor& GetMotor(){
+		return *motor;
+	}
+
 	/*--------------------------------(temporarily) get devices above------------------------------------*/
 
 	/*--------------------------------implement in inherited class------------------------------------*/

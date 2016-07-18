@@ -43,6 +43,7 @@ int main(void) {
 	bool IsProcess = false;
 	bool IsEditKp = false;
 	int32_t dmid = 0;	//10*Kyle.mid, to look more significant on the graph
+	uint32_t start_time=0;
 	bool stop = false;
 
 	VarSet Selected;
@@ -69,6 +70,7 @@ int main(void) {
 	{
 		if(!Kyle.selecting_varset) {
 			Kyle.beepbuzzer(100);
+			start_time=System::Time();
 #ifndef USE_PGRAPHER
 			uint32_t t0=System::Time();
 			uint32_t t=t0;
@@ -81,7 +83,7 @@ int main(void) {
 						counter++;
 						Kyle.beepbuzzer(100);
 					}
-					if(counter>=5) break;
+					if(counter>=4) break;
 				}
 			}
 #endif
@@ -310,7 +312,17 @@ int main(void) {
 			}
 #endif
 			Kyle.switchLED(1);
-			if(Selected.allow_stop&&stop) Selected.ideal_encoder_count=0;
+			if(Selected.allow_stop&&stop&&System::Time()-start_time>=5000) {
+				Kyle.GetMotor().SetPower(0);
+				for(;;){
+					Kyle.capture_image();
+					imp.FindEdge(Kyle.data,Kyle.edges,Kyle.waypoints,Kyle.bgstart,5,Selected.offset,stop,Kyle.IsCross);
+					pln.Calc(Kyle.waypoints,Kyle.bgstart,Kyle.mid);
+					Kyle.turningPID(Kyle.mid,Selected,Kyle.IsCross);
+					Watchdog::GoodDoggie();
+					System::DelayMs(20);
+				}
+			}
 			dmid=10*Kyle.mid;	//store in dmid for pGrapher
 			if(!IsPrint&&IsProcess) Kyle.motorPID(Selected);//when using LCD the system slows down dramatically, causing the motor to go crazy
 #ifdef USE_PGRAPHER

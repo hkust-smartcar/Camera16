@@ -89,32 +89,32 @@ VarSet RunMode::SelectVarSet(void) {
 	//speed, servo l_Kp, l_Kd, r_Kp, r_Kd motor Kp, Ki, offset, KDec, Crossroad Mode, allow stop
 	const VarSet myVS1_true = { 0, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
 			VarSet::CrossroadMode::kLazy, true, 45 }; //left vacant for tuning
-	const VarSet myVS1_false = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 1.0f,
-			VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS1_false = { 0, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, false, 45 };
 	const VarSet myVS2_false = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
 			VarSet::CrossroadMode::kLazy, false, 49 };
 	const VarSet myVS2_true = { 0, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
 			VarSet::CrossroadMode::kLazy, true, 49 };
-	const VarSet myVS3_true = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, true, 49 };
-	const VarSet myVS3_false = { 2400, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, false, 49 };
-	const VarSet myVS4_true = { 2500, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, true, 56 }; //confirmed
-	const VarSet myVS4_false = { 2500, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8, 0.9f,
-			VarSet::CrossroadMode::kLazy, false, 55 };
+	const VarSet myVS3_true = { 2400, 1.35f, 75, 1.35f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, true, 53 };
+	const VarSet myVS3_false = { 2400, 1.35f, 75, 1.35f, 75, 0.9f, 0.01f, 8, 0.9f,
+			VarSet::CrossroadMode::kLazy, false, 53 };
+	const VarSet myVS4_true = { 2500, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, true, 51 }; //confirmed
+	const VarSet myVS4_false = { 2500, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
+			VarSet::CrossroadMode::kLazy, false, 51 };
 	const VarSet myVS5_true = { 2600, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
 			VarSet::CrossroadMode::kLazy, true, 45 }; //confirmed
 	const VarSet myVS5_false = { 2600, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8, 1.0f,
 			VarSet::CrossroadMode::kLazy, false, 45 };
-	const VarSet myVS6_true = { 2700, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8,
-			1.1f, VarSet::CrossroadMode::kLazy, true, 49 }; //basically confirmed
-	const VarSet myVS6_false = { 2700, 1.4f, 75, 1.4f, 75, 0.9f, 0.01f, 8,
-			1.1f, VarSet::CrossroadMode::kLazy, false, 49 };
-	const VarSet myVS7_true = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8,
-			0.9, VarSet::CrossroadMode::kLazy, true, 49 }; //almost confirmed
-	const VarSet myVS7_false = { 2100, 1.41f, 48, 1.36f, 38, 0.45f, 0.03f, 8,
-			0.9, VarSet::CrossroadMode::kLazy, false, 49 };
+	const VarSet myVS6_true = { 2700, 1.3f, 85, 1.3f, 85, 0.9f, 0.01f, 8,
+			1.1f, VarSet::CrossroadMode::kLazy, true, 45 }; //basically confirmed
+	const VarSet myVS6_false = { 2700, 1.3f, 85, 1.3f, 85, 0.9f, 0.01f, 8,
+			1.1f, VarSet::CrossroadMode::kLazy, false, 45 };
+	const VarSet myVS7_true = { 2800, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8,
+			1.2f, VarSet::CrossroadMode::kLazy, true, 45 }; //almost confirmed
+	const VarSet myVS7_false = { 2800, 1.3f, 75, 1.3f, 75, 0.9f, 0.01f, 8,
+			1.2f, VarSet::CrossroadMode::kLazy, false, 45 };
 	VarSet m_selected = myVS1_true;
 	printvalue(0, 0, 128, 20, "HKUST Camera", libsc::Lcd::kGray); //some welcome messages
 	printvalue(0, 40, 128, 20, "Select Speed:", libsc::Lcd::kCyan);
